@@ -1,0 +1,18 @@
+    /**
+     * @implementation
+     */
+    public function getUserById(int $id, bool $throwEx = true)
+    {
+        $ret = false;
+        try {
+
+            $ret = $this->pdoWrapper->fetch("select * from `user` where id=:id", [
+                "id" => $id,
+            ]);
+        } catch (\Exception $e) {
+            if (true === $throwEx) {
+                throw $e;
+            }
+        }
+        return $ret;
+    }
