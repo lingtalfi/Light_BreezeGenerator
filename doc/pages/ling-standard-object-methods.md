@@ -10,10 +10,10 @@ Following on the [ling breeze generator](https://github.com/lingtalfi/Light_Bree
 
 the "Ling Standard Object Methods" is the concept designing the four methods:
 
-- insertUser
-- getUserById
-- updateUserById
-- deleteUserById
+- insertUser ( array $user, bool $ignoreDuplicate = true, bool $returnRic = false )
+- getUserById ( int $id, bool $throwEx = true )
+- updateUserById ( int $id, array $user )
+- deleteUserById ( int $id )
 
 
 Now the "User" part and the "ById" part are variables.
