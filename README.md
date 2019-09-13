@@ -28,7 +28,7 @@ Or just download it and place it where you want otherwise.
 
 Summary
 ===========
-- [BreezeGenerator api](https://github.com/lingtalfi/Light_BreezeGenerator/blob/master/doc/api/Ling/BreezeGenerator.md) (generated with [DocTools](https://github.com/lingtalfi/DocTools))
+- [BreezeGenerator api](https://github.com/lingtalfi/Light_BreezeGenerator/blob/master/doc/api/Ling/Light_BreezeGenerator.md) (generated with [DocTools](https://github.com/lingtalfi/DocTools))
 - Pages
     - [Conception notes](https://github.com/lingtalfi/Light_BreezeGenerator/blob/master/doc/pages/conception-notes.md)
     - [Ling breeze generator](https://github.com/lingtalfi/Light_BreezeGenerator/blob/master/doc/pages/ling-breeze-generator.md)
@@ -67,6 +67,10 @@ breeze_generator:
 History Log
 =============
 
+- 1.0.2 -- 2019-09-13
+
+    - fix doc links
+    
 - 1.0.1 -- 2019-09-13
 
     - fix doc links
