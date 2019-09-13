@@ -85,6 +85,10 @@ breeze_generator:
 History Log
 =============
 
+- 1.0.4 -- 2019-09-13
+
+    - added example of ling breeze generator
+    
 - 1.0.3 -- 2019-09-13
 
     - fix wrong service example in README.md
