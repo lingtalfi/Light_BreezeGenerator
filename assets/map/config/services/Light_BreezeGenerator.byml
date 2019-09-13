@@ -21,7 +21,7 @@ breeze_generator:
                         # Whether to overwrite existing files (if false, skip them)
                         # Used mainly for debugging purposes, in production you probably should set this to false
                         # The default value is false
-                        overwriteExisting: true
+                        overwriteExisting: false
                         generate:
                             prefix: lud
 

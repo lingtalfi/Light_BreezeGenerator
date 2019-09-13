@@ -50,13 +50,31 @@ Here is an example of the service configuration:
 
 ```yaml
 breeze_generator:
-    instance: Ling\Light_Bullsheet\Service\LightBullsheetService
+    instance: Ling\Light_BreezeGenerator\Service\LightBreezeGeneratorService
     methods:
         setContainer:
             container: @container()
-        setSilentMode:
-            mode: true
-
+        setConf:
+            conf:
+                ling:
+                    class: Ling\Light_BreezeGenerator\Generator\LingBreezeGenerator
+                    conf:
+                        dir: ${app_dir}/tmp/Light_BreezeGenerator
+                        # prefix is always separated from the table by one underscore
+                        prefix: lud
+                        factoryClassName: LightKitAdmin
+                        namespace: Ling\Test\$prefix
+                        # The suffix to add to the class name.
+                        # For instance if the class is User and the suffix is Object,
+                        # The class name will be UserObject
+                        # The default value is Object
+                        classSuffix: Object
+                        # Whether to overwrite existing files (if false, skip them)
+                        # Used mainly for debugging purposes, in production you probably should set this to false
+                        # The default value is false
+                        overwriteExisting: false
+                        generate:
+                            prefix: lud
 
 
 ```
@@ -67,6 +85,10 @@ breeze_generator:
 History Log
 =============
 
+- 1.0.3 -- 2019-09-13
+
+    - fix wrong service example in README.md
+    
 - 1.0.2 -- 2019-09-13
 
     - fix doc links
