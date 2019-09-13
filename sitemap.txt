@@ -23,3 +23,4 @@ https://github.com/lingtalfi/Light_BreezeGenerator/blob/master/doc/api/Ling/Ligh
 https://github.com/lingtalfi/Light_BreezeGenerator/blob/master/doc/api/Ling/Light_BreezeGenerator.md
 https://github.com/lingtalfi/Light_BreezeGenerator/blob/master/doc/pages/conception-notes.md
 https://github.com/lingtalfi/Light_BreezeGenerator/blob/master/doc/pages/ling-breeze-generator.md
+https://github.com/lingtalfi/Light_BreezeGenerator/blob/master/doc/pages/ling-standard-object-methods.md

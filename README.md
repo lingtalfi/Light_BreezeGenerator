@@ -32,6 +32,7 @@ Summary
 - Pages
     - [Conception notes](https://github.com/lingtalfi/Light_BreezeGenerator/blob/master/doc/pages/conception-notes.md)
     - [Ling breeze generator](https://github.com/lingtalfi/Light_BreezeGenerator/blob/master/doc/pages/ling-breeze-generator.md)
+    - [Ling standard object methods](https://github.com/lingtalfi/Light_BreezeGenerator/blob/master/doc/pages/ling-standard-object-methods.md)
 - [Services](#services)
 
 
@@ -85,6 +86,10 @@ breeze_generator:
 History Log
 =============
 
+- 1.0.5 -- 2019-09-13
+
+    - added "ling standard object methods" concept
+    
 - 1.0.4 -- 2019-09-13
 
     - added example of ling breeze generator
