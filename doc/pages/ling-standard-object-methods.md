@@ -20,5 +20,7 @@ Now the "User" part and the "ById" part are variables.
 
 The "User" part depends on the underlying table, and the "ById" part will change along with the [ric](https://github.com/lingtalfi/NotationFan/blob/master/ric.md).
 
+For more information about the arguments, refer to the aforementioned "ling breeze generator" document.
+
 
 

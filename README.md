@@ -86,6 +86,10 @@ breeze_generator:
 History Log
 =============
 
+- 1.0.6 -- 2019-09-13
+
+    - add line to "ling standard object methods"
+    
 - 1.0.5 -- 2019-09-13
 
     - added "ling standard object methods" concept
