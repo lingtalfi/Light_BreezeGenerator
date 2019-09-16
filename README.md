@@ -61,8 +61,10 @@ breeze_generator:
                     class: Ling\Light_BreezeGenerator\Generator\LingBreezeGenerator
                     conf:
                         dir: ${app_dir}/tmp/Light_BreezeGenerator
-                        # prefix is always separated from the table by one underscore
+                        # If your tables use a prefix, set it here, then configure the behaviour
+                        # with the usePrefixInClassName property
                         prefix: lud
+                        usePrefixInClassName: false
                         factoryClassName: LightKitAdmin
                         namespace: Ling\Test\$prefix
                         # The suffix to add to the class name.
@@ -86,6 +88,11 @@ breeze_generator:
 History Log
 =============
 
+- 1.2.0 -- 2019-09-16
+
+    - add usePrefixInClassName option in the service configuration
+    - now LingBreezeGenerator doesn't include the namespace automatically in the path of the generated file
+    
 - 1.1.1 -- 2019-09-16
 
     - add documentation precision for lsom

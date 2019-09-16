@@ -93,19 +93,26 @@ class LingBreezeGenerator implements BreezeGeneratorInterface, LightServiceConta
         // COLLECT THE TABLES TO GENERATE
         //--------------------------------------------
         $tables = [];
-        $prefix = null;
+        $generatePrefix = null;
         if (array_key_exists("prefix", $generate)) {
-            $prefix = $generate['prefix'] . '_';
-            $tables = $dbInfo->getTablesByPrefix($prefix);
+            $generatePrefix = $generate['prefix'] . '_';
+            $tables = $dbInfo->getTablesByPrefix($generatePrefix);
 
         } elseif (array_key_exists("tables", $generate)) {
             $tables = $generate['tables'];
         }
 
 
+        //--------------------------------------------
+        // HANDLING PREFIX RELATED THINGS
+        //--------------------------------------------
+        $usePrefixInClassName = $conf['usePrefixInClassName'] ?? false;
+
         $prefix = $conf['prefix'] ?? null;
         $namespace = $conf['namespace'];
-        $namespace = str_replace('$prefix', ucfirst($prefix), $namespace);
+//        if ($prefix) {
+//            $namespace = str_replace('$prefix', ucfirst($prefix), $namespace);
+//        }
 
 
         //--------------------------------------------
@@ -116,15 +123,18 @@ class LingBreezeGenerator implements BreezeGeneratorInterface, LightServiceConta
             $tableInfo = $dbInfo->getTableInfo($table);
             $types = $tableInfo['types'];
 
-            $tableWithoutPrefix = $table;
-            if (null !== $prefix) {
-                if (0 === strpos($tableWithoutPrefix, $prefix . "_")) {
-                    $tableWithoutPrefix = substr($tableWithoutPrefix, strlen($prefix . "_"));
+
+            $tableClassName = $table;
+
+            // strip the prefix from the table name?
+            if (false === $usePrefixInClassName && null !== $prefix) {
+                if (0 === strpos($tableClassName, $prefix . "_")) {
+                    $tableClassName = substr($tableClassName, strlen($prefix . "_"));
                 }
             }
 
 
-            $className = $this->getClassNameFromTable($tableWithoutPrefix);
+            $className = $this->getClassNameFromTable($tableClassName);
             $objectClassName = $className . $classSuffix;
             $ricVariables = $this->getRicVariables($tableInfo['ric'], $types);
 
@@ -143,7 +153,7 @@ class LingBreezeGenerator implements BreezeGeneratorInterface, LightServiceConta
                 "ricVariables" => $ricVariables,
                 "autoIncrementedKey" => $tableInfo['autoIncrementedKey'],
             ]);
-            $bs0Path = $dir . "/" . str_replace('\\', '/', $namespace) . '/' . $objectClassName . ".php";
+            $bs0Path = $dir . "/" . $objectClassName . ".php";
             if (false === file_exists($bs0Path) || true === $overwriteExisting) {
                 FileSystemTool::mkfile($bs0Path, $content);
             }
@@ -159,7 +169,7 @@ class LingBreezeGenerator implements BreezeGeneratorInterface, LightServiceConta
                 "ricVariables" => $ricVariables,
             ]);
 
-            $bs0Path = $dir . "/" . str_replace('\\', '/', $namespace) . '/' . $objectClassName . "Interface.php";
+            $bs0Path = $dir . "/" . $objectClassName . "Interface.php";
             if (false === file_exists($bs0Path) || true === $overwriteExisting) {
                 FileSystemTool::mkfile($bs0Path, $content);
             }
@@ -184,7 +194,7 @@ class LingBreezeGenerator implements BreezeGeneratorInterface, LightServiceConta
             "classSuffix" => $classSuffix,
         ]);
 
-        $bs0Path = $dir . "/" . str_replace('\\', '/', $namespace) . '/' . $factoryClassName . $classSuffix . "Factory.php";
+        $bs0Path = $dir . "/" . $factoryClassName . $classSuffix . "Factory.php";
         if (false === file_exists($bs0Path) || true === $overwriteExisting) {
             FileSystemTool::mkfile($bs0Path, $content);
         }
