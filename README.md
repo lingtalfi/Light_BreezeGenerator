@@ -86,6 +86,10 @@ breeze_generator:
 History Log
 =============
 
+- 1.1.1 -- 2019-09-16
+
+    - add documentation precision for lsom
+    
 - 1.1.0 -- 2019-09-16
 
     - update getXXX method, add a default return argument

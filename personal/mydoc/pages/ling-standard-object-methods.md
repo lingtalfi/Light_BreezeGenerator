@@ -24,3 +24,8 @@ For more information about the arguments, refer to the aforementioned "ling bree
 
 
 
+Note: whether the insert/update method perform a foreign key constraint check is up to the implementor.
+So, for instance, a Mysql implementation might have the foreign key constraints checking, whereas a BabyYaml implementation
+might not.
+
+
