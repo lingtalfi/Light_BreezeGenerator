@@ -86,6 +86,10 @@ breeze_generator:
 History Log
 =============
 
+- 1.1.0 -- 2019-09-16
+
+    - update getXXX method, add a default return argument
+    
 - 1.0.7 -- 2019-09-13
 
     - add arguments to "ling standard object methods" doc

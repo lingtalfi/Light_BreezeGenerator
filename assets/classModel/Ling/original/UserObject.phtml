@@ -29,17 +29,16 @@ class UserObject implements UserObjectInterface
     /**
      * @implementation
      */
-    public function getUserById(int $id, bool $throwEx = true)
+    public function getUserById(int $id, $default = null, bool $throwNotFoundEx = false)
     {
-        $ret = false;
-        try {
-
-            $ret = $this->pdoWrapper->fetch("select * from user where id=:id", [
-                "id" => $id,
-            ]);
-        } catch (\Exception $e) {
-            if (true === $throwEx) {
-                throw $e;
+        $ret = $this->pdoWrapper->fetch("select * from user where id=:id", [
+            "id" => $id,
+        ]);
+        if (false === $ret) {
+            if (true === $throwNotFoundEx) {
+                throw new \RuntimeException("Row not found with id=$id.");
+            } else {
+                $ret = $default;
             }
         }
         return $ret;

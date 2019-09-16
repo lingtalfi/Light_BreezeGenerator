@@ -32,6 +32,10 @@ It returns the following entries:
         Ex:
              - int $id
              - string $firstName, string $lastName
+- variableString: the string representing the "ric" debug array in comments.
+        Ex:
+             - id=$id
+             - firstName=$firstName, lastName=$lastName
 - markerString: the string representing the "ric" arguments in the the where clause of the mysql query.
         Ex:
              - id=:id
@@ -79,7 +83,7 @@ Returns array.
 
 Source Code
 ===========
-See the source code for method [LingBreezeGenerator::getRicVariables](https://github.com/lingtalfi/Light_BreezeGenerator/blob/master/Generator/LingBreezeGenerator.php#L345-L414)
+See the source code for method [LingBreezeGenerator::getRicVariables](https://github.com/lingtalfi/Light_BreezeGenerator/blob/master/Generator/LingBreezeGenerator.php#L347-L423)
 
 
 See Also

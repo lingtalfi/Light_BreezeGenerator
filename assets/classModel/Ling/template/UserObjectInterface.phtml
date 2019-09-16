@@ -13,17 +13,18 @@ interface UserObjectInterface
     /**
      * Returns the user row identified by the given id.
      *
-     * If the row is not found, this method's return depends on the throwEx flag:
+     * If the row is not found, this method's return depends on the throwNotFoundEx flag:
      * - if true, the method throws an exception
-     * - if false, the method returns false
+     * - if false, the method returns the given default value
      *
      *
      * @param int $id
-     * @param bool $throwEx
+     * @param mixed $default = null
+     * @param bool $throwNotFoundEx = false
      * @return mixed
      * @throws \Exception
      */
-    public function getXXXById(int $id, bool $throwEx = true);
+    public function getXXXById(int $id, $default = null, bool $throwNotFoundEx = false);
 
     /**
      * Updates the user row identified by the given id.

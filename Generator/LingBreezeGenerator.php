@@ -276,8 +276,6 @@ class LingBreezeGenerator implements BreezeGeneratorInterface, LightServiceConta
         $sFactoryMethods = $variables['factoryMethods'];
 
 
-
-
         $content = str_replace('The\ObjectNamespace', $namespace, $content);
         $content = str_replace('MyFactory', $factoryClassName, $content);
         $content = str_replace('ObjectFactory', $classSuffix . "Factory", $content);
@@ -318,6 +316,10 @@ class LingBreezeGenerator implements BreezeGeneratorInterface, LightServiceConta
      *         Ex:
      *              - int $id
      *              - string $firstName, string $lastName
+     * - variableString: the string representing the "ric" debug array in comments.
+     *         Ex:
+     *              - id=$id
+     *              - firstName=$firstName, lastName=$lastName
      * - markerString: the string representing the "ric" arguments in the the where clause of the mysql query.
      *         Ex:
      *              - id=:id
@@ -347,6 +349,7 @@ class LingBreezeGenerator implements BreezeGeneratorInterface, LightServiceConta
         $byString = '';
         $byTheGivenString = '';
         $argString = '';
+        $variableString = '';
         $markerString = '';
         $paramDeclarationString = '';
         $markerLines = [];
@@ -356,6 +359,11 @@ class LingBreezeGenerator implements BreezeGeneratorInterface, LightServiceConta
             } else {
                 $byString .= "And" . CaseTool::toPascal($column);
             }
+
+            if ('' !== $variableString) {
+                $variableString .= ', ';
+            }
+            $variableString .= $column . "=\$" . $column;
 
 
             if ('' !== $byTheGivenString) {
@@ -407,6 +415,7 @@ class LingBreezeGenerator implements BreezeGeneratorInterface, LightServiceConta
             "byString" => $byString,
             "byTheGivenString" => 'by the given ' . $byTheGivenString,
             "argString" => $argString,
+            "variableString" => $variableString,
             "markerString" => $markerString,
             "markerLines" => $markerLines,
             "paramDeclarationString" => rtrim($paramDeclarationString),
@@ -454,6 +463,7 @@ class LingBreezeGenerator implements BreezeGeneratorInterface, LightServiceConta
         $content = str_replace('ById', $ricVariables['byString'], $content);
         $content = str_replace('int $id', $ricVariables['argString'], $content);
         $content = str_replace('id=:id', $ricVariables['markerString'], $content);
+        $content = str_replace('id=$id', $ricVariables['variableString'], $content);
         $content = str_replace('"id" => $id,', $sLines, $content);
         return $content;
     }
