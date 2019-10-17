@@ -84,6 +84,7 @@ class LingBreezeGenerator implements BreezeGeneratorInterface, LightServiceConta
         $dir = $conf['dir'];
         $factoryClassName = $conf['factoryClassName'];
         $overwriteExisting = $conf['overwriteExisting'] ?? false;
+        $customPrefix = $conf['customPrefix'] ?? 'Custom';
         $classSuffix = $conf['classSuffix'] ?? 'Object';
         $interfaceClassSuffix = $classSuffix . "Interface";
         $generate = $conf['generate'];
@@ -119,6 +120,7 @@ class LingBreezeGenerator implements BreezeGeneratorInterface, LightServiceConta
         // NOW GENERATE THE TABLES OBJECTS
         //--------------------------------------------
         $sFactoryMethods = "";
+        $sFactoryUses = "";
         foreach ($tables as $table) {
             $tableInfo = $dbInfo->getTableInfo($table);
             $types = $tableInfo['types'];
@@ -174,8 +176,20 @@ class LingBreezeGenerator implements BreezeGeneratorInterface, LightServiceConta
                 FileSystemTool::mkfile($bs0Path, $content);
             }
 
+
+            $methodClassName = $objectClassName;
+            $returnedClassName = $objectClassName . "Interface";
+            $customClassPath = $dir . "/" . $customPrefix . "/Custom" . $objectClassName . ".php";
+            if (file_exists($customClassPath)) {
+                $returnedClassName = $customPrefix . $objectClassName;
+                $objectClassName = $returnedClassName;
+                $sFactoryUses .= 'use ' . $namespace . "\\" . $customPrefix . "\\" . $returnedClassName . ";" . PHP_EOL;
+            }
+
             $sFactoryMethods .= $this->getFactoryMethod([
+                'methodClassName' => $methodClassName,
                 'objectClassName' => $objectClassName,
+                'returnedClassName' => $returnedClassName,
             ]);
             $sFactoryMethods .= PHP_EOL;
             $sFactoryMethods .= PHP_EOL;
@@ -192,6 +206,7 @@ class LingBreezeGenerator implements BreezeGeneratorInterface, LightServiceConta
             "factoryClassName" => $factoryClassName,
             "factoryMethods" => $sFactoryMethods,
             "classSuffix" => $classSuffix,
+            "uses" => $sFactoryUses,
         ]);
 
         $bs0Path = $dir . "/" . $factoryClassName . $classSuffix . "Factory.php";
@@ -284,12 +299,14 @@ class LingBreezeGenerator implements BreezeGeneratorInterface, LightServiceConta
         $factoryClassName = $variables['factoryClassName'];
         $classSuffix = $variables['classSuffix'];
         $sFactoryMethods = $variables['factoryMethods'];
+        $sUses = $variables['uses'];
 
 
         $content = str_replace('The\ObjectNamespace', $namespace, $content);
         $content = str_replace('MyFactory', $factoryClassName, $content);
         $content = str_replace('ObjectFactory', $classSuffix . "Factory", $content);
         $content = str_replace('// getXXX', $sFactoryMethods, $content);
+        $content = str_replace('// use', $sUses, $content);
 
 
         return $content;
@@ -490,9 +507,14 @@ class LingBreezeGenerator implements BreezeGeneratorInterface, LightServiceConta
     protected function getFactoryMethod(array $variables): string
     {
         $objectClassName = $variables['objectClassName'];
+        $methodClassName = $variables['methodClassName'];
+        $returnedClassName = $variables['returnedClassName'];
         $tpl = __DIR__ . "/../assets/classModel/Ling/template/partials/getUserObject.tpl.txt";
         $content = file_get_contents($tpl);
-        $content = str_replace('UserObject', $objectClassName, $content);
+
+        $content = str_replace('UserObjectInterface', $returnedClassName, $content);
+        $content = str_replace('new UserObject', 'new ' . $objectClassName, $content);
+        $content = str_replace('getUserObject', "get" . $methodClassName, $content);
         return $content;
     }
 

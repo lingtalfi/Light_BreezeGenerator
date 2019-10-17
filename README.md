@@ -88,6 +88,10 @@ breeze_generator:
 History Log
 =============
 
+- 1.4.0 -- 2019-10-17
+
+    - implemented custom methods system
+    
 - 1.3.0 -- 2019-10-04
 
     - update LingBreezeGenerator->getInsertMethod, now returns consistent return, even with ignored duplicate entries
