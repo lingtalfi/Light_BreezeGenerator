@@ -3,7 +3,7 @@
      */
     public function getUserById(int $id, $default = null, bool $throwNotFoundEx = false)
     {
-        $ret = $this->pdoWrapper->fetch("select * from user where id=:id", [
+        $ret = $this->pdoWrapper->fetch("select * from `user` where id=:id", [
             "id" => $id,
         ]);
         if (false === $ret) {

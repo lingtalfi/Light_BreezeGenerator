@@ -88,6 +88,10 @@ breeze_generator:
 History Log
 =============
 
+- 1.4.1 -- 2019-10-17
+
+    - fix getXXX method not replacing user table correctly
+    
 - 1.4.0 -- 2019-10-17
 
     - implemented custom methods system
