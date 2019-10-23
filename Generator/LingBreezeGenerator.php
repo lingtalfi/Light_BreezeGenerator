@@ -38,6 +38,7 @@ use Ling\Light_DatabaseInfo\Service\LightDatabaseInfoService;
  * - objectClassName: string
  * - ric: array
  * - ricVariables: array (more details in the getRicVariables method comments)
+ * - uniqueIndexesVariables: array (more details in the getUniqueIndexesVariables method comments)
  * - autoIncrementedKey: string|false
  * - pluginClassName: string
  *
@@ -139,13 +140,12 @@ class LingBreezeGenerator implements BreezeGeneratorInterface, LightServiceConta
             $className = $this->getClassNameFromTable($tableClassName);
             $objectClassName = $className . $classSuffix;
             $ricVariables = $this->getRicVariables($tableInfo['ric'], $types);
+            $uniqueIndexesVariables = $this->getUniqueIndexesVariables($tableInfo['uniqueIndexes'], $types);
 
 
             //--------------------------------------------
             // GENERATE OBJECT
             //--------------------------------------------
-
-
             $content = $this->generateObjectClass([
                 "namespace" => $namespace,
                 "table" => $table,
@@ -153,6 +153,7 @@ class LingBreezeGenerator implements BreezeGeneratorInterface, LightServiceConta
                 "objectClassName" => $objectClassName,
                 "ric" => $tableInfo['ric'],
                 "ricVariables" => $ricVariables,
+                "uniqueIndexesVariables" => $uniqueIndexesVariables,
                 "autoIncrementedKey" => $tableInfo['autoIncrementedKey'],
             ]);
             $bs0Path = $dir . "/" . $objectClassName . ".php";
@@ -238,10 +239,31 @@ class LingBreezeGenerator implements BreezeGeneratorInterface, LightServiceConta
         $content = str_replace('The\ObjectNamespace', $namespace, $content);
         $content = str_replace('UserObject', $objectClassName, $content);
         $content = str_replace('// insertXXX', $this->getInsertMethod($variables), $content);
+
+
         $content = str_replace('// getXXX', $this->getRicMethod("getUserById", $variables), $content);
         $content = str_replace('// updateXXX', $this->getRicMethod("updateUserById", $variables), $content);
         $content = str_replace('// deleteXXX', $this->getRicMethod("deleteUserById", $variables), $content);
 
+
+        $uniqueIndexesVariables = $variables['uniqueIndexesVariables'];
+        if ($uniqueIndexesVariables) {
+            $uniqueVariables = $variables;
+            foreach ($uniqueIndexesVariables as $set) {
+                $uniqueVariables['ricVariables'] = $set;
+                $content = str_replace('// getXXX', $this->getRicMethod("getUserById", $uniqueVariables), $content);
+                $content = str_replace('// updateXXX', $this->getRicMethod("updateUserById", $uniqueVariables), $content);
+                $content = str_replace('// deleteXXX', $this->getRicMethod("deleteUserById", $uniqueVariables), $content);
+            }
+        }
+
+
+        //--------------------------------------------
+        // cleaning
+        //--------------------------------------------
+        $content = str_replace('// getXXX', '', $content);
+        $content = str_replace('// updateXXX', '', $content);
+        $content = str_replace('// deleteXXX', '', $content);
 
         return $content;
 
@@ -447,6 +469,138 @@ class LingBreezeGenerator implements BreezeGeneratorInterface, LightServiceConta
             "markerLines" => $markerLines,
             "paramDeclarationString" => rtrim($paramDeclarationString),
         ];
+    }
+
+    /**
+     * Returns an array of useful variables sets based on the unique indexes array (one set per unique indexes entry is returned).
+     *
+     *
+     * Each set contains the following entries:
+     *
+     * - byString: the string to append to a method name based on unique indexes.
+     *         Ex:
+     *              - ByRealName
+     *              - ByPseudoAndPassWord
+     * - argString: the string representing the arguments in the method signature.
+     *         Ex:
+     *              - string $realName
+     *              - string $pseudo, string $password
+     * - variableString: the string representing the debug array in comments.
+     *         Ex:
+     *              - realName=$realName
+     *              - pseudo=$pseudo, password=$password
+     * - markerString: the string representing the arguments in the the where clause of the mysql query.
+     *         Ex:
+     *              - realName=:realName
+     *              - pseudo=:pseudo and password=:password
+     * - markerLines: an array of lines representing the $markers variable to inject into the pdo wrapper fetch method.
+     *         Ex:
+     *              -
+     *                  "realName" => $realName,
+     *              -
+     *                  "pseudo" => $pseudo,
+     *                  "password" => $password,
+     *
+     *
+     * The types array is an array of columnName => mysql type.
+     *
+     * A mysql type looks like this: int(11), or varchar(128) for instance.
+     *
+     *
+     *
+     *
+     * @param array $uniqueIndexes
+     * @param array $types
+     * @return array
+     */
+    protected function getUniqueIndexesVariables(array $uniqueIndexes, array $types): array
+    {
+
+        $ret = [];
+
+        foreach ($uniqueIndexes as $columns) {
+
+
+            $byString = '';
+            $byTheGivenString = '';
+            $argString = '';
+            $variableString = '';
+            $markerString = '';
+            $paramDeclarationString = '';
+            $markerLines = [];
+
+
+            foreach ($columns as $column) {
+                if ('' === $byString) {
+                    $byString .= "By" . CaseTool::toPascal($column);
+                } else {
+                    $byString .= "And" . CaseTool::toPascal($column);
+                }
+
+                if ('' !== $variableString) {
+                    $variableString .= ', ';
+                }
+                $variableString .= $column . "=\$" . $column;
+
+
+                if ('' !== $byTheGivenString) {
+                    $byTheGivenString .= ' and ';
+                }
+                $byTheGivenString .= $column;
+
+                $type = $types[$column];
+                $type = explode('(', $type)[0];
+                $argHint = "string";
+                switch ($type) {
+                    case "bit":
+                    case "bool":
+                    case "boolean":
+                    case "int":
+                    case "integer":
+                    case "tinyint":
+                    case "smallint":
+                    case "mediumint":
+                    case "bigint":
+                    case "decimal":
+                    case "dec":
+                    case "float":
+                    case "double":
+                    case "double_precision": //?
+                        $argHint = "int";
+                        break;
+                }
+                if ('' !== $argString) {
+                    $argString .= ', ';
+                }
+                $argString .= $argHint . " \$" . $column;
+
+                if ('' !== $markerString) {
+                    $markerString .= " and ";
+                }
+                $markerString .= "$column=:$column";
+                $markerLines[] = "\"$column\" => \$$column,";
+
+                if ('' !== $paramDeclarationString) {
+                    $paramDeclarationString .= "\t ";
+                }
+                $paramDeclarationString .= '* @param ' . $argHint . ' $' . $column . PHP_EOL;
+
+            }
+
+
+            $ret[] = [
+                "byString" => $byString,
+                "byTheGivenString" => 'by the given ' . $byTheGivenString,
+                "argString" => $argString,
+                "variableString" => $variableString,
+                "markerString" => $markerString,
+                "markerLines" => $markerLines,
+                "paramDeclarationString" => rtrim($paramDeclarationString),
+            ];
+        }
+
+
+        return $ret;
     }
 
 

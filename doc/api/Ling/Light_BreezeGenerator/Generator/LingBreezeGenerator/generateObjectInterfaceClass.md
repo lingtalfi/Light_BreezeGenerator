@@ -50,7 +50,7 @@ Returns string.
 
 Source Code
 ===========
-See the source code for method [LingBreezeGenerator::generateObjectInterfaceClass](https://github.com/lingtalfi/Light_BreezeGenerator/blob/master/Generator/LingBreezeGenerator.php#L258-L283)
+See the source code for method [LingBreezeGenerator::generateObjectInterfaceClass](https://github.com/lingtalfi/Light_BreezeGenerator/blob/master/Generator/LingBreezeGenerator.php#L280-L305)
 
 
 See Also
