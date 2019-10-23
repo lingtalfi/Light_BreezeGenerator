@@ -88,6 +88,10 @@ breeze_generator:
 History Log
 =============
 
+- 1.5.1 -- 2019-10-23
+
+    - fix LingBreezeGenerator not generating interface methods for unique indexes
+    
 - 1.5.0 -- 2019-10-23
 
     - extended lsom, LingBreezeGenerator now also generate methods for every unique index

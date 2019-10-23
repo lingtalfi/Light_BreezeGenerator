@@ -170,6 +170,7 @@ class LingBreezeGenerator implements BreezeGeneratorInterface, LightServiceConta
                 "className" => $className,
                 "objectClassName" => $objectClassName,
                 "ricVariables" => $ricVariables,
+                "uniqueIndexesVariables" => $uniqueIndexesVariables,
             ]);
 
             $bs0Path = $dir . "/" . $objectClassName . "Interface.php";
@@ -285,24 +286,40 @@ class LingBreezeGenerator implements BreezeGeneratorInterface, LightServiceConta
 
         $namespace = $variables['namespace'];
         $objectClassName = $variables['objectClassName'];
-        $className = $variables['className'];
-        $ricVariables = $variables['ricVariables'];
-        $variableName = lcfirst($variables['className']);
-
 
         $content = str_replace('The\ObjectNamespace', $namespace, $content);
         $content = str_replace('UserObject', $objectClassName, $content);
-        $content = str_replace('XXX', $className, $content);
-        $content = str_replace('user', $variableName, $content);
-        $content = str_replace('by the given id', $ricVariables['byTheGivenString'], $content);
-        $content = str_replace('* @param int $id', $ricVariables['paramDeclarationString'], $content);
-        $content = str_replace('ById', $ricVariables['byString'], $content);
-        $content = str_replace('int $id', $ricVariables['argString'], $content);
 
+        $content = str_replace('// insertXXX', $this->getInterfaceMethod('insertXXX', $variables), $content);
+        $content = str_replace('// getXXX', $this->getInterfaceMethod('getXXXById', $variables), $content);
+        $content = str_replace('// updateXXX', $this->getInterfaceMethod('updateXXXById', $variables), $content);
+        $content = str_replace('// deleteXXX', $this->getInterfaceMethod('deleteXXXById', $variables), $content);
+
+
+        $uniqueIndexesVariables = $variables['uniqueIndexesVariables'];
+        if ($uniqueIndexesVariables) {
+            $uniqueVariables = $variables;
+            foreach ($uniqueIndexesVariables as $set) {
+                $uniqueVariables['ricVariables'] = $set;
+                $content = str_replace('// getXXX', $this->getInterfaceMethod('getXXXById', $uniqueVariables), $content);
+                $content = str_replace('// updateXXX', $this->getInterfaceMethod('updateXXXById', $uniqueVariables), $content);
+                $content = str_replace('// deleteXXX', $this->getInterfaceMethod('deleteXXXById', $uniqueVariables), $content);
+            }
+        }
+
+
+        //--------------------------------------------
+        // cleaning
+        //--------------------------------------------
+        $content = str_replace('// getXXX', '', $content);
+        $content = str_replace('// updateXXX', '', $content);
+        $content = str_replace('// deleteXXX', '', $content);
 
         return $content;
 
     }
+
+
 
 
     /**
@@ -648,6 +665,39 @@ class LingBreezeGenerator implements BreezeGeneratorInterface, LightServiceConta
         $content = str_replace('"id" => $id,', $sLines, $content);
         return $content;
     }
+
+
+
+    /**
+     * Returns the content of the interface method identified by the given methodName.
+     *
+     * @param string $methodName
+     * @param array $variables
+     * @return string
+     */
+    protected function getInterfaceMethod(string $methodName, array $variables): string
+    {
+        $template = __DIR__ . "/../assets/classModel/Ling/template/partials/$methodName.tpl.txt";
+        $content = file_get_contents($template);
+
+        $variableName = lcfirst($variables['className']);
+        $className = $variables['className'];
+        $ricVariables = $variables['ricVariables'];
+
+
+        $content = str_replace('user', $variableName, $content);
+        $content = str_replace('insertXXX', 'insert' . $className, $content);
+        $content = str_replace('by the given id', $ricVariables['byTheGivenString'], $content);
+        $content = str_replace('* @param int $id', $ricVariables['paramDeclarationString'], $content);
+        $content = str_replace('getXXXById', 'get' . $className . $ricVariables['byString'], $content);
+        $content = str_replace('updateXXXById', 'update' . $className . $ricVariables['byString'], $content);
+        $content = str_replace('deleteXXXById', 'delete' . $className . $ricVariables['byString'], $content);
+        $content = str_replace('int $id', $ricVariables['argString'], $content);
+        return $content;
+
+    }
+
+
 
     /**
      * Returns the content of a php method of type factory (internal naming convention to designate a method used
