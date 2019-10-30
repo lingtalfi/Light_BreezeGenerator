@@ -3,5 +3,5 @@
      */
     public function insertUser(array $user, bool $ignoreDuplicate = true, bool $returnRic = false)
     { //microperm
-        return $this->doInsertUser($resource, $ignoreDuplicate, $returnRic);
+        return $this->doInsertUser($user, $ignoreDuplicate, $returnRic);
     }

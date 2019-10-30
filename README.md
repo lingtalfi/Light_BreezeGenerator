@@ -88,6 +88,10 @@ breeze_generator:
 History Log
 =============
 
+- 1.7.1 -- 2019-10-30
+
+    - fix typo with insertXXX methods's first argument 
+    
 - 1.7.0 -- 2019-10-30
 
     - update LingBreezeGenerator, now implements a micro permission layer
