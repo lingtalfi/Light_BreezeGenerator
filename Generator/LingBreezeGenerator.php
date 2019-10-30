@@ -841,6 +841,7 @@ class LingBreezeGenerator implements BreezeGeneratorInterface, LightServiceConta
 
         $tpl = __DIR__ . "/../assets/classModel/Ling/template/partials/do" . ucfirst($method) . ".tpl.txt";
         $content = file_get_contents($tpl);
+        $content = str_replace('* @param int $id', $ricVariables['paramDeclarationString'], $content);
         $content = str_replace('User', $className, $content);
         $content = str_replace('$user', '$' . $variableName, $content);
         $content = str_replace('`user`', '`' . $table . '`', $content);

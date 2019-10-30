@@ -88,6 +88,10 @@ breeze_generator:
 History Log
 =============
 
+- 1.7.2 -- 2019-10-30
+
+    - fix LingBreezeGenerator not generating docBlock parameters correctly for doXXX methods 
+    
 - 1.7.1 -- 2019-10-30
 
     - fix typo with insertXXX methods's first argument 
