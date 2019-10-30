@@ -88,6 +88,10 @@ breeze_generator:
 History Log
 =============
 
+- 1.6.0 -- 2019-10-30
+
+    - add LightBreezeGeneratorService->addConfigurationEntryByFile
+    
 - 1.5.1 -- 2019-10-23
 
     - fix LingBreezeGenerator not generating interface methods for unique indexes
