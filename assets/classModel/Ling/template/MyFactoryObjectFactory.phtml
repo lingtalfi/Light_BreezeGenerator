@@ -20,14 +20,16 @@ class MyFactoryObjectFactory
      */
     protected $pdoWrapper;
 
+//::extraProperties--definition
+
     /**
      * Builds the MyFactoryObjectFactory instance.
      */
     public function __construct()
     {
         $this->pdoWrapper = null;
+//::extraProperties--instantiation
     }
-
 
 // getXXX
 
@@ -46,5 +48,5 @@ class MyFactoryObjectFactory
         $this->pdoWrapper = $pdoWrapper;
     }
 
-
+//::extraPublicMethods
 }

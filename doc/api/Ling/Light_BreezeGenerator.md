@@ -8,6 +8,7 @@ Ling/Light_BreezeGenerator
 Table of contents
 ===========
 
+- [LightBreezeGeneratorException](https://github.com/lingtalfi/Light_BreezeGenerator/blob/master/doc/api/Ling/Light_BreezeGenerator/Exception/LightBreezeGeneratorException.md) &ndash; The LightBreezeGeneratorException class.
 - [BreezeGeneratorInterface](https://github.com/lingtalfi/Light_BreezeGenerator/blob/master/doc/api/Ling/Light_BreezeGenerator/Generator/BreezeGeneratorInterface.md) &ndash; The BreezeGeneratorInterface interface.
     - [BreezeGeneratorInterface::generate](https://github.com/lingtalfi/Light_BreezeGenerator/blob/master/doc/api/Ling/Light_BreezeGenerator/Generator/BreezeGeneratorInterface/generate.md) &ndash; Generates some php classes based on the given configuration.
 - [LingBreezeGenerator](https://github.com/lingtalfi/Light_BreezeGenerator/blob/master/doc/api/Ling/Light_BreezeGenerator/Generator/LingBreezeGenerator.md) &ndash; The LingBreezeGenerator class.

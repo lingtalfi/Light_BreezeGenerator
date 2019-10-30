@@ -88,6 +88,10 @@ breeze_generator:
 History Log
 =============
 
+- 1.7.0 -- 2019-10-30
+
+    - update LingBreezeGenerator, now implements a micro permission layer
+    
 - 1.6.0 -- 2019-10-30
 
     - add LightBreezeGeneratorService->addConfigurationEntryByFile

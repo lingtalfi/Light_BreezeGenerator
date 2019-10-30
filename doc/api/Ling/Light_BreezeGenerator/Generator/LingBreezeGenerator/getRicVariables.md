@@ -48,6 +48,10 @@ It returns the following entries:
                  "first_name" => $first_name,
                  "last_name" => $last_name,
 
+- calledVariables: the string representing a comma separated variable names. We use it as method arguments when invoking a method.
+         Ex:
+             - $id
+             - $firstName, $lastName
 
 The types array is an array of columnName => mysql type.
 
@@ -83,7 +87,7 @@ Returns array.
 
 Source Code
 ===========
-See the source code for method [LingBreezeGenerator::getRicVariables](https://github.com/lingtalfi/Light_BreezeGenerator/blob/master/Generator/LingBreezeGenerator.php#L413-L489)
+See the source code for method [LingBreezeGenerator::getRicVariables](https://github.com/lingtalfi/Light_BreezeGenerator/blob/master/Generator/LingBreezeGenerator.php#L526-L610)
 
 
 See Also

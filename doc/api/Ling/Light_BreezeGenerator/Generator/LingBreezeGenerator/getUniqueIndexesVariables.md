@@ -50,6 +50,11 @@ Each set contains the following entries:
                  "pseudo" => $pseudo,
                  "password" => $password,
 
+- calledVariables: the string representing a comma separated variable names. We use it as method arguments when invoking a method.
+         Ex:
+             - $id
+             - $firstName, $lastName
+
 
 The types array is an array of columnName => mysql type.
 
@@ -85,7 +90,7 @@ Returns array.
 
 Source Code
 ===========
-See the source code for method [LingBreezeGenerator::getUniqueIndexesVariables](https://github.com/lingtalfi/Light_BreezeGenerator/blob/master/Generator/LingBreezeGenerator.php#L533-L621)
+See the source code for method [LingBreezeGenerator::getUniqueIndexesVariables](https://github.com/lingtalfi/Light_BreezeGenerator/blob/master/Generator/LingBreezeGenerator.php#L659-L755)
 
 
 See Also
