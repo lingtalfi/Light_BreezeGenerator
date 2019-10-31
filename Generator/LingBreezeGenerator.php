@@ -218,6 +218,7 @@ class LingBreezeGenerator implements BreezeGeneratorInterface, LightServiceConta
                 'objectClassName' => $objectClassName,
                 'returnedClassName' => $returnedClassName,
                 'useMicroPermission' => $useMicroPermission,
+                'microPermissionPluginName' => $microPermissionPluginName,
             ]);
             $sFactoryMethods .= PHP_EOL;
             $sFactoryMethods .= PHP_EOL;
@@ -233,8 +234,11 @@ class LingBreezeGenerator implements BreezeGeneratorInterface, LightServiceConta
         $extraPublicMethods = [];
         if (true === $useMicroPermission) {
             $extraPropertiesDefinition[] = file_get_contents(__DIR__ . "/../assets/classModel/Ling/template/extra/properties-def/container.tpl.txt");
+            $extraPropertiesDefinition[] = file_get_contents(__DIR__ . "/../assets/classModel/Ling/template/extra/properties-def/micro-permission-plugin.tpl.txt");
             $extraPropertiesInstantiation[] = '$this->container = null;';
+            $extraPropertiesInstantiation[] = '$this->microPermissionPlugin = "'. $microPermissionPluginName .'";';
             $extraPublicMethods[] = file_get_contents(__DIR__ . "/../assets/classModel/Ling/template/extra/public-methods/set-container.tpl.txt");
+            $extraPublicMethods[] = file_get_contents(__DIR__ . "/../assets/classModel/Ling/template/extra/public-methods/set-micro-permission-plugin.tpl.txt");
         }
 
         $content = $this->generateObjectFactoryClass([
@@ -244,7 +248,7 @@ class LingBreezeGenerator implements BreezeGeneratorInterface, LightServiceConta
             "factoryMethods" => $sFactoryMethods,
             "classSuffix" => $classSuffix,
             "uses" => $sFactoryUses,
-            "extraPropertiesDefinition" => implode(PHP_EOL, $extraPropertiesDefinition),
+            "extraPropertiesDefinition" => implode(PHP_EOL . PHP_EOL, $extraPropertiesDefinition),
             "extraPropertiesInstantiation" => "\t\t" . implode(PHP_EOL . "\t\t", $extraPropertiesInstantiation),
             "extraPublicMethods" => implode(PHP_EOL, $extraPublicMethods),
         ]);
@@ -351,16 +355,19 @@ class LingBreezeGenerator implements BreezeGeneratorInterface, LightServiceConta
             $extraUseStatements[] = 'use Ling\Light\ServiceContainer\LightServiceContainerInterface;';
             $extraUseStatements[] = 'use Ling\Light_MicroPermission\Exception\LightMicroPermissionException;';
 
-            $extraPropertiesDefinition[] = file_get_contents(__DIR__ . "/../assets/classModel/Ling/template/extra/properties-def/micro-permission-prefix.tpl.txt");
+            $extraPropertiesDefinition[] = file_get_contents(__DIR__ . "/../assets/classModel/Ling/template/extra/properties-def/micro-permission-plugin.tpl.txt");
             $extraPropertiesDefinition[] = file_get_contents(__DIR__ . "/../assets/classModel/Ling/template/extra/properties-def/container.tpl.txt");
 
-            $extraPropertiesInstantiation[] = '$this->microPermissionPrefix = "' . $microPermissionPluginName . '.tables.' . $table . '";';
+            $extraPropertiesInstantiation[] = '$this->microPermissionPlugin = "' . $microPermissionPluginName . '";';
             $extraPropertiesInstantiation[] = '$this->container = null;';
 
 
             $extraPublicMethods[] = file_get_contents(__DIR__ . "/../assets/classModel/Ling/template/extra/public-methods/set-container.tpl.txt");
+            $extraPublicMethods[] = file_get_contents(__DIR__ . "/../assets/classModel/Ling/template/extra/public-methods/set-micro-permission-plugin.tpl.txt");
 
-            $extraProtectedMethods[] = file_get_contents(__DIR__ . "/../assets/classModel/Ling/template/extra/protected-methods/check-micro-permission.tpl.txt");
+            $c = file_get_contents(__DIR__ . "/../assets/classModel/Ling/template/extra/protected-methods/check-micro-permission.tpl.txt");
+            $c = str_replace('$table', $table, $c);
+            $extraProtectedMethods[] = $c;
         }
 
         $content = str_replace('//::extraUseStatements', implode(PHP_EOL, $extraUseStatements), $content);
@@ -909,6 +916,7 @@ class LingBreezeGenerator implements BreezeGeneratorInterface, LightServiceConta
         $moreCalls = '';
         if (true === $useMicroPermission) {
             $moreCalls = PHP_EOL . "\t\t" . '$o->setContainer($this->container);';
+            $moreCalls .= PHP_EOL . "\t\t" . '$o->setMicroPermissionPlugin($this->microPermissionPlugin);';
         }
         $content = str_replace('//moreCalls', $moreCalls, $content);
 

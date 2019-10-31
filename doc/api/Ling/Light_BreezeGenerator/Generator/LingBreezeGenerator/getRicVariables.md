@@ -87,7 +87,7 @@ Returns array.
 
 Source Code
 ===========
-See the source code for method [LingBreezeGenerator::getRicVariables](https://github.com/lingtalfi/Light_BreezeGenerator/blob/master/Generator/LingBreezeGenerator.php#L526-L610)
+See the source code for method [LingBreezeGenerator::getRicVariables](https://github.com/lingtalfi/Light_BreezeGenerator/blob/master/Generator/LingBreezeGenerator.php#L533-L617)
 
 
 See Also

@@ -88,6 +88,10 @@ breeze_generator:
 History Log
 =============
 
+- 1.8.0 -- 2019-10-31
+
+    - update LingBreezeGenerator now the microPermission plugin can be set directly from the factory 
+    
 - 1.7.2 -- 2019-10-30
 
     - fix LingBreezeGenerator not generating docBlock parameters correctly for doXXX methods 

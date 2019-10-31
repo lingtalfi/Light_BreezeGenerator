@@ -52,7 +52,7 @@ Returns string.
 
 Source Code
 ===========
-See the source code for method [LingBreezeGenerator::getFactoryMethod](https://github.com/lingtalfi/Light_BreezeGenerator/blob/master/Generator/LingBreezeGenerator.php#L897-L918)
+See the source code for method [LingBreezeGenerator::getFactoryMethod](https://github.com/lingtalfi/Light_BreezeGenerator/blob/master/Generator/LingBreezeGenerator.php#L904-L926)
 
 
 See Also
