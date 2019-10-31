@@ -34,8 +34,9 @@ breeze_generator:
                         # The custom prefix (see the "adding custom methods" section for more details)
                         customPrefix: Custom
                     
-                        # Whether to use the micro-permission checking
-                        useMicroPermission: true
+                        # Whether to use the micro-permission checking.
+                        # The default setting is false.
+                        useMicroPermission: false
 
                         # The name of the plugin handling the micro-permission (if useMicroPermission is true)
                         microPermissionPluginName: Light_Kit_Admin
@@ -117,7 +118,7 @@ If true, the generated objects will overwrite previously the generated objects (
 
 
 Whether to use the micro-permission checking.
-The default value is true.
+The default value is false.
 
 This system uses the [micro-permission recommended notation for database](https://github.com/lingtalfi/Light_MicroPermission/blob/master/doc/pages/recommended-micropermission-notation.md#database-interaction).
 

@@ -42,7 +42,7 @@ The variables array has at most the following structure:
 - ricVariables: array (more details in the getRicVariables method comments)
 - uniqueIndexesVariables: array (more details in the getUniqueIndexesVariables method comments)
 - autoIncrementedKey: string|false
-- useMicroPermission: bool, whether to use the micro permission system
+- useMicroPermission: bool=false, whether to use the micro permission system
 - microPermissionPluginName: string, the name of the plugin handling the micro permission checking (if useMicroPermission is true)
 
 

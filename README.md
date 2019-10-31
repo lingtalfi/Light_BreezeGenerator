@@ -88,6 +88,10 @@ breeze_generator:
 History Log
 =============
 
+- 1.8.1 -- 2019-10-31
+
+    - update LingBreezeGenerator, now useMicroPermission=false by default 
+    
 - 1.8.0 -- 2019-10-31
 
     - update LingBreezeGenerator now the microPermission plugin can be set directly from the factory 

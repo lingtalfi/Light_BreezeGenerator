@@ -41,7 +41,7 @@ use Ling\Light_DatabaseInfo\Service\LightDatabaseInfoService;
  * - ricVariables: array (more details in the getRicVariables method comments)
  * - uniqueIndexesVariables: array (more details in the getUniqueIndexesVariables method comments)
  * - autoIncrementedKey: string|false
- * - useMicroPermission: bool, whether to use the micro permission system
+ * - useMicroPermission: bool=false, whether to use the micro permission system
  * - microPermissionPluginName: string, the name of the plugin handling the micro permission checking (if useMicroPermission is true)
  *
  *
@@ -93,7 +93,7 @@ class LingBreezeGenerator implements BreezeGeneratorInterface, LightServiceConta
 
         $factoryClassName = $conf['factoryClassName'];
         $overwriteExisting = $conf['overwriteExisting'] ?? false;
-        $useMicroPermission = $conf['useMicroPermission'] ?? true;
+        $useMicroPermission = $conf['useMicroPermission'] ?? false;
 
         $microPermissionPluginName = $conf['microPermissionPluginName'] ?? '';
         if (true === $useMicroPermission && empty($microPermissionPluginName)) {
