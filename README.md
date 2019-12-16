@@ -88,6 +88,10 @@ breeze_generator:
 History Log
 =============
 
+- 1.8.2 -- 2019-12-16
+
+    - update UserObjectInterface.phtml, added a doc link to ling standard object methods 
+    
 - 1.8.1 -- 2019-10-31
 
     - update LingBreezeGenerator, now useMicroPermission=false by default 
