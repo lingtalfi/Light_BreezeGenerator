@@ -88,6 +88,10 @@ breeze_generator:
 History Log
 =============
 
+- 1.9.3 -- 2019-12-17
+
+    - fix LingBreezeGenerator->getDoRicMethod, incorrectly replacing $user instead of array $user  
+    
 - 1.9.2 -- 2019-12-17
 
     - fix LingBreezeGenerator not removing // getAllXXX comment in generated interface  
