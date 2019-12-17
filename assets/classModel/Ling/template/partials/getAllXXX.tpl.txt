@@ -1,6 +1,6 @@
     /**
      * Returns an array of all user ids.
-
+     *
      * @return array
      * @throws \Exception
      */

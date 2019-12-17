@@ -88,6 +88,10 @@ breeze_generator:
 History Log
 =============
 
+- 1.9.1 -- 2019-12-17
+
+    - fix getAllXXX.tpl.txt, missing asterisk in comment  
+    
 - 1.9.0 -- 2019-12-17
 
     - update lsom, add getAllXXX method 
