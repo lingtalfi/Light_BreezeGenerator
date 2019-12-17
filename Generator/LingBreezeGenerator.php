@@ -6,6 +6,7 @@ namespace Ling\Light_BreezeGenerator\Generator;
 
 use Ling\Bat\CaseTool;
 use Ling\Bat\FileSystemTool;
+use Ling\Bat\StringTool;
 use Ling\Light\ServiceContainer\LightServiceContainerAwareInterface;
 use Ling\Light\ServiceContainer\LightServiceContainerInterface;
 use Ling\Light_BreezeGenerator\Exception\LightBreezeGeneratorException;
@@ -38,6 +39,7 @@ use Ling\Light_DatabaseInfo\Service\LightDatabaseInfoService;
  * - className: string
  * - objectClassName: string
  * - ric: array
+ * - ricPlural: string, the first column of the ric in plural form
  * - ricVariables: array (more details in the getRicVariables method comments)
  * - uniqueIndexesVariables: array (more details in the getUniqueIndexesVariables method comments)
  * - autoIncrementedKey: string|false
@@ -189,6 +191,7 @@ class LingBreezeGenerator implements BreezeGeneratorInterface, LightServiceConta
                 "className" => $className,
                 "objectClassName" => $objectClassName,
                 "ricVariables" => $ricVariables,
+                "ric" => $tableInfo['ric'],
                 "uniqueIndexesVariables" => $uniqueIndexesVariables,
             ]);
 
@@ -236,7 +239,7 @@ class LingBreezeGenerator implements BreezeGeneratorInterface, LightServiceConta
             $extraPropertiesDefinition[] = file_get_contents(__DIR__ . "/../assets/classModel/Ling/template/extra/properties-def/container.tpl.txt");
             $extraPropertiesDefinition[] = file_get_contents(__DIR__ . "/../assets/classModel/Ling/template/extra/properties-def/micro-permission-plugin.tpl.txt");
             $extraPropertiesInstantiation[] = '$this->container = null;';
-            $extraPropertiesInstantiation[] = '$this->microPermissionPlugin = "'. $microPermissionPluginName .'";';
+            $extraPropertiesInstantiation[] = '$this->microPermissionPlugin = "' . $microPermissionPluginName . '";';
             $extraPublicMethods[] = file_get_contents(__DIR__ . "/../assets/classModel/Ling/template/extra/public-methods/set-container.tpl.txt");
             $extraPublicMethods[] = file_get_contents(__DIR__ . "/../assets/classModel/Ling/template/extra/public-methods/set-micro-permission-plugin.tpl.txt");
         }
@@ -296,6 +299,7 @@ class LingBreezeGenerator implements BreezeGeneratorInterface, LightServiceConta
         // HEADER METHODS
         //--------------------------------------------
         $content = str_replace('// getXXX', $this->getRicMethod("getUserById", $variables), $content);
+        $content = str_replace('// getAllXXX', $this->getAllMethod($variables), $content);
         $content = str_replace('// updateXXX', $this->getRicMethod("updateUserById", $variables), $content);
         $content = str_replace('// deleteXXX', $this->getRicMethod("deleteUserById", $variables), $content);
 
@@ -310,6 +314,7 @@ class LingBreezeGenerator implements BreezeGeneratorInterface, LightServiceConta
                 $content = str_replace('// deleteXXX', $this->getRicMethod("deleteUserById", $uniqueVariables), $content);
             }
         }
+
 
         // cleaning
         $content = str_replace('// getXXX', '', $content);
@@ -392,8 +397,7 @@ class LingBreezeGenerator implements BreezeGeneratorInterface, LightServiceConta
     {
         $template = __DIR__ . "/../assets/classModel/Ling/template/UserObjectInterface.phtml";
         $content = file_get_contents($template);
-
-
+        $ric = $variables['ric'];
         $namespace = $variables['namespace'];
         $objectClassName = $variables['objectClassName'];
 
@@ -402,6 +406,10 @@ class LingBreezeGenerator implements BreezeGeneratorInterface, LightServiceConta
 
         $content = str_replace('// insertXXX', $this->getInterfaceMethod('insertXXX', $variables), $content);
         $content = str_replace('// getXXX', $this->getInterfaceMethod('getXXXById', $variables), $content);
+
+        if (1 === count($ric)) {
+            $content = str_replace('// getAllXXX', $this->getInterfaceMethod('getAllXXX', $variables), $content);
+        }
         $content = str_replace('// updateXXX', $this->getInterfaceMethod('updateXXXById', $variables), $content);
         $content = str_replace('// deleteXXX', $this->getInterfaceMethod('deleteXXXById', $variables), $content);
 
@@ -877,6 +885,7 @@ class LingBreezeGenerator implements BreezeGeneratorInterface, LightServiceConta
         $variableName = lcfirst($variables['className']);
         $className = $variables['className'];
         $ricVariables = $variables['ricVariables'];
+        $ric = $variables['ric'];
 
 
         $content = str_replace('user', $variableName, $content);
@@ -887,6 +896,16 @@ class LingBreezeGenerator implements BreezeGeneratorInterface, LightServiceConta
         $content = str_replace('updateXXXById', 'update' . $className . $ricVariables['byString'], $content);
         $content = str_replace('deleteXXXById', 'delete' . $className . $ricVariables['byString'], $content);
         $content = str_replace('int $id', $ricVariables['argString'], $content);
+
+        // getAllXXX.tpl.txt
+        if (1 === count($ric)) {
+            $originalColumn = current($ric);
+            $plural = StringTool::getPlural($originalColumn);
+            $methodName = $this->getGetAllXXXMethodName($ric);
+
+            $content = str_replace('ids', $plural, $content);
+            $content = str_replace('getAll', $methodName, $content);
+        }
         return $content;
 
     }
@@ -927,7 +946,7 @@ class LingBreezeGenerator implements BreezeGeneratorInterface, LightServiceConta
 
 
     /**
-     * Returns the content of a php method of type insert (internal naming convention.
+     * Returns the content of a php method of type insert (internal naming convention).
      *
      * The variables array is described in this class description.
      *
@@ -952,9 +971,8 @@ class LingBreezeGenerator implements BreezeGeneratorInterface, LightServiceConta
         return $content;
     }
 
-
     /**
-     * Returns the content of a php method of type insert (internal naming convention.
+     * Returns the content of a php method of type insert (internal naming convention).
      *
      * The variables array is described in this class description.
      *
@@ -1017,5 +1035,64 @@ class LingBreezeGenerator implements BreezeGeneratorInterface, LightServiceConta
         $content = str_replace('return $res[\'id\']', $lastInsertIdReturn, $content);
         $content = str_replace('"id" => $res[\'id\'],', $sRicLines, $content);
         return $content;
+    }
+
+
+    /**
+     * Returns the content of a php method of type getAll method (internal naming convention),
+     * if the table has a primary key composed of a single column,
+     * or an empty string otherwise.
+     *
+     * The variables array is described in this class description.
+     *
+     * @param array $variables
+     * @return string
+     */
+    protected function getAllMethod(array $variables): string
+    {
+
+        $content = '';
+        $ric = $variables['ric'];
+        if (1 === count($ric)) {
+
+            $originalColumn = current($ric);
+            $methodName = $this->getGetAllXXXMethodName($ric);
+
+
+            $useMicroPermission = $variables['useMicroPermission'];
+            $table = $variables['table'];
+
+            $tpl = __DIR__ . "/../assets/classModel/Ling/template/partials/getAllIds.tpl.txt";
+
+            $content = file_get_contents($tpl);
+            $content = str_replace('getAllIds', $methodName, $content);
+            $content = str_replace('id', $originalColumn, $content);
+            $content = str_replace('user', $table, $content);
+
+
+            $microPermReplacement = '';
+            if (true === $useMicroPermission) {
+                $microPermReplacement = PHP_EOL . "\t\t" . '$this->checkMicroPermission("read");';
+            }
+            $content = str_replace('//microperm', $microPermReplacement, $content);
+        }
+        return $content;
+    }
+
+
+    //--------------------------------------------
+    //
+    //--------------------------------------------
+    /**
+     * Returns the getAllXXX method name for the first column of the given ric.
+     *
+     * @param array $ric
+     * @return string
+     */
+    private function getGetAllXXXMethodName(array $ric): string
+    {
+        $column = CaseTool::toPascal(strtolower(current($ric)));
+        $plural = StringTool::getPlural($column);
+        return 'getAll' . $plural;
     }
 }

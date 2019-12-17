@@ -4,7 +4,7 @@
 
 The LingBreezeGenerator class
 ================
-2019-09-11 --> 2019-12-16
+2019-09-11 --> 2019-12-17
 
 
 
@@ -39,6 +39,7 @@ The variables array has at most the following structure:
 - className: string
 - objectClassName: string
 - ric: array
+- ricPlural: string, the first column of the ric in plural form
 - ricVariables: array (more details in the getRicVariables method comments)
 - uniqueIndexesVariables: array (more details in the getUniqueIndexesVariables method comments)
 - autoIncrementedKey: string|false
@@ -72,6 +73,8 @@ class <span class="pl-k">LingBreezeGenerator</span> implements [BreezeGeneratorI
     - protected [getFactoryMethod](https://github.com/lingtalfi/Light_BreezeGenerator/blob/master/doc/api/Ling/Light_BreezeGenerator/Generator/LingBreezeGenerator/getFactoryMethod.md)(array $variables) : string
     - protected [getInsertMethod](https://github.com/lingtalfi/Light_BreezeGenerator/blob/master/doc/api/Ling/Light_BreezeGenerator/Generator/LingBreezeGenerator/getInsertMethod.md)(array $variables) : string
     - protected [getDoInsertMethod](https://github.com/lingtalfi/Light_BreezeGenerator/blob/master/doc/api/Ling/Light_BreezeGenerator/Generator/LingBreezeGenerator/getDoInsertMethod.md)(array $variables) : string
+    - protected [getAllMethod](https://github.com/lingtalfi/Light_BreezeGenerator/blob/master/doc/api/Ling/Light_BreezeGenerator/Generator/LingBreezeGenerator/getAllMethod.md)(array $variables) : string
+    - private [getGetAllXXXMethodName](https://github.com/lingtalfi/Light_BreezeGenerator/blob/master/doc/api/Ling/Light_BreezeGenerator/Generator/LingBreezeGenerator/getGetAllXXXMethodName.md)(array $ric) : string
 
 }
 
@@ -105,8 +108,10 @@ Methods
 - [LingBreezeGenerator::getDoRicMethod](https://github.com/lingtalfi/Light_BreezeGenerator/blob/master/doc/api/Ling/Light_BreezeGenerator/Generator/LingBreezeGenerator/getDoRicMethod.md) &ndash; that the method requires the ric array in order to produce the concrete php method).
 - [LingBreezeGenerator::getInterfaceMethod](https://github.com/lingtalfi/Light_BreezeGenerator/blob/master/doc/api/Ling/Light_BreezeGenerator/Generator/LingBreezeGenerator/getInterfaceMethod.md) &ndash; Returns the content of the interface method identified by the given methodName.
 - [LingBreezeGenerator::getFactoryMethod](https://github.com/lingtalfi/Light_BreezeGenerator/blob/master/doc/api/Ling/Light_BreezeGenerator/Generator/LingBreezeGenerator/getFactoryMethod.md) &ndash; inside the generated factory object).
-- [LingBreezeGenerator::getInsertMethod](https://github.com/lingtalfi/Light_BreezeGenerator/blob/master/doc/api/Ling/Light_BreezeGenerator/Generator/LingBreezeGenerator/getInsertMethod.md) &ndash; Returns the content of a php method of type insert (internal naming convention.
-- [LingBreezeGenerator::getDoInsertMethod](https://github.com/lingtalfi/Light_BreezeGenerator/blob/master/doc/api/Ling/Light_BreezeGenerator/Generator/LingBreezeGenerator/getDoInsertMethod.md) &ndash; Returns the content of a php method of type insert (internal naming convention.
+- [LingBreezeGenerator::getInsertMethod](https://github.com/lingtalfi/Light_BreezeGenerator/blob/master/doc/api/Ling/Light_BreezeGenerator/Generator/LingBreezeGenerator/getInsertMethod.md) &ndash; Returns the content of a php method of type insert (internal naming convention).
+- [LingBreezeGenerator::getDoInsertMethod](https://github.com/lingtalfi/Light_BreezeGenerator/blob/master/doc/api/Ling/Light_BreezeGenerator/Generator/LingBreezeGenerator/getDoInsertMethod.md) &ndash; Returns the content of a php method of type insert (internal naming convention).
+- [LingBreezeGenerator::getAllMethod](https://github.com/lingtalfi/Light_BreezeGenerator/blob/master/doc/api/Ling/Light_BreezeGenerator/Generator/LingBreezeGenerator/getAllMethod.md) &ndash; or an empty string otherwise.
+- [LingBreezeGenerator::getGetAllXXXMethodName](https://github.com/lingtalfi/Light_BreezeGenerator/blob/master/doc/api/Ling/Light_BreezeGenerator/Generator/LingBreezeGenerator/getGetAllXXXMethodName.md) &ndash; Returns the getAllXXX method name for the first column of the given ric.
 
 
 

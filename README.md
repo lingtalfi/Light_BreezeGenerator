@@ -1,6 +1,6 @@
 Light_BreezeGenerator
 ===========
-2019-09-11
+2019-09-11 -> 2019-12-17
 
 
 
@@ -88,6 +88,10 @@ breeze_generator:
 History Log
 =============
 
+- 1.9.0 -- 2019-12-17
+
+    - update lsom, add getAllXXX method 
+    
 - 1.8.2 -- 2019-12-16
 
     - update UserObjectInterface.phtml, added a doc link to ling standard object methods 

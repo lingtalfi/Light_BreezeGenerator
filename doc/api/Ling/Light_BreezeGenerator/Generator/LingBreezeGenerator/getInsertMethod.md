@@ -7,7 +7,7 @@ LingBreezeGenerator::getInsertMethod
 
 
 
-LingBreezeGenerator::getInsertMethod — Returns the content of a php method of type insert (internal naming convention.
+LingBreezeGenerator::getInsertMethod — Returns the content of a php method of type insert (internal naming convention).
 
 
 
@@ -21,7 +21,7 @@ protected [LingBreezeGenerator::getInsertMethod](https://github.com/lingtalfi/Li
 
 
 
-Returns the content of a php method of type insert (internal naming convention.
+Returns the content of a php method of type insert (internal naming convention).
 
 The variables array is described in this class description.
 
@@ -51,7 +51,7 @@ Returns string.
 
 Source Code
 ===========
-See the source code for method [LingBreezeGenerator::getInsertMethod](https://github.com/lingtalfi/Light_BreezeGenerator/blob/master/Generator/LingBreezeGenerator.php#L937-L953)
+See the source code for method [LingBreezeGenerator::getInsertMethod](https://github.com/lingtalfi/Light_BreezeGenerator/blob/master/Generator/LingBreezeGenerator.php#L956-L972)
 
 
 See Also
