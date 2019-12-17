@@ -4,4 +4,4 @@
      * @return array
      * @throws \Exception
      */
-    public function getAll();
+    public function getAll(): array;

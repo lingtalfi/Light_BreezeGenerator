@@ -88,6 +88,10 @@ breeze_generator:
 History Log
 =============
 
+- 1.9.2 -- 2019-12-17
+
+    - fix LingBreezeGenerator not removing // getAllXXX comment in generated interface  
+    
 - 1.9.1 -- 2019-12-17
 
     - fix getAllXXX.tpl.txt, missing asterisk in comment  

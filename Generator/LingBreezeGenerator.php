@@ -409,7 +409,10 @@ class LingBreezeGenerator implements BreezeGeneratorInterface, LightServiceConta
 
         if (1 === count($ric)) {
             $content = str_replace('// getAllXXX', $this->getInterfaceMethod('getAllXXX', $variables), $content);
+        } else {
+            $content = str_replace('// getAllXXX', '', $content);
         }
+
         $content = str_replace('// updateXXX', $this->getInterfaceMethod('updateXXXById', $variables), $content);
         $content = str_replace('// deleteXXX', $this->getInterfaceMethod('deleteXXXById', $variables), $content);
 
