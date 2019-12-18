@@ -51,7 +51,7 @@ Returns string.
 
 Source Code
 ===========
-See the source code for method [LingBreezeGenerator::getDoInsertMethod](https://github.com/lingtalfi/Light_BreezeGenerator/blob/master/Generator/LingBreezeGenerator.php#L985-L1041)
+See the source code for method [LingBreezeGenerator::getDoInsertMethod](https://github.com/lingtalfi/Light_BreezeGenerator/blob/master/Generator/LingBreezeGenerator.php#L984-L1040)
 
 
 See Also

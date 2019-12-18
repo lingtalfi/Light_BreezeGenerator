@@ -938,7 +938,6 @@ class LingBreezeGenerator implements BreezeGeneratorInterface, LightServiceConta
         $moreCalls = '';
         if (true === $useMicroPermission) {
             $moreCalls = PHP_EOL . "\t\t" . '$o->setContainer($this->container);';
-            $moreCalls .= PHP_EOL . "\t\t" . '$o->setMicroPermissionPlugin($this->microPermissionPlugin);';
         }
         $content = str_replace('//moreCalls', $moreCalls, $content);
 

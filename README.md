@@ -88,6 +88,10 @@ breeze_generator:
 History Log
 =============
 
+- 1.10.0 -- 2019-12-18
+
+    - update to accommodate Light_MicroPermission 2.0  
+    
 - 1.9.3 -- 2019-12-17
 
     - fix LingBreezeGenerator->getDoRicMethod, incorrectly replacing $user instead of array $user  
