@@ -4,7 +4,7 @@
 
 The LingBreezeGenerator class
 ================
-2019-09-11 --> 2019-12-18
+2019-09-11 --> 2019-12-19
 
 
 
@@ -44,7 +44,6 @@ The variables array has at most the following structure:
 - uniqueIndexesVariables: array (more details in the getUniqueIndexesVariables method comments)
 - autoIncrementedKey: string|false
 - useMicroPermission: bool=false, whether to use the micro permission system
-- microPermissionPluginName: string, the name of the plugin handling the micro permission checking (if useMicroPermission is true)
 
 
 
@@ -64,15 +63,14 @@ class <span class="pl-k">LingBreezeGenerator</span> implements [BreezeGeneratorI
     - public [generateObjectClass](https://github.com/lingtalfi/Light_BreezeGenerator/blob/master/doc/api/Ling/Light_BreezeGenerator/Generator/LingBreezeGenerator/generateObjectClass.md)(array $variables) : string
     - public [generateObjectInterfaceClass](https://github.com/lingtalfi/Light_BreezeGenerator/blob/master/doc/api/Ling/Light_BreezeGenerator/Generator/LingBreezeGenerator/generateObjectInterfaceClass.md)(array $variables) : string
     - public [generateObjectFactoryClass](https://github.com/lingtalfi/Light_BreezeGenerator/blob/master/doc/api/Ling/Light_BreezeGenerator/Generator/LingBreezeGenerator/generateObjectFactoryClass.md)(array $variables) : string
+    - public [generateObjectBase](https://github.com/lingtalfi/Light_BreezeGenerator/blob/master/doc/api/Ling/Light_BreezeGenerator/Generator/LingBreezeGenerator/generateObjectBase.md)(array $variables) : string
     - protected [getClassNameFromTable](https://github.com/lingtalfi/Light_BreezeGenerator/blob/master/doc/api/Ling/Light_BreezeGenerator/Generator/LingBreezeGenerator/getClassNameFromTable.md)(string $table) : string
     - protected [getRicVariables](https://github.com/lingtalfi/Light_BreezeGenerator/blob/master/doc/api/Ling/Light_BreezeGenerator/Generator/LingBreezeGenerator/getRicVariables.md)(array $ric, array $types) : array
     - protected [getUniqueIndexesVariables](https://github.com/lingtalfi/Light_BreezeGenerator/blob/master/doc/api/Ling/Light_BreezeGenerator/Generator/LingBreezeGenerator/getUniqueIndexesVariables.md)(array $uniqueIndexes, array $types) : array
     - protected [getRicMethod](https://github.com/lingtalfi/Light_BreezeGenerator/blob/master/doc/api/Ling/Light_BreezeGenerator/Generator/LingBreezeGenerator/getRicMethod.md)(string $method, array $variables) : string
-    - protected [getDoRicMethod](https://github.com/lingtalfi/Light_BreezeGenerator/blob/master/doc/api/Ling/Light_BreezeGenerator/Generator/LingBreezeGenerator/getDoRicMethod.md)(string $method, array $variables) : string
     - protected [getInterfaceMethod](https://github.com/lingtalfi/Light_BreezeGenerator/blob/master/doc/api/Ling/Light_BreezeGenerator/Generator/LingBreezeGenerator/getInterfaceMethod.md)(string $methodName, array $variables) : string
     - protected [getFactoryMethod](https://github.com/lingtalfi/Light_BreezeGenerator/blob/master/doc/api/Ling/Light_BreezeGenerator/Generator/LingBreezeGenerator/getFactoryMethod.md)(array $variables) : string
     - protected [getInsertMethod](https://github.com/lingtalfi/Light_BreezeGenerator/blob/master/doc/api/Ling/Light_BreezeGenerator/Generator/LingBreezeGenerator/getInsertMethod.md)(array $variables) : string
-    - protected [getDoInsertMethod](https://github.com/lingtalfi/Light_BreezeGenerator/blob/master/doc/api/Ling/Light_BreezeGenerator/Generator/LingBreezeGenerator/getDoInsertMethod.md)(array $variables) : string
     - protected [getAllMethod](https://github.com/lingtalfi/Light_BreezeGenerator/blob/master/doc/api/Ling/Light_BreezeGenerator/Generator/LingBreezeGenerator/getAllMethod.md)(array $variables) : string
     - private [getGetAllXXXMethodName](https://github.com/lingtalfi/Light_BreezeGenerator/blob/master/doc/api/Ling/Light_BreezeGenerator/Generator/LingBreezeGenerator/getGetAllXXXMethodName.md)(array $ric) : string
 
@@ -101,15 +99,14 @@ Methods
 - [LingBreezeGenerator::generateObjectClass](https://github.com/lingtalfi/Light_BreezeGenerator/blob/master/doc/api/Ling/Light_BreezeGenerator/Generator/LingBreezeGenerator/generateObjectClass.md) &ndash; Returns the content of an object class based on the given variables.
 - [LingBreezeGenerator::generateObjectInterfaceClass](https://github.com/lingtalfi/Light_BreezeGenerator/blob/master/doc/api/Ling/Light_BreezeGenerator/Generator/LingBreezeGenerator/generateObjectInterfaceClass.md) &ndash; Returns the content of an object interface class based on the given variables.
 - [LingBreezeGenerator::generateObjectFactoryClass](https://github.com/lingtalfi/Light_BreezeGenerator/blob/master/doc/api/Ling/Light_BreezeGenerator/Generator/LingBreezeGenerator/generateObjectFactoryClass.md) &ndash; Returns the content of an object factory class based on the given variables.
+- [LingBreezeGenerator::generateObjectBase](https://github.com/lingtalfi/Light_BreezeGenerator/blob/master/doc/api/Ling/Light_BreezeGenerator/Generator/LingBreezeGenerator/generateObjectBase.md) &ndash; Returns the content of an object abstract parent class based on the given variables.
 - [LingBreezeGenerator::getClassNameFromTable](https://github.com/lingtalfi/Light_BreezeGenerator/blob/master/doc/api/Ling/Light_BreezeGenerator/Generator/LingBreezeGenerator/getClassNameFromTable.md) &ndash; Returns the class name from the given table name.
 - [LingBreezeGenerator::getRicVariables](https://github.com/lingtalfi/Light_BreezeGenerator/blob/master/doc/api/Ling/Light_BreezeGenerator/Generator/LingBreezeGenerator/getRicVariables.md) &ndash; Returns some useful variables based on the ric array.
 - [LingBreezeGenerator::getUniqueIndexesVariables](https://github.com/lingtalfi/Light_BreezeGenerator/blob/master/doc/api/Ling/Light_BreezeGenerator/Generator/LingBreezeGenerator/getUniqueIndexesVariables.md) &ndash; Returns an array of useful variables sets based on the unique indexes array (one set per unique indexes entry is returned).
 - [LingBreezeGenerator::getRicMethod](https://github.com/lingtalfi/Light_BreezeGenerator/blob/master/doc/api/Ling/Light_BreezeGenerator/Generator/LingBreezeGenerator/getRicMethod.md) &ndash; that the method requires the ric array in order to produce the concrete php method).
-- [LingBreezeGenerator::getDoRicMethod](https://github.com/lingtalfi/Light_BreezeGenerator/blob/master/doc/api/Ling/Light_BreezeGenerator/Generator/LingBreezeGenerator/getDoRicMethod.md) &ndash; that the method requires the ric array in order to produce the concrete php method).
 - [LingBreezeGenerator::getInterfaceMethod](https://github.com/lingtalfi/Light_BreezeGenerator/blob/master/doc/api/Ling/Light_BreezeGenerator/Generator/LingBreezeGenerator/getInterfaceMethod.md) &ndash; Returns the content of the interface method identified by the given methodName.
 - [LingBreezeGenerator::getFactoryMethod](https://github.com/lingtalfi/Light_BreezeGenerator/blob/master/doc/api/Ling/Light_BreezeGenerator/Generator/LingBreezeGenerator/getFactoryMethod.md) &ndash; inside the generated factory object).
 - [LingBreezeGenerator::getInsertMethod](https://github.com/lingtalfi/Light_BreezeGenerator/blob/master/doc/api/Ling/Light_BreezeGenerator/Generator/LingBreezeGenerator/getInsertMethod.md) &ndash; Returns the content of a php method of type insert (internal naming convention).
-- [LingBreezeGenerator::getDoInsertMethod](https://github.com/lingtalfi/Light_BreezeGenerator/blob/master/doc/api/Ling/Light_BreezeGenerator/Generator/LingBreezeGenerator/getDoInsertMethod.md) &ndash; Returns the content of a php method of type insert (internal naming convention).
 - [LingBreezeGenerator::getAllMethod](https://github.com/lingtalfi/Light_BreezeGenerator/blob/master/doc/api/Ling/Light_BreezeGenerator/Generator/LingBreezeGenerator/getAllMethod.md) &ndash; or an empty string otherwise.
 - [LingBreezeGenerator::getGetAllXXXMethodName](https://github.com/lingtalfi/Light_BreezeGenerator/blob/master/doc/api/Ling/Light_BreezeGenerator/Generator/LingBreezeGenerator/getGetAllXXXMethodName.md) &ndash; Returns the getAllXXX method name for the first column of the given ric.
 

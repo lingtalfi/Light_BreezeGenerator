@@ -1,6 +1,6 @@
 Light_BreezeGenerator
 ===========
-2019-09-11 -> 2019-12-17
+2019-09-11 -> 2019-12-19
 
 
 
@@ -55,30 +55,6 @@ breeze_generator:
     methods:
         setContainer:
             container: @container()
-        setConf:
-            conf:
-                ling:
-                    class: Ling\Light_BreezeGenerator\Generator\LingBreezeGenerator
-                    conf:
-                        dir: ${app_dir}/tmp/Light_BreezeGenerator
-                        # If your tables use a prefix, set it here, then configure the behaviour
-                        # with the usePrefixInClassName property
-                        prefix: lud
-                        usePrefixInClassName: false
-                        factoryClassName: LightKitAdmin
-                        namespace: Ling\Test\$prefix
-                        # The suffix to add to the class name.
-                        # For instance if the class is User and the suffix is Object,
-                        # The class name will be UserObject
-                        # The default value is Object
-                        classSuffix: Object
-                        # Whether to overwrite existing files (if false, skip them)
-                        # Used mainly for debugging purposes, in production you probably should set this to false
-                        # The default value is false
-                        overwriteExisting: false
-                        generate:
-                            prefix: lud
-
 
 ```
 
@@ -88,6 +64,10 @@ breeze_generator:
 History Log
 =============
 
+- 1.11.0 -- 2019-12-19
+
+    - add baseClassName system, re-factorize internal code  
+    
 - 1.10.0 -- 2019-12-18
 
     - update to accommodate Light_MicroPermission 2.0  
