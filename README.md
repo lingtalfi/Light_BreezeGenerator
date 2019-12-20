@@ -1,6 +1,6 @@
 Light_BreezeGenerator
 ===========
-2019-09-11 -> 2019-12-19
+2019-09-11 -> 2019-12-20
 
 
 
@@ -64,6 +64,10 @@ breeze_generator:
 History Log
 =============
 
+- 1.11.1 -- 2019-12-20
+
+    - fix LingBreezeGenerator->generate not generating the setContainer method for the factory class if useMicroPermission is set to false  
+    
 - 1.11.0 -- 2019-12-19
 
     - add baseClassName system, re-factorize internal code  

@@ -5,6 +5,7 @@ namespace The\ObjectNamespace;
 
 
 use Ling\SimplePdoWrapper\SimplePdoWrapperInterface;
+use Ling\Light\ServiceContainer\LightServiceContainerInterface;
 // use
 
 
@@ -20,6 +21,12 @@ class MyFactory
      */
     protected $pdoWrapper;
 
+    /**
+     * This property holds the container for this instance.
+     * @var LightServiceContainerInterface
+     */
+    protected $container;
+
 //::extraProperties--definition
 
     /**
@@ -28,6 +35,7 @@ class MyFactory
     public function __construct()
     {
         $this->pdoWrapper = null;
+        $this->container = null;
 //::extraProperties--instantiation
     }
 
@@ -46,6 +54,16 @@ class MyFactory
     public function setPdoWrapper(SimplePdoWrapperInterface $pdoWrapper)
     {
         $this->pdoWrapper = $pdoWrapper;
+    }
+
+    /**
+     * Sets the container.
+     *
+     * @param LightServiceContainerInterface $container
+     */
+    public function setContainer(LightServiceContainerInterface $container)
+    {
+        $this->container = $container;
     }
 
 //::extraPublicMethods

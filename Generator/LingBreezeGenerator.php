@@ -224,7 +224,7 @@ class LingBreezeGenerator implements BreezeGeneratorInterface, LightServiceConta
         $extraPropertiesDefinition = [];
         $extraPropertiesInstantiation = [];
         $extraPublicMethods = [];
-        if (true === $useMicroPermission) {
+        if (false) { // deprecated, but the system could be re-used for other properties in the future?
             $extraPropertiesDefinition[] = file_get_contents(__DIR__ . "/../assets/classModel/Ling/template/extra/properties-def/container.tpl.txt");
             $extraPropertiesInstantiation[] = '$this->container = null;';
             $extraPublicMethods[] = file_get_contents(__DIR__ . "/../assets/classModel/Ling/template/extra/public-methods/set-container.tpl.txt");
@@ -232,7 +232,6 @@ class LingBreezeGenerator implements BreezeGeneratorInterface, LightServiceConta
 
         $content = $this->generateObjectFactoryClass([
             "namespace" => $namespace,
-            "objectClassName" => $objectClassName,
             "factoryClassName" => $factoryClassName,
             "factoryMethods" => $sFactoryMethods,
             "classSuffix" => $classSuffix,
@@ -779,7 +778,6 @@ class LingBreezeGenerator implements BreezeGeneratorInterface, LightServiceConta
         $content = str_replace('//microperm', $microPermReplacement, $content);
 
 
-
         //--------------------------------------------
         //
         //--------------------------------------------
@@ -816,8 +814,6 @@ class LingBreezeGenerator implements BreezeGeneratorInterface, LightServiceConta
         return $content;
 
     }
-
-
 
 
     /**
@@ -920,8 +916,6 @@ class LingBreezeGenerator implements BreezeGeneratorInterface, LightServiceConta
         $content = str_replace('//microperm', $microPermReplacement, $content);
 
 
-
-
         //--------------------------------------------
         //
         //--------------------------------------------
@@ -979,7 +973,6 @@ class LingBreezeGenerator implements BreezeGeneratorInterface, LightServiceConta
         return $content;
 
     }
-
 
 
     /**
