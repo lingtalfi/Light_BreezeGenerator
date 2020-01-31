@@ -1,6 +1,6 @@
 Light_BreezeGenerator
 ===========
-2019-09-11 -> 2019-12-20
+2019-09-11 -> 2020-01-31
 
 
 
@@ -64,6 +64,10 @@ breeze_generator:
 History Log
 =============
 
+- 1.11.2 -- 2020-01-31
+
+    - fix insertUser.tpl.txt not throwing exception when ignoreDuplicate flag is false
+    
 - 1.11.1 -- 2019-12-20
 
     - fix LingBreezeGenerator->generate not generating the setContainer method for the factory class if useMicroPermission is set to false  
