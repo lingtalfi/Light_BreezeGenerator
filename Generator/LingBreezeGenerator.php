@@ -12,6 +12,7 @@ use Ling\Light\ServiceContainer\LightServiceContainerInterface;
 use Ling\Light_BreezeGenerator\Exception\LightBreezeGeneratorException;
 use Ling\Light_BreezeGenerator\Tool\LightBreezeGeneratorTool;
 use Ling\Light_DatabaseInfo\Service\LightDatabaseInfoService;
+use Ling\SqlWizard\Util\MysqlStructureReader;
 
 /**
  * The LingBreezeGenerator class.
@@ -44,6 +45,8 @@ use Ling\Light_DatabaseInfo\Service\LightDatabaseInfoService;
  * - uniqueIndexesVariables: array (more details in the getUniqueIndexesVariables method comments)
  * - autoIncrementedKey: string|false
  * - useMicroPermission: bool=false, whether to use the micro permission system
+ * - relativeDirXXX: string=null, the relative path from the base directory (containing all the classes) to the directory containing
+ *      the XXX class. If null, the base directory is the parent of the XXX class.
  *
  *
  *
@@ -94,13 +97,28 @@ class LingBreezeGenerator implements BreezeGeneratorInterface, LightServiceConta
 
         $factoryClassName = $conf['factoryClassName'];
         $baseClassName = $conf['baseClassName'];
-        $overwriteExisting = $conf['overwriteExisting'] ?? false;
+
+        $overwrite = $conf['overwrite'] ?? [];
+        $overwriteClasses = $overwrite['classes'] ?? true;
+        $overwriteInterfaces = $overwrite['interfaces'] ?? false;
+        $overwriteBaseApi = $overwrite['baseApi'] ?? false;
+        $overwriteFactory = $overwrite['factory'] ?? true;
+
+
         $useMicroPermission = $conf['useMicroPermission'] ?? false;
 
 
         $customPrefix = $conf['customPrefix'] ?? 'Custom';
         $classSuffix = $conf['classSuffix'] ?? 'Object';
+        $interfaceSuffix = $conf['interfaceSuffix'] ?? 'interface';
+
         $generate = $conf['generate'];
+        $relativeDirs = $conf['relativeDirs'] ?? [];
+        $relativeDirClasses = $relativeDirs['classes'] ?? "Classes";
+        $relativeDirInterfaces = $relativeDirs['interfaces'] ?? "Interfaces";
+        $relativeDirBaseApi = $relativeDirs['baseApi'] ?? "Classes";
+        $relativeDirFactory = $relativeDirs['factory'] ?? null;
+        $relativeDirCustom = $relativeDirs['custom'] ?? "Custom";
 
 
         //--------------------------------------------
@@ -108,10 +126,14 @@ class LingBreezeGenerator implements BreezeGeneratorInterface, LightServiceConta
         //--------------------------------------------
         $tables = [];
         $generatePrefix = null;
-        if (array_key_exists("prefix", $generate)) {
+        $generatedFromFile = false;
+        if (array_key_exists("file", $generate)) {
+            $generatedFromFile = true;
+            $r = new MysqlStructureReader();
+            $tables = $r->readFile($generate['file']);
+        } elseif (array_key_exists("prefix", $generate)) {
             $generatePrefix = $generate['prefix'] . '_';
             $tables = $dbInfo->getTablesByPrefix($generatePrefix);
-
         } elseif (array_key_exists("tables", $generate)) {
             $tables = $generate['tables'];
         }
@@ -131,8 +153,18 @@ class LingBreezeGenerator implements BreezeGeneratorInterface, LightServiceConta
         $sFactoryMethods = "";
         $sFactoryUses = "";
         $containerIncluded = false;
+
+
         foreach ($tables as $table) {
-            $tableInfo = $dbInfo->getTableInfo($table);
+            if (false === $generatedFromFile) {
+                $tableInfo = $dbInfo->getTableInfo($table);
+            } else {
+                $readerArr = $table;
+                $theTable = $readerArr['table'];
+                $tableInfo = MysqlStructureReader::readerArrayToTableInfo($readerArr);
+                $table = $theTable;
+
+            }
             $types = $tableInfo['types'];
 
 
@@ -160,17 +192,22 @@ class LingBreezeGenerator implements BreezeGeneratorInterface, LightServiceConta
                 "table" => $table,
                 "className" => $className,
                 "objectClassName" => $objectClassName,
+                "interfaceSuffix" => $interfaceSuffix,
                 "baseClassName" => $baseClassName,
                 "ric" => $tableInfo['ric'],
                 "ricVariables" => $ricVariables,
                 "uniqueIndexesVariables" => $uniqueIndexesVariables,
                 "useMicroPermission" => $useMicroPermission,
                 "autoIncrementedKey" => $tableInfo['autoIncrementedKey'],
+                "relativeDirInterfaces" => $relativeDirInterfaces,
+                "relativeDirBaseApi" => $relativeDirBaseApi,
+                "relativeDirClasses" => $relativeDirClasses,
             ]);
-            $bs0Path = $dir . "/" . $objectClassName . ".php";
-            if (false === file_exists($bs0Path) || true === $overwriteExisting) {
+            $bs0Path = $this->getClassPath($dir, $objectClassName, $relativeDirClasses);
+            if (false === file_exists($bs0Path) || true === $overwriteClasses) {
                 FileSystemTool::mkfile($bs0Path, $content);
             }
+
 
             //--------------------------------------------
             // GENERATE OBJECT INTERFACE
@@ -180,24 +217,37 @@ class LingBreezeGenerator implements BreezeGeneratorInterface, LightServiceConta
                 "table" => $table,
                 "className" => $className,
                 "objectClassName" => $objectClassName,
+                "interfaceSuffix" => $interfaceSuffix,
                 "ricVariables" => $ricVariables,
                 "ric" => $tableInfo['ric'],
                 "uniqueIndexesVariables" => $uniqueIndexesVariables,
+                "relativeDirInterfaces" => $relativeDirInterfaces,
             ]);
 
-            $bs0Path = $dir . "/" . $objectClassName . "Interface.php";
-            if (false === file_exists($bs0Path) || true === $overwriteExisting) {
+            $bs0Path = $this->getClassPath($dir, $objectClassName . $interfaceSuffix, $relativeDirInterfaces);
+            if (false === file_exists($bs0Path) || true === $overwriteInterfaces) {
                 FileSystemTool::mkfile($bs0Path, $content);
             }
 
 
+            // preparing custom classes
             $methodClassName = $objectClassName;
-            $returnedClassName = $objectClassName . "Interface";
-            $customClassPath = $dir . "/" . $customPrefix . "/Custom" . $objectClassName . ".php";
+            $returnedClassName = $objectClassName . $interfaceSuffix;
+            $customClassPath = $this->getClassPath($dir, $customPrefix . $objectClassName, $relativeDirCustom);
             if (file_exists($customClassPath)) {
                 $returnedClassName = $customPrefix . $objectClassName;
-                $objectClassName = $returnedClassName;
-                $sFactoryUses .= 'use ' . $namespace . "\\" . $customPrefix . "\\" . $returnedClassName . ";" . PHP_EOL;
+                if ($relativeDirFactory !== $relativeDirCustom) {
+                    $customNamespace = $this->getClassNamespace($namespace, $relativeDirCustom);
+                    $sFactoryUses .= 'use ' . $customNamespace . "\\" . $returnedClassName . ";" . PHP_EOL;
+                }
+            } else {
+                if ($relativeDirFactory !== $relativeDirInterfaces) {
+                    $interfaceNamespace = $this->getClassNamespace($namespace, $relativeDirInterfaces);
+                    $sFactoryUses .= 'use ' . $interfaceNamespace . "\\" . $returnedClassName . ";" . PHP_EOL;
+
+                    $classNamespace = $this->getClassNamespace($namespace, $relativeDirClasses);
+                    $sFactoryUses .= 'use ' . $classNamespace . "\\" . $objectClassName . ";" . PHP_EOL;
+                }
             }
 
             if (true === $useMicroPermission && false === $containerIncluded) {
@@ -206,6 +256,7 @@ class LingBreezeGenerator implements BreezeGeneratorInterface, LightServiceConta
             }
 
 
+            // preparing factory
             $sFactoryMethods .= $this->getFactoryMethod([
                 'methodClassName' => $methodClassName,
                 'objectClassName' => $objectClassName,
@@ -239,10 +290,12 @@ class LingBreezeGenerator implements BreezeGeneratorInterface, LightServiceConta
             "extraPropertiesDefinition" => implode(PHP_EOL . PHP_EOL, $extraPropertiesDefinition),
             "extraPropertiesInstantiation" => "\t\t" . implode(PHP_EOL . "\t\t", $extraPropertiesInstantiation),
             "extraPublicMethods" => implode(PHP_EOL, $extraPublicMethods),
+            "relativeDirFactory" => $relativeDirFactory,
         ]);
 
-        $bs0Path = $dir . "/" . $factoryClassName . ".php";
-        if (false === file_exists($bs0Path) || true === $overwriteExisting) {
+
+        $bs0Path = $this->getClassPath($dir, $factoryClassName, $relativeDirFactory);
+        if (false === file_exists($bs0Path) || true === $overwriteFactory) {
             FileSystemTool::mkfile($bs0Path, $content);
         }
 
@@ -253,10 +306,12 @@ class LingBreezeGenerator implements BreezeGeneratorInterface, LightServiceConta
         $content = $this->generateObjectBase([
             "namespace" => $namespace,
             "baseClassName" => $baseClassName,
+            "relativeDirBaseApi" => $relativeDirBaseApi,
         ]);
 
-        $bs0Path = $dir . "/" . $baseClassName . ".php";
-        if (false === file_exists($bs0Path) || true === $overwriteExisting) {
+
+        $bs0Path = $this->getClassPath($dir, $baseClassName, $relativeDirBaseApi);
+        if (false === file_exists($bs0Path) || true === $overwriteBaseApi) {
             FileSystemTool::mkfile($bs0Path, $content);
         }
     }
@@ -277,17 +332,24 @@ class LingBreezeGenerator implements BreezeGeneratorInterface, LightServiceConta
 
         $template = __DIR__ . "/../assets/classModel/Ling/template/UserObject.phtml";
         $content = file_get_contents($template);
-
         $namespace = $variables['namespace'];
+
         $objectClassName = $variables['objectClassName'];
         $baseClassName = $variables['baseClassName'];
         $table = $variables['table'];
+        $objectInterfaceName = $objectClassName . $variables['interfaceSuffix'];
+
+        $namespaceClass = $this->getClassNamespace($namespace, $variables['relativeDirClasses']);
+        $namespaceBaseApi = $this->getClassNamespace($namespace, $variables['relativeDirBaseApi']);
+        $namespaceInterface = $this->getClassNamespace($namespace, $variables['relativeDirInterfaces']);
+
 
 
         //--------------------------------------------
         //
         //--------------------------------------------
-        $content = str_replace('The\ObjectNamespace', $namespace, $content);
+        $content = str_replace('UserObjectInterface', $objectInterfaceName, $content);
+        $content = str_replace('The\ObjectNamespace', $namespaceClass, $content);
         $content = str_replace('UserObject', $objectClassName, $content);
         $content = str_replace('BaseParent', $baseClassName, $content);
         $content = str_replace('theTableName', $table, $content);
@@ -321,6 +383,15 @@ class LingBreezeGenerator implements BreezeGeneratorInterface, LightServiceConta
         $content = str_replace('// deleteXXX', '', $content);
 
 
+        // uses
+        $uses = [];
+        if ($namespaceClass !== $namespaceBaseApi) {
+            $uses[] = "use " . $namespaceBaseApi . "\\$baseClassName;";
+        }
+        if ($namespaceClass !== $namespaceInterface) {
+            $uses[] = "use " . $namespaceInterface . "\\$objectInterfaceName;";
+        }
+        $content = str_replace('// the uses', implode(PHP_EOL, $uses) . PHP_EOL, $content);
         return $content;
 
     }
@@ -338,11 +409,11 @@ class LingBreezeGenerator implements BreezeGeneratorInterface, LightServiceConta
         $template = __DIR__ . "/../assets/classModel/Ling/template/UserObjectInterface.phtml";
         $content = file_get_contents($template);
         $ric = $variables['ric'];
-        $namespace = $variables['namespace'];
-        $objectClassName = $variables['objectClassName'];
+        $namespace = $this->getClassNamespace($variables['namespace'], $variables['relativeDirInterfaces']);
+        $objectClassName = $variables['objectClassName'] . $variables['interfaceSuffix'];
 
         $content = str_replace('The\ObjectNamespace', $namespace, $content);
-        $content = str_replace('UserObject', $objectClassName, $content);
+        $content = str_replace('UserObjectInterface', $objectClassName, $content);
 
         $content = str_replace('// insertXXX', $this->getInterfaceMethod('insertXXX', $variables), $content);
         $content = str_replace('// getXXX', $this->getInterfaceMethod('getXXXById', $variables), $content);
@@ -393,7 +464,7 @@ class LingBreezeGenerator implements BreezeGeneratorInterface, LightServiceConta
 
         $template = __DIR__ . "/../assets/classModel/Ling/template/MyFactory.phtml";
         $content = file_get_contents($template);
-        $namespace = $variables['namespace'];
+        $namespace = $this->getClassNamespace($variables['namespace'], $variables['relativeDirFactory']);
         $factoryClassName = $variables['factoryClassName'];
         $sFactoryMethods = $variables['factoryMethods'];
         $sUses = $variables['uses'];
@@ -431,7 +502,7 @@ class LingBreezeGenerator implements BreezeGeneratorInterface, LightServiceConta
         $template = __DIR__ . "/../assets/classModel/Ling/template/MyObjectBase.phtml";
         $content = file_get_contents($template);
 
-        $namespace = $variables['namespace'];
+        $namespace = $this->getClassNamespace($variables['namespace'], $variables['relativeDirBaseApi']);
         $baseClassName = $variables['baseClassName'];
         $content = str_replace('The\ObjectNamespace', $namespace, $content);
         $content = str_replace('BaseLightUserDatabaseApi', $baseClassName, $content);
@@ -1031,5 +1102,41 @@ class LingBreezeGenerator implements BreezeGeneratorInterface, LightServiceConta
         $column = CaseTool::toPascal(strtolower(current($ric)));
         $plural = StringTool::getPlural($column);
         return 'getAll' . $plural;
+    }
+
+
+    /**
+     * Returns the class path (absolute path to the php file containing the class).
+     *
+     * @param string $baseDir . Absolute path of the base directory containing all the classes.
+     * @param string $className
+     * @param string|null $relativeDir
+     * @return string
+     */
+    private function getClassPath(string $baseDir, string $className, string $relativeDir = null): string
+    {
+        $path = $baseDir;
+        if (null !== $relativeDir) {
+            $path .= "/$relativeDir";
+        }
+        $path .= "/$className.php";
+        return $path;
+    }
+
+
+    /**
+     * Returns the namespace of an object based on the given arguments.
+     *
+     * @param string $baseNamespace
+     * @param string|null $relativeNamespace
+     * @return string
+     */
+    private function getClassNamespace(string $baseNamespace, string $relativeNamespace = null): string
+    {
+        $ret = $baseNamespace;
+        if (null !== $relativeNamespace) {
+            $ret .= "\\" . $relativeNamespace;
+        }
+        return $ret;
     }
 }

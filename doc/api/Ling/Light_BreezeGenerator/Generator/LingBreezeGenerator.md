@@ -4,7 +4,7 @@
 
 The LingBreezeGenerator class
 ================
-2019-09-11 --> 2020-01-31
+2019-09-11 --> 2020-02-04
 
 
 
@@ -44,6 +44,8 @@ The variables array has at most the following structure:
 - uniqueIndexesVariables: array (more details in the getUniqueIndexesVariables method comments)
 - autoIncrementedKey: string|false
 - useMicroPermission: bool=false, whether to use the micro permission system
+- relativeDirXXX: string=null, the relative path from the base directory (containing all the classes) to the directory containing
+     the XXX class. If null, the base directory is the parent of the XXX class.
 
 
 
@@ -73,6 +75,8 @@ class <span class="pl-k">LingBreezeGenerator</span> implements [BreezeGeneratorI
     - protected [getInsertMethod](https://github.com/lingtalfi/Light_BreezeGenerator/blob/master/doc/api/Ling/Light_BreezeGenerator/Generator/LingBreezeGenerator/getInsertMethod.md)(array $variables) : string
     - protected [getAllMethod](https://github.com/lingtalfi/Light_BreezeGenerator/blob/master/doc/api/Ling/Light_BreezeGenerator/Generator/LingBreezeGenerator/getAllMethod.md)(array $variables) : string
     - private [getGetAllXXXMethodName](https://github.com/lingtalfi/Light_BreezeGenerator/blob/master/doc/api/Ling/Light_BreezeGenerator/Generator/LingBreezeGenerator/getGetAllXXXMethodName.md)(array $ric) : string
+    - private [getClassPath](https://github.com/lingtalfi/Light_BreezeGenerator/blob/master/doc/api/Ling/Light_BreezeGenerator/Generator/LingBreezeGenerator/getClassPath.md)(string $baseDir, string $className, ?string $relativeDir = null) : string
+    - private [getClassNamespace](https://github.com/lingtalfi/Light_BreezeGenerator/blob/master/doc/api/Ling/Light_BreezeGenerator/Generator/LingBreezeGenerator/getClassNamespace.md)(string $baseNamespace, ?string $relativeNamespace = null) : string
 
 }
 
@@ -109,6 +113,8 @@ Methods
 - [LingBreezeGenerator::getInsertMethod](https://github.com/lingtalfi/Light_BreezeGenerator/blob/master/doc/api/Ling/Light_BreezeGenerator/Generator/LingBreezeGenerator/getInsertMethod.md) &ndash; Returns the content of a php method of type insert (internal naming convention).
 - [LingBreezeGenerator::getAllMethod](https://github.com/lingtalfi/Light_BreezeGenerator/blob/master/doc/api/Ling/Light_BreezeGenerator/Generator/LingBreezeGenerator/getAllMethod.md) &ndash; or an empty string otherwise.
 - [LingBreezeGenerator::getGetAllXXXMethodName](https://github.com/lingtalfi/Light_BreezeGenerator/blob/master/doc/api/Ling/Light_BreezeGenerator/Generator/LingBreezeGenerator/getGetAllXXXMethodName.md) &ndash; Returns the getAllXXX method name for the first column of the given ric.
+- [LingBreezeGenerator::getClassPath](https://github.com/lingtalfi/Light_BreezeGenerator/blob/master/doc/api/Ling/Light_BreezeGenerator/Generator/LingBreezeGenerator/getClassPath.md) &ndash; Returns the class path (absolute path to the php file containing the class).
+- [LingBreezeGenerator::getClassNamespace](https://github.com/lingtalfi/Light_BreezeGenerator/blob/master/doc/api/Ling/Light_BreezeGenerator/Generator/LingBreezeGenerator/getClassNamespace.md) &ndash; Returns the namespace of an object based on the given arguments.
 
 
 

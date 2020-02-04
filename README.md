@@ -64,6 +64,10 @@ breeze_generator:
 History Log
 =============
 
+- 1.12.0 -- 2020-02-04
+
+    - new version of LightBreezeGenerator, more organized, more flexible, new doc
+    
 - 1.11.2 -- 2020-01-31
 
     - fix insertUser.tpl.txt not throwing exception when ignoreDuplicate flag is false
