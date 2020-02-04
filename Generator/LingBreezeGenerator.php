@@ -238,12 +238,17 @@ class LingBreezeGenerator implements BreezeGeneratorInterface, LightServiceConta
 
             // preparing custom classes
             $methodClassName = $objectClassName;
+            $interfaceClassName = $objectClassName . $interfaceSuffix;
             $returnedClassName = $objectClassName . $interfaceSuffix;
             if (true === $hasCustomClass) {
                 $returnedClassName = $customPrefix . $objectClassName;
                 if ($relativeDirFactory !== $relativeDirCustom) {
                     $customNamespace = $this->getClassNamespace($namespace, $relativeDirCustom);
                     $sFactoryUses .= 'use ' . $customNamespace . "\\" . $returnedClassName . ";" . PHP_EOL;
+                }
+                if ($relativeDirFactory !== $relativeDirInterfaces) {
+                    $interfaceNamespace = $this->getClassNamespace($namespace, $relativeDirInterfaces);
+                    $sFactoryUses .= 'use ' . $interfaceNamespace . "\\" . $interfaceClassName . ";" . PHP_EOL;
                 }
             } else {
                 if ($relativeDirFactory !== $relativeDirInterfaces) {
@@ -268,6 +273,7 @@ class LingBreezeGenerator implements BreezeGeneratorInterface, LightServiceConta
                 'returnedClassName' => $returnedClassName,
                 'useMicroPermission' => $useMicroPermission,
                 'hasCustomClass' => $hasCustomClass,
+                'interfaceClassName' => $interfaceClassName,
             ]);
             $sFactoryMethods .= PHP_EOL;
             $sFactoryMethods .= PHP_EOL;
@@ -1075,6 +1081,7 @@ class LingBreezeGenerator implements BreezeGeneratorInterface, LightServiceConta
     {
         $objectClassName = $variables['objectClassName'];
         $methodClassName = $variables['methodClassName'];
+        $interfaceClassName = $variables['interfaceClassName'];
         $returnedClassName = $variables['returnedClassName'];
         $useMicroPermission = $variables['useMicroPermission'];
         $hasCustomClass = $variables['hasCustomClass'];
@@ -1087,7 +1094,8 @@ class LingBreezeGenerator implements BreezeGeneratorInterface, LightServiceConta
         $tpl = __DIR__ . "/../assets/classModel/Ling/template/partials/getUserObject.tpl.txt";
         $content = file_get_contents($tpl);
 
-        $content = str_replace('UserObjectInterface', $returnedClassName, $content);
+        $content = str_replace('returnedUserObjectInterface', $returnedObjectName, $content);
+        $content = str_replace('UserObjectInterface', $interfaceClassName, $content);
 
 
         $content = str_replace('new UserObject', 'new ' . $returnedObjectName, $content);

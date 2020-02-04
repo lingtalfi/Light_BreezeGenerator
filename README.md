@@ -64,6 +64,10 @@ breeze_generator:
 History Log
 =============
 
+- 1.15.0 -- 2020-02-04
+
+    - update LingBreezeGenerator, now generated factory methods only return interfaces 
+    
 - 1.14.1 -- 2020-02-04
 
     - fix LingBreezeGenerator->getFactoryMethod not returning the child object instead of the Custom object
