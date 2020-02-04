@@ -47,6 +47,7 @@ use Ling\SqlWizard\Util\MysqlStructureReader;
  * - useMicroPermission: bool=false, whether to use the micro permission system
  * - relativeDirXXX: string=null, the relative path from the base directory (containing all the classes) to the directory containing
  *      the XXX class. If null, the base directory is the parent of the XXX class.
+ * - hasCustomClass: bool, whether the created class has a custom class associated with it
  *
  *
  *
@@ -183,6 +184,9 @@ class LingBreezeGenerator implements BreezeGeneratorInterface, LightServiceConta
             $ricVariables = $this->getRicVariables($tableInfo['ric'], $types);
             $uniqueIndexesVariables = $this->getUniqueIndexesVariables($tableInfo['uniqueIndexes'], $types);
 
+            $customClassPath = $this->getClassPath($dir, $customPrefix . $objectClassName, $relativeDirCustom);
+            $hasCustomClass = file_exists($customClassPath);
+
 
             //--------------------------------------------
             // GENERATE OBJECT
@@ -202,6 +206,7 @@ class LingBreezeGenerator implements BreezeGeneratorInterface, LightServiceConta
                 "relativeDirInterfaces" => $relativeDirInterfaces,
                 "relativeDirBaseApi" => $relativeDirBaseApi,
                 "relativeDirClasses" => $relativeDirClasses,
+                "hasCustomClass" => $hasCustomClass,
             ]);
             $bs0Path = $this->getClassPath($dir, $objectClassName, $relativeDirClasses);
             if (false === file_exists($bs0Path) || true === $overwriteClasses) {
@@ -234,7 +239,7 @@ class LingBreezeGenerator implements BreezeGeneratorInterface, LightServiceConta
             $methodClassName = $objectClassName;
             $returnedClassName = $objectClassName . $interfaceSuffix;
             $customClassPath = $this->getClassPath($dir, $customPrefix . $objectClassName, $relativeDirCustom);
-            if (file_exists($customClassPath)) {
+            if (true === $hasCustomClass) {
                 $returnedClassName = $customPrefix . $objectClassName;
                 if ($relativeDirFactory !== $relativeDirCustom) {
                     $customNamespace = $this->getClassNamespace($namespace, $relativeDirCustom);
@@ -337,6 +342,7 @@ class LingBreezeGenerator implements BreezeGeneratorInterface, LightServiceConta
         $objectClassName = $variables['objectClassName'];
         $baseClassName = $variables['baseClassName'];
         $table = $variables['table'];
+        $hasCustomClass = $variables['hasCustomClass'];
         $objectInterfaceName = $objectClassName . $variables['interfaceSuffix'];
 
         $namespaceClass = $this->getClassNamespace($namespace, $variables['relativeDirClasses']);
@@ -344,10 +350,13 @@ class LingBreezeGenerator implements BreezeGeneratorInterface, LightServiceConta
         $namespaceInterface = $this->getClassNamespace($namespace, $variables['relativeDirInterfaces']);
 
 
-
         //--------------------------------------------
         //
         //--------------------------------------------
+        if (true === $hasCustomClass) {
+            $content = str_replace('class UserObject', 'abstract class UserObject', $content);
+        }
+
         $content = str_replace('UserObjectInterface', $objectInterfaceName, $content);
         $content = str_replace('The\ObjectNamespace', $namespaceClass, $content);
         $content = str_replace('UserObject', $objectClassName, $content);

@@ -46,6 +46,7 @@ The variables array has at most the following structure:
 - useMicroPermission: bool=false, whether to use the micro permission system
 - relativeDirXXX: string=null, the relative path from the base directory (containing all the classes) to the directory containing
      the XXX class. If null, the base directory is the parent of the XXX class.
+- hasCustomClass: bool, whether the created class has a custom class associated with it
 
 
 

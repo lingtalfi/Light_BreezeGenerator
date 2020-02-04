@@ -1,6 +1,6 @@
 Light_BreezeGenerator
 ===========
-2019-09-11 -> 2020-01-31
+2019-09-11 -> 2020-02-04
 
 
 
@@ -64,6 +64,10 @@ breeze_generator:
 History Log
 =============
 
+- 1.13.0 -- 2020-02-04
+
+    - LingBreezeGenerator now add abstract class if the child class is extended by a Custom class
+    
 - 1.12.0 -- 2020-02-04
 
     - new version of LightBreezeGenerator, more organized, more flexible, new doc
