@@ -83,6 +83,7 @@ The generated classes for the **apple** table look like this:
     - insertApple ( array $apple, bool $ignoreDuplicate = true, bool $returnRic = false )
     - getAppleById ( int $id, $default = null, bool $throwNotFoundEx = false )
     - getAppleByName ( string $name, $default = null, bool $throwNotFoundEx = false )
+    - getAppleIdByName ( string $name, $default = null, bool $throwNotFoundEx = false )
     - getAllIds ( ): array
     - updateAppleById ( int $id, array $apple )
     - updateAppleByName ( string $name, array $apple )
@@ -162,8 +163,6 @@ conf:
         baseApi: false
         factory: true
 
-    useMicroPermission: false
-    microPermissionPluginName: Light_UserData
     generate:
         file: /path/to/Ling/Light_UserData/assets/fixtures/recreate-structure.sql
 
@@ -222,7 +221,7 @@ By default (or if empty), the following array is implied:
 
 ### useMicroPermission
 
-Optional, bool = false.
+Optional, bool = false. Deprecated.
 
 Whether classes generated methods should use the micro-permission checking system.
 We use the [micro-permission recommended notation for database](https://github.com/lingtalfi/Light_MicroPermission/blob/master/doc/pages/recommended-micropermission-notation.md#database-interaction).

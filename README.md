@@ -64,6 +64,10 @@ breeze_generator:
 History Log
 =============
 
+- 1.14.0 -- 2020-02-04
+
+    - LingBreezeGenerator now generates getIdByUniqueIndex methods
+    
 - 1.13.0 -- 2020-02-04
 
     - LingBreezeGenerator now add abstract class if the child class is extended by a Custom class

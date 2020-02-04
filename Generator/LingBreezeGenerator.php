@@ -226,6 +226,7 @@ class LingBreezeGenerator implements BreezeGeneratorInterface, LightServiceConta
                 "ricVariables" => $ricVariables,
                 "ric" => $tableInfo['ric'],
                 "uniqueIndexesVariables" => $uniqueIndexesVariables,
+                "autoIncrementedKey" => $tableInfo['autoIncrementedKey'],
                 "relativeDirInterfaces" => $relativeDirInterfaces,
             ]);
 
@@ -369,6 +370,7 @@ class LingBreezeGenerator implements BreezeGeneratorInterface, LightServiceConta
         // HEADER METHODS
         //--------------------------------------------
         $content = str_replace('// getXXX', $this->getRicMethod("getUserById", $variables), $content);
+        $content = str_replace('// getIdByXXX', $this->getIdByUniqueIndexMethods($variables), $content);
         $content = str_replace('// getAllXXX', $this->getAllMethod($variables), $content);
         $content = str_replace('// updateXXX', $this->getRicMethod("updateUserById", $variables), $content);
         $content = str_replace('// deleteXXX', $this->getRicMethod("deleteUserById", $variables), $content);
@@ -412,9 +414,12 @@ class LingBreezeGenerator implements BreezeGeneratorInterface, LightServiceConta
      *
      * @param array $variables
      * @return string
+     * @throws \Exception
      */
     public function generateObjectInterfaceClass(array $variables): string
     {
+
+
         $template = __DIR__ . "/../assets/classModel/Ling/template/UserObjectInterface.phtml";
         $content = file_get_contents($template);
         $ric = $variables['ric'];
@@ -426,6 +431,7 @@ class LingBreezeGenerator implements BreezeGeneratorInterface, LightServiceConta
 
         $content = str_replace('// insertXXX', $this->getInterfaceMethod('insertXXX', $variables), $content);
         $content = str_replace('// getXXX', $this->getInterfaceMethod('getXXXById', $variables), $content);
+        $content = str_replace('// getIdByXXX', $this->getIdByUniqueIndexInterfaceMethods($variables), $content);
 
         if (1 === count($ric)) {
             $content = str_replace('// getAllXXX', $this->getInterfaceMethod('getAllXXX', $variables), $content);
@@ -893,6 +899,126 @@ class LingBreezeGenerator implements BreezeGeneratorInterface, LightServiceConta
         $content = str_replace('"id" => $id,', $sLines, $content);
         return $content;
 
+    }
+
+
+    /**
+     * Parses the given variables, and returns an output.
+     *
+     * The output depends on the whether the table has an auto-incremented key and some unique indexes:
+     *
+     * - if the table has no auto-incremented key, the method returns an empty string
+     * - if the table has an auto-incremented key, but has no unique indexes, the method also returns an empty string
+     * - if the table has an auto-incremented key and some unique indexes, then the method generates a getter method for
+     *      each unique index; this method returns the auto-incremented key from the given unique index column(s)
+     *
+     *
+     * @param array $variables
+     * @return string
+     * @throws \Exception
+     */
+    protected function getIdByUniqueIndexMethods(array $variables): string
+    {
+
+
+        $s = "";
+        $ai = $variables['autoIncrementedKey'];
+        $uqs = $variables['uniqueIndexesVariables'];
+
+        if (false !== $ai && false === empty($uqs)) {
+            $template = __DIR__ . "/../assets/classModel/Ling/template/partials/getIdByUniqueIndex.tpl.txt";
+            $originalContent = file_get_contents($template);
+
+            foreach ($uqs as $uq) {
+                $content = $originalContent;
+
+                $className = $variables['className'];
+                $methodName = "get" . $className . CaseTool::toPascal($ai) . $uq['byString'];
+
+                $sLines = '';
+                foreach ($uq['markerLines'] as $line) {
+                    if ('' !== $sLines) {
+                        $sLines .= "\t\t\t";
+                    }
+                    $sLines .= $line . PHP_EOL;
+                }
+
+
+                $content = str_replace('getUserGroupIdByName', $methodName, $content);
+                $content = str_replace('string $name', $uq['argString'], $content);
+                $content = str_replace('select id from', 'select ' . $ai . ' from', $content);
+                $content = str_replace('name=:name', $uq['markerString'], $content);
+                $content = str_replace('"name" => $name,', $sLines, $content);
+                $content = str_replace('name=$name', $uq['variableString'], $content);
+
+                $s .= $content;
+                $s .= PHP_EOL;
+                $s .= PHP_EOL;
+            }
+
+        }
+        return $s;
+    }
+
+
+    /**
+     * Parses the given variables, and returns an output.
+     *
+     * The output depends on the whether the table has an auto-incremented key and some unique indexes:
+     *
+     * - if the table has no auto-incremented key, the method returns an empty string
+     * - if the table has an auto-incremented key, but has no unique indexes, the method also returns an empty string
+     * - if the table has an auto-incremented key and some unique indexes, then the method generates a getter method for
+     *      each unique index; this method returns the auto-incremented key from the given unique index column(s)
+     *
+     *
+     * @param array $variables
+     * @return string
+     * @throws \Exception
+     */
+    protected function getIdByUniqueIndexInterfaceMethods(array $variables): string
+    {
+
+
+
+        $s = "";
+        $ai = $variables['autoIncrementedKey'];
+        $uqs = $variables['uniqueIndexesVariables'];
+        $table = $variables['table'];
+
+        if (false !== $ai && false === empty($uqs)) {
+            $template = __DIR__ . "/../assets/classModel/Ling/template/partials/getIdByXXX.tpl.txt";
+            $originalContent = file_get_contents($template);
+
+            foreach ($uqs as $uq) {
+                $content = $originalContent;
+
+                $className = $variables['className'];
+                $methodName = "get" . $className . CaseTool::toPascal($ai) . $uq['byString'];
+                $definition = $ai . " of the $table table";
+
+                $sLines = '';
+                foreach ($uq['markerLines'] as $line) {
+                    if ('' !== $sLines) {
+                        $sLines .= "\t\t\t";
+                    }
+                    $sLines .= $line . PHP_EOL;
+                }
+
+
+                $content = str_replace('id of the user group', $definition, $content);
+                $content = str_replace('* @param string $name', $uq['paramDeclarationString'], $content);
+                $content = str_replace('getUserGroupIdByName', $methodName, $content);
+                $content = str_replace('string $name', $uq['argString'], $content);
+
+
+                $s .= $content;
+                $s .= PHP_EOL;
+                $s .= PHP_EOL;
+            }
+
+        }
+        return $s;
     }
 
 

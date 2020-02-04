@@ -42,6 +42,11 @@ Return values
 Returns string.
 
 
+Exceptions thrown
+================
+
+- [Exception](http://php.net/manual/en/class.exception.php).&nbsp;
+
 
 
 
@@ -50,7 +55,7 @@ Returns string.
 
 Source Code
 ===========
-See the source code for method [LingBreezeGenerator::generateObjectInterfaceClass](https://github.com/lingtalfi/Light_BreezeGenerator/blob/master/Generator/LingBreezeGenerator.php#L416-L461)
+See the source code for method [LingBreezeGenerator::generateObjectInterfaceClass](https://github.com/lingtalfi/Light_BreezeGenerator/blob/master/Generator/LingBreezeGenerator.php#L419-L467)
 
 
 See Also
