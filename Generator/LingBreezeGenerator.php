@@ -239,7 +239,6 @@ class LingBreezeGenerator implements BreezeGeneratorInterface, LightServiceConta
             // preparing custom classes
             $methodClassName = $objectClassName;
             $returnedClassName = $objectClassName . $interfaceSuffix;
-            $customClassPath = $this->getClassPath($dir, $customPrefix . $objectClassName, $relativeDirCustom);
             if (true === $hasCustomClass) {
                 $returnedClassName = $customPrefix . $objectClassName;
                 if ($relativeDirFactory !== $relativeDirCustom) {
@@ -268,6 +267,7 @@ class LingBreezeGenerator implements BreezeGeneratorInterface, LightServiceConta
                 'objectClassName' => $objectClassName,
                 'returnedClassName' => $returnedClassName,
                 'useMicroPermission' => $useMicroPermission,
+                'hasCustomClass' => $hasCustomClass,
             ]);
             $sFactoryMethods .= PHP_EOL;
             $sFactoryMethods .= PHP_EOL;
@@ -980,7 +980,6 @@ class LingBreezeGenerator implements BreezeGeneratorInterface, LightServiceConta
     {
 
 
-
         $s = "";
         $ai = $variables['autoIncrementedKey'];
         $uqs = $variables['uniqueIndexesVariables'];
@@ -1078,11 +1077,20 @@ class LingBreezeGenerator implements BreezeGeneratorInterface, LightServiceConta
         $methodClassName = $variables['methodClassName'];
         $returnedClassName = $variables['returnedClassName'];
         $useMicroPermission = $variables['useMicroPermission'];
+        $hasCustomClass = $variables['hasCustomClass'];
+
+        $returnedObjectName = $objectClassName;
+        if (true === $hasCustomClass) {
+            $returnedObjectName = $returnedClassName;
+        }
+
         $tpl = __DIR__ . "/../assets/classModel/Ling/template/partials/getUserObject.tpl.txt";
         $content = file_get_contents($tpl);
 
         $content = str_replace('UserObjectInterface', $returnedClassName, $content);
-        $content = str_replace('new UserObject', 'new ' . $objectClassName, $content);
+
+
+        $content = str_replace('new UserObject', 'new ' . $returnedObjectName, $content);
 
         $moreCalls = '';
         if (true === $useMicroPermission) {

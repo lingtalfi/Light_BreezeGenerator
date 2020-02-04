@@ -64,6 +64,10 @@ breeze_generator:
 History Log
 =============
 
+- 1.14.1 -- 2020-02-04
+
+    - fix LingBreezeGenerator->getFactoryMethod not returning the child object instead of the Custom object
+    
 - 1.14.0 -- 2020-02-04
 
     - LingBreezeGenerator now generates getIdByUniqueIndex methods
