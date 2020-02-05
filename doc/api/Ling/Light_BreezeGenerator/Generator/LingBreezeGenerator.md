@@ -4,7 +4,7 @@
 
 The LingBreezeGenerator class
 ================
-2019-09-11 --> 2020-02-04
+2019-09-11 --> 2020-02-05
 
 
 
@@ -47,6 +47,8 @@ The variables array has at most the following structure:
 - relativeDirXXX: string=null, the relative path from the base directory (containing all the classes) to the directory containing
      the XXX class. If null, the base directory is the parent of the XXX class.
 - hasCustomClass: bool, whether the created class has a custom class associated with it
+- foreignKeysInfo: array, foreign keys information (see the [LightDatabaseInfoService->getTableInfo](https://github.com/lingtalfi/Light_DatabaseInfo/blob/master/doc/api/Ling/Light_DatabaseInfo/Service/LightDatabaseInfoService/getTableInfo.md) method for more details)
+- types: array, an array of column name => mysql type (see the [LightDatabaseInfoService->getTableInfo](https://github.com/lingtalfi/Light_DatabaseInfo/blob/master/doc/api/Ling/Light_DatabaseInfo/Service/LightDatabaseInfoService/getTableInfo.md) method for more details)
 
 
 

@@ -1,6 +1,6 @@
 Ling Breeze Generator 
 =================
-2019-09-13 -> 2020-02-04
+2019-09-13 -> 2020-02-05
 
 
 
@@ -107,6 +107,16 @@ The generated classes for the **apple** table look like this:
 
 
 
+
+### Extra classes
+2020-03-05
+
+If the table's [ric](https://github.com/lingtalfi/NotationFan/blob/master/ric.md) are all foreign keys (i.e. if the table is a **has table**),
+then extra methods are being generated for the child class and the interface:
+
+- Child class methods (for **has tables** only):
+    - deleteUserHasAppleByUserId( int $user_id )
+    - deleteUserHasAppleByAppleId( int $apple_id )
 
 
 

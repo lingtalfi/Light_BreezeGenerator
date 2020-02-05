@@ -1,6 +1,6 @@
 Light_BreezeGenerator
 ===========
-2019-09-11 -> 2020-02-04
+2019-09-11 -> 2020-02-05
 
 
 
@@ -64,6 +64,10 @@ breeze_generator:
 History Log
 =============
 
+- 1.16.0 -- 2020-02-05
+
+    - update LingBreezeGenerator, now generated deleteByForeignKey methods for has tables 
+    
 - 1.15.0 -- 2020-02-04
 
     - update LingBreezeGenerator, now generated factory methods only return interfaces 

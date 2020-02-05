@@ -48,6 +48,8 @@ use Ling\SqlWizard\Util\MysqlStructureReader;
  * - relativeDirXXX: string=null, the relative path from the base directory (containing all the classes) to the directory containing
  *      the XXX class. If null, the base directory is the parent of the XXX class.
  * - hasCustomClass: bool, whether the created class has a custom class associated with it
+ * - foreignKeysInfo: array, foreign keys information (see the @page(LightDatabaseInfoService->getTableInfo) method for more details)
+ * - types: array, an array of column name => mysql type (see the @page(LightDatabaseInfoService->getTableInfo) method for more details)
  *
  *
  *
@@ -111,7 +113,7 @@ class LingBreezeGenerator implements BreezeGeneratorInterface, LightServiceConta
 
         $customPrefix = $conf['customPrefix'] ?? 'Custom';
         $classSuffix = $conf['classSuffix'] ?? 'Object';
-        $interfaceSuffix = $conf['interfaceSuffix'] ?? 'interface';
+        $interfaceSuffix = $conf['interfaceSuffix'] ?? 'Interface';
 
         $generate = $conf['generate'];
         $relativeDirs = $conf['relativeDirs'] ?? [];
@@ -167,6 +169,7 @@ class LingBreezeGenerator implements BreezeGeneratorInterface, LightServiceConta
 
             }
             $types = $tableInfo['types'];
+            $foreignKeysInfo = $tableInfo['foreignKeysInfo'];
 
 
             $tableClassName = $table;
@@ -207,6 +210,8 @@ class LingBreezeGenerator implements BreezeGeneratorInterface, LightServiceConta
                 "relativeDirBaseApi" => $relativeDirBaseApi,
                 "relativeDirClasses" => $relativeDirClasses,
                 "hasCustomClass" => $hasCustomClass,
+                "foreignKeysInfo" => $foreignKeysInfo,
+                "types" => $types,
             ]);
             $bs0Path = $this->getClassPath($dir, $objectClassName, $relativeDirClasses);
             if (false === file_exists($bs0Path) || true === $overwriteClasses) {
@@ -228,6 +233,8 @@ class LingBreezeGenerator implements BreezeGeneratorInterface, LightServiceConta
                 "uniqueIndexesVariables" => $uniqueIndexesVariables,
                 "autoIncrementedKey" => $tableInfo['autoIncrementedKey'],
                 "relativeDirInterfaces" => $relativeDirInterfaces,
+                "foreignKeysInfo" => $foreignKeysInfo,
+                "types" => $types,
             ]);
 
             $bs0Path = $this->getClassPath($dir, $objectClassName . $interfaceSuffix, $relativeDirInterfaces);
@@ -342,6 +349,7 @@ class LingBreezeGenerator implements BreezeGeneratorInterface, LightServiceConta
     public function generateObjectClass(array $variables): string
     {
 
+
         $template = __DIR__ . "/../assets/classModel/Ling/template/UserObject.phtml";
         $content = file_get_contents($template);
         $namespace = $variables['namespace'];
@@ -350,11 +358,16 @@ class LingBreezeGenerator implements BreezeGeneratorInterface, LightServiceConta
         $baseClassName = $variables['baseClassName'];
         $table = $variables['table'];
         $hasCustomClass = $variables['hasCustomClass'];
+        $foreignKeysInfo = $variables['foreignKeysInfo'];
+        $types = $variables['types'];
+        $ric = $variables['ric'];
         $objectInterfaceName = $objectClassName . $variables['interfaceSuffix'];
 
         $namespaceClass = $this->getClassNamespace($namespace, $variables['relativeDirClasses']);
         $namespaceBaseApi = $this->getClassNamespace($namespace, $variables['relativeDirBaseApi']);
         $namespaceInterface = $this->getClassNamespace($namespace, $variables['relativeDirInterfaces']);
+
+
 
 
         //--------------------------------------------
@@ -394,6 +407,33 @@ class LingBreezeGenerator implements BreezeGeneratorInterface, LightServiceConta
         }
 
 
+        //--------------------------------------------
+        // HAS TABLES
+        //--------------------------------------------
+        /**
+         * For has tables (which ric is only composed of foreign keys, we often want to delete the entries based on only one of the
+         * foreign keys (i.e. not both at the same time)
+         *
+         */
+        $isHasTable = true;
+        if ($foreignKeysInfo) {
+            foreach ($ric as $column) {
+                if (false === array_key_exists($column, $foreignKeysInfo)) {
+                    $isHasTable = false;
+                }
+            }
+        }
+        if (true === $isHasTable) {
+            foreach ($ric as $column) {
+                $fkRicVariables = $variables;
+                $fkRicVariables['ricVariables'] = $this->getRicVariables([$column], $types); // hacking myself (faster)
+
+
+                $content = str_replace('// deleteXXX', $this->getRicMethod("deleteUserById", $fkRicVariables), $content);
+            }
+        }
+
+
         // cleaning
         $content = str_replace('// getXXX', '', $content);
         $content = str_replace('// updateXXX', '', $content);
@@ -429,6 +469,8 @@ class LingBreezeGenerator implements BreezeGeneratorInterface, LightServiceConta
         $template = __DIR__ . "/../assets/classModel/Ling/template/UserObjectInterface.phtml";
         $content = file_get_contents($template);
         $ric = $variables['ric'];
+        $foreignKeysInfo = $variables['foreignKeysInfo'];
+        $types = $variables['types'];
         $namespace = $this->getClassNamespace($variables['namespace'], $variables['relativeDirInterfaces']);
         $objectClassName = $variables['objectClassName'] . $variables['interfaceSuffix'];
 
@@ -459,6 +501,35 @@ class LingBreezeGenerator implements BreezeGeneratorInterface, LightServiceConta
                 $content = str_replace('// deleteXXX', $this->getInterfaceMethod('deleteXXXById', $uniqueVariables), $content);
             }
         }
+
+
+
+        //--------------------------------------------
+        // HAS TABLES
+        //--------------------------------------------
+        /**
+         * For has tables (which ric is only composed of foreign keys, we often want to delete the entries based on only one of the
+         * foreign keys (i.e. not both at the same time)
+         *
+         */
+        $isHasTable = true;
+        if ($foreignKeysInfo) {
+            foreach ($ric as $column) {
+                if (false === array_key_exists($column, $foreignKeysInfo)) {
+                    $isHasTable = false;
+                }
+            }
+        }
+        if (true === $isHasTable) {
+            foreach ($ric as $column) {
+                $fkRicVariables = $variables;
+                $fkRicVariables['ricVariables'] = $this->getRicVariables([$column], $types); // hacking myself (faster)
+
+
+                $content = str_replace('// deleteXXX', $this->getInterfaceMethod("deleteXXXById", $fkRicVariables), $content);
+            }
+        }
+
 
 
         //--------------------------------------------
