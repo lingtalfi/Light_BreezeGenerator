@@ -1,0 +1,10 @@
+    /**
+     * Returns the resource rows identified by the given where conditions.
+     *
+     *
+     * @param $where
+     * @param array $markers
+     * @return array
+     * @throws \Exception
+     */
+    public function getResources($where, array $markers = []);

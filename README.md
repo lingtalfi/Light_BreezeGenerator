@@ -64,13 +64,17 @@ breeze_generator:
 History Log
 =============
 
+- 1.17.0 -- 2020-02-05
+
+    - update LingBreezeGenerator, now generates getObject and getObjects methods 
+    
 - 1.16.0 -- 2020-02-05
 
-    - update LingBreezeGenerator, now generated deleteByForeignKey methods for has tables 
+    - update LingBreezeGenerator, now generates deleteByForeignKey methods for has tables 
     
 - 1.15.0 -- 2020-02-04
 
-    - update LingBreezeGenerator, now generated factory methods only return interfaces 
+    - update LingBreezeGenerator, now generates factory methods only return interfaces 
     
 - 1.14.1 -- 2020-02-04
 

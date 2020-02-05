@@ -368,8 +368,6 @@ class LingBreezeGenerator implements BreezeGeneratorInterface, LightServiceConta
         $namespaceInterface = $this->getClassNamespace($namespace, $variables['relativeDirInterfaces']);
 
 
-
-
         //--------------------------------------------
         //
         //--------------------------------------------
@@ -389,6 +387,8 @@ class LingBreezeGenerator implements BreezeGeneratorInterface, LightServiceConta
         // HEADER METHODS
         //--------------------------------------------
         $content = str_replace('// getXXX', $this->getRicMethod("getUserById", $variables), $content);
+        $content = str_replace('// getTheItems', $this->getItemsMethod($variables), $content);
+        $content = str_replace('// getTheItem', $this->getItemMethod($variables), $content);
         $content = str_replace('// getIdByXXX', $this->getIdByUniqueIndexMethods($variables), $content);
         $content = str_replace('// getAllXXX', $this->getAllMethod($variables), $content);
         $content = str_replace('// updateXXX', $this->getRicMethod("updateUserById", $variables), $content);
@@ -422,6 +422,8 @@ class LingBreezeGenerator implements BreezeGeneratorInterface, LightServiceConta
                     $isHasTable = false;
                 }
             }
+        } else {
+            $isHasTable = false;
         }
         if (true === $isHasTable) {
             foreach ($ric as $column) {
@@ -479,6 +481,8 @@ class LingBreezeGenerator implements BreezeGeneratorInterface, LightServiceConta
 
         $content = str_replace('// insertXXX', $this->getInterfaceMethod('insertXXX', $variables), $content);
         $content = str_replace('// getXXX', $this->getInterfaceMethod('getXXXById', $variables), $content);
+        $content = str_replace('// getTheItems', $this->getItemsInterfaceMethod($variables), $content);
+        $content = str_replace('// getTheItem', $this->getItemInterfaceMethod($variables), $content);
         $content = str_replace('// getIdByXXX', $this->getIdByUniqueIndexInterfaceMethods($variables), $content);
 
         if (1 === count($ric)) {
@@ -503,7 +507,6 @@ class LingBreezeGenerator implements BreezeGeneratorInterface, LightServiceConta
         }
 
 
-
         //--------------------------------------------
         // HAS TABLES
         //--------------------------------------------
@@ -519,7 +522,10 @@ class LingBreezeGenerator implements BreezeGeneratorInterface, LightServiceConta
                     $isHasTable = false;
                 }
             }
+        } else {
+            $isHasTable = false;
         }
+
         if (true === $isHasTable) {
             foreach ($ric as $column) {
                 $fkRicVariables = $variables;
@@ -529,7 +535,6 @@ class LingBreezeGenerator implements BreezeGeneratorInterface, LightServiceConta
                 $content = str_replace('// deleteXXX', $this->getInterfaceMethod("deleteXXXById", $fkRicVariables), $content);
             }
         }
-
 
 
         //--------------------------------------------
@@ -1034,6 +1039,73 @@ class LingBreezeGenerator implements BreezeGeneratorInterface, LightServiceConta
             }
 
         }
+        return $s;
+    }
+
+    /**
+     * Parses the given variables and return a string corresponding to the getItems method.
+     *
+     * @param array $variables
+     * @return string
+     */
+    protected function getItemsMethod(array $variables): string
+    {
+        $className = $variables['className'];
+        $template = __DIR__ . "/../assets/classModel/Ling/template/partials/getUserItems.tpl.txt";
+        $s = file_get_contents($template);
+        $s = str_replace('getResources', "get" . StringTool::getPlural($className), $s);
+        return $s;
+    }
+
+
+    /**
+     * Parses the given variables and return a string corresponding to the getItem method.
+     *
+     * @param array $variables
+     * @return string
+     */
+    protected function getItemMethod(array $variables): string
+    {
+        $className = $variables['className'];
+        $template = __DIR__ . "/../assets/classModel/Ling/template/partials/getUserItem.tpl.txt";
+        $s = file_get_contents($template);
+        $s = str_replace('getResource', "get" . $className, $s);
+        return $s;
+    }
+
+
+    /**
+     * Parses the given variables and return a string corresponding to the getItemsInterface method.
+     *
+     * @param array $variables
+     * @return string
+     */
+    protected function getItemsInterfaceMethod(array $variables): string
+    {
+        $className = $variables['className'];
+        $object = lcfirst($className);
+        $template = __DIR__ . "/../assets/classModel/Ling/template/partials/getUserItemsInterface.tpl.txt";
+        $s = file_get_contents($template);
+        $s = str_replace('resource', $object, $s);
+        $s = str_replace('getResources', "get" . StringTool::getPlural($className), $s);
+        return $s;
+    }
+
+
+    /**
+     * Parses the given variables and return a string corresponding to the getItemInterface method.
+     *
+     * @param array $variables
+     * @return string
+     */
+    protected function getItemInterfaceMethod(array $variables): string
+    {
+        $className = $variables['className'];
+        $object = lcfirst($className);
+        $template = __DIR__ . "/../assets/classModel/Ling/template/partials/getUserItemInterface.tpl.txt";
+        $s = file_get_contents($template);
+        $s = str_replace('resource', $object, $s);
+        $s = str_replace('getResource', "get" . $className, $s);
         return $s;
     }
 

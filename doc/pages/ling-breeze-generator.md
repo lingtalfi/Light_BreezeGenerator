@@ -83,6 +83,8 @@ The generated classes for the **apple** table look like this:
     - insertApple ( array $apple, bool $ignoreDuplicate = true, bool $returnRic = false )
     - getAppleById ( int $id, $default = null, bool $throwNotFoundEx = false )
     - getAppleByName ( string $name, $default = null, bool $throwNotFoundEx = false )
+    - getApple ( $where, array $markers = [], $default = null, bool $throwNotFoundEx = false )
+    - getApples ( $where, array $markers = [] )
     - getAppleIdByName ( string $name, $default = null, bool $throwNotFoundEx = false )
     - getAllIds ( ): array
     - updateAppleById ( int $id, array $apple )
