@@ -1,6 +1,6 @@
 Light_BreezeGenerator
 ===========
-2019-09-11 -> 2020-02-05
+2019-09-11 -> 2020-02-06
 
 
 
@@ -64,6 +64,10 @@ breeze_generator:
 History Log
 =============
 
+- 1.18.0 -- 2020-02-06
+
+    - update LingBreezeGenerator, now generates documentation with link to the whereConds argument 
+    
 - 1.17.0 -- 2020-02-05
 
     - update LingBreezeGenerator, now generates getObject and getObjects methods 
