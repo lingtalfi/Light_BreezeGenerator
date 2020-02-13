@@ -64,6 +64,10 @@ breeze_generator:
 History Log
 =============
 
+- 1.19.1 -- 2020-02-13
+
+    - fix LingBreezeGenerator->getItemsXXXByHasMethod method wrong template 
+    
 - 1.19.0 -- 2020-02-13
 
     - update LingBreezeGenerator, now generates getter methods based on has relationship 

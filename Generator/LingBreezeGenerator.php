@@ -1325,24 +1325,27 @@ class LingBreezeGenerator implements BreezeGeneratorInterface, LightServiceConta
                         $handleName = "";
                         $argString = '';
                         $sMarkers = '';
+                        $sWhere = '';
                         foreach ($leftHandle as $col) {
                             if ('' !== $handleName) {
                                 $handleName .= "And";
                                 $argString .= ', ';
                                 $sMarkers .= PHP_EOL . "\t";
+                                $sWhere .= ' and ';
                             }
                             $handleName .= CaseTool::toPascal(strtolower($col));
                             $var = '$' . $leftTable . CaseTool::toPascal($col);
                             $marker = $leftTable . "_" . $col;
                             $argString .= 'string ' . $var;
                             $sMarkers .= '":' . $marker . '" => ' . $var . ',';
+                            $sWhere .= "b.$col=:$marker";
                         }
 
 
                         $methodName = "get" . $variables['className'] . $rightColPluralName . "By" . $leftTableName . $handleName;
 
                         $rel1 = "h.$rightFk=a.$referencedByLeft";
-                        $rel2 = "h.$leftFk=:$leftFk";
+                        $rel2 = "inner join " . $hasItem['left_table'] . " b on b.$referencedByLeft=h.$leftFk";
 
 
                         $t = file_get_contents($template);
@@ -1351,7 +1354,8 @@ class LingBreezeGenerator implements BreezeGeneratorInterface, LightServiceConta
                         $t = str_replace('a.name', 'a.' . $rightCol, $t);
                         $t = str_replace('luda_resource_has_tag', $hasTable, $t);
                         $t = str_replace('h.tag_id=a.id', $rel1, $t);
-                        $t = str_replace('h.resource_id=:resource_id', $rel2, $t);
+                        $t = str_replace('inner join luda_resource b on b.id=h.resource_id', $rel2, $t);
+                        $t = str_replace('b.id=:resource_id', $sWhere, $t);
                         $t = str_replace('":resource_id" => $resourceId,', $sMarkers, $t);
 
                         $s .= $t . PHP_EOL . PHP_EOL;
