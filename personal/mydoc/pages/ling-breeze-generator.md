@@ -1,6 +1,6 @@
 Ling Breeze Generator 
 =================
-2019-09-13 -> 2020-02-05
+2019-09-13 -> 2020-02-13
 
 
 
@@ -56,7 +56,7 @@ Example of a generated structure in the file system:
 
 Design
 ----------
-2020-02-04
+2020-02-04 -> 2020-02-13
 
 In this section I want to give you an overview the content of what's generated.
 
@@ -75,6 +75,15 @@ To ease understanding, we will use the example of a table named "apple", from th
     - id: auto-incremented key    
     - name: varchar(64)
     
+- **human**:
+    - id: auto-incremented key    
+    - name: varchar(64), unique index
+    
+- **human_has_apple**:
+    - human_id: fk referencing human.id    
+    - apple_id: fk referencing apple.id
+    
+    
     
 The generated classes for the **apple** table look like this:
 
@@ -86,6 +95,13 @@ The generated classes for the **apple** table look like this:
     - getApple ( $where, array $markers = [], $default = null, bool $throwNotFoundEx = false )
     - getApples ( $where, array $markers = [] )
     - getAppleIdByName ( string $name, $default = null, bool $throwNotFoundEx = false )
+    - getApplesByHumanId ( string $humanId )
+    - getApplesByHumanName ( string $humanName )
+    - getAppleIdsByHumanId ( string $humanId )
+    - getAppleNamesByHumanId ( string $humanId )
+    - getAppleIdsByHumanName ( string $humanName )
+    - getAppleNamesByHumanName ( string $humanName )
+    
     - getAllIds ( ): array
     - updateAppleById ( int $id, array $apple )
     - updateAppleByName ( string $name, array $apple )
@@ -311,11 +327,24 @@ If your table has a prefix (for instance the **lud** prefix in the **lud_user** 
 The prefix is defined using the **prefix** (configuration) option.
 
 
-### Prefix
+### prefix
 
 Optional, string = null.
 
 If your table has a prefix (for instance the **lud** prefix in the **lud_user** table) and you used the **usePrefixInClassName**=false, then you need to specify the prefix to remove (using this option).
+
+
+### allPrefixes
+
+Optional, array = [].
+
+If your table is related to other tables with other prefixes (usually tables created by other plugins),
+then this array should contain those "foreign" prefixes. Those prefixes are used to generate the 
+stripped version of foreign table names which might be used in some generated methods using the
+**has** relationship.
+
+Note: the prefix defined using the **prefix** option is always automatically added to the
+allPrefixes array (i.e. you don't need to add it to the allPrefixes array). 
 
 
 ### namespace

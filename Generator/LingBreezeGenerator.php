@@ -11,6 +11,7 @@ use Ling\Light\ServiceContainer\LightServiceContainerAwareInterface;
 use Ling\Light\ServiceContainer\LightServiceContainerInterface;
 use Ling\Light_BreezeGenerator\Exception\LightBreezeGeneratorException;
 use Ling\Light_BreezeGenerator\Tool\LightBreezeGeneratorTool;
+use Ling\Light_Database\Service\LightDatabaseService;
 use Ling\Light_DatabaseInfo\Service\LightDatabaseInfoService;
 use Ling\SqlWizard\Util\MysqlStructureReader;
 
@@ -50,6 +51,8 @@ use Ling\SqlWizard\Util\MysqlStructureReader;
  * - hasCustomClass: bool, whether the created class has a custom class associated with it
  * - foreignKeysInfo: array, foreign keys information (see the @page(LightDatabaseInfoService->getTableInfo) method for more details)
  * - types: array, an array of column name => mysql type (see the @page(LightDatabaseInfoService->getTableInfo) method for more details)
+ * - hasItems: array, see the @page(LightDatabaseInfoService->getTableInfo) method for more details
+ * - allPrefixes: array, containing all the table prefixes used by this generating session.
  *
  *
  *
@@ -90,6 +93,12 @@ class LingBreezeGenerator implements BreezeGeneratorInterface, LightServiceConta
          * @var $dbInfo LightDatabaseInfoService
          */
         $dbInfo = $this->container->get('database_info');
+
+        /**
+         * @var $pdoWrapper LightDatabaseService
+         */
+        $pdoWrapper = $this->container->get('database');
+
 
         $dir = $conf['dir'];
         /**
@@ -148,6 +157,10 @@ class LingBreezeGenerator implements BreezeGeneratorInterface, LightServiceConta
         $usePrefixInClassName = $conf['usePrefixInClassName'] ?? false;
 
         $prefix = $conf['prefix'] ?? null;
+        $allPrefixes = $conf['allPrefixes'] ?? [];
+        if (null !== $prefix && false === in_array($prefix, $allPrefixes, true)) {
+            $allPrefixes[] = $prefix;
+        }
         $namespace = $conf['namespace'];
 
         //--------------------------------------------
@@ -164,12 +177,13 @@ class LingBreezeGenerator implements BreezeGeneratorInterface, LightServiceConta
             } else {
                 $readerArr = $table;
                 $theTable = $readerArr['table'];
-                $tableInfo = MysqlStructureReader::readerArrayToTableInfo($readerArr);
+                $tableInfo = MysqlStructureReader::readerArrayToTableInfo($readerArr, $pdoWrapper);
                 $table = $theTable;
 
             }
             $types = $tableInfo['types'];
             $foreignKeysInfo = $tableInfo['foreignKeysInfo'];
+            $hasItems = $tableInfo['hasItems'];
 
 
             $tableClassName = $table;
@@ -212,6 +226,8 @@ class LingBreezeGenerator implements BreezeGeneratorInterface, LightServiceConta
                 "hasCustomClass" => $hasCustomClass,
                 "foreignKeysInfo" => $foreignKeysInfo,
                 "types" => $types,
+                "hasItems" => $hasItems,
+                "allPrefixes" => $allPrefixes,
             ]);
             $bs0Path = $this->getClassPath($dir, $objectClassName, $relativeDirClasses);
             if (false === file_exists($bs0Path) || true === $overwriteClasses) {
@@ -235,6 +251,8 @@ class LingBreezeGenerator implements BreezeGeneratorInterface, LightServiceConta
                 "relativeDirInterfaces" => $relativeDirInterfaces,
                 "foreignKeysInfo" => $foreignKeysInfo,
                 "types" => $types,
+                "hasItems" => $hasItems,
+                "allPrefixes" => $allPrefixes,
             ]);
 
             $bs0Path = $this->getClassPath($dir, $objectClassName . $interfaceSuffix, $relativeDirInterfaces);
@@ -390,6 +408,10 @@ class LingBreezeGenerator implements BreezeGeneratorInterface, LightServiceConta
         $content = str_replace('// getTheItems', $this->getItemsMethod($variables), $content);
         $content = str_replace('// getTheItem', $this->getItemMethod($variables), $content);
         $content = str_replace('// getIdByXXX', $this->getIdByUniqueIndexMethods($variables), $content);
+
+        $content = str_replace('// getItemsByHas', $this->getItemsByHasMethod($variables), $content);
+        $content = str_replace('// getItemXXXByHas', $this->getItemsXXXByHasMethod($variables), $content);
+
         $content = str_replace('// getAllXXX', $this->getAllMethod($variables), $content);
         $content = str_replace('// updateXXX', $this->getRicMethod("updateUserById", $variables), $content);
         $content = str_replace('// deleteXXX', $this->getRicMethod("deleteUserById", $variables), $content);
@@ -483,6 +505,8 @@ class LingBreezeGenerator implements BreezeGeneratorInterface, LightServiceConta
         $content = str_replace('// getXXX', $this->getInterfaceMethod('getXXXById', $variables), $content);
         $content = str_replace('// getTheItems', $this->getItemsInterfaceMethod($variables), $content);
         $content = str_replace('// getTheItem', $this->getItemInterfaceMethod($variables), $content);
+        $content = str_replace('// getItemsByHas', $this->getItemsByHasInterfaceMethod($variables), $content);
+        $content = str_replace('// getItemXXXByHas', $this->getItemsXXXByHasInterfaceMethod($variables), $content);
         $content = str_replace('// getIdByXXX', $this->getIdByUniqueIndexInterfaceMethods($variables), $content);
 
         if (1 === count($ric)) {
@@ -1111,6 +1135,321 @@ class LingBreezeGenerator implements BreezeGeneratorInterface, LightServiceConta
 
 
     /**
+     * Parses the given variables and returns a string corresponding to the "getTagsByResourceId" methods.
+     *
+     * @param array $variables
+     * @return string
+     */
+    protected function getItemsByHasMethod(array $variables): string
+    {
+        $template = __DIR__ . "/../assets/classModel/Ling/template/partials/getTagsByResourceId.tpl.txt";
+
+
+        $allPrefixes = $variables['allPrefixes'];
+        $plural = StringTool::getPlural($variables['className']);
+
+
+//        az("here", $variables);
+        $s = '';
+        $hasItems = $variables['hasItems'];
+        foreach ($hasItems as $hasItem) {
+            if (false === $hasItem['is_owner']) {
+
+
+                $hasTable = $hasItem['has_table'];
+                $leftFk = $hasItem['left_fk'];
+                $rightFk = $hasItem['right_fk'];
+                $referencedByLeft = $hasItem['referenced_by_left'];
+
+                foreach ($hasItem['left_handles'] as $handle) {
+
+                    $leftTable = $this->getEpuratedTableName($hasItem['left_table'], $allPrefixes);
+                    $leftTableName = ucfirst($leftTable);
+
+
+                    $handleName = "";
+                    $argString = '';
+                    $sMarkers = '';
+                    foreach ($handle as $col) {
+                        if ('' !== $handleName) {
+                            $handleName .= "And";
+                            $argString .= ', ';
+                            $sMarkers .= PHP_EOL . "\t";
+                        }
+                        $handleName .= CaseTool::toPascal(strtolower($col));
+                        $var = '$' . $leftTable . CaseTool::toPascal($col);
+                        $marker = $leftTable . "_" . $col;
+                        $argString .= 'string ' . $var;
+                        $sMarkers .= '":' . $marker . '" => ' . $var . ',';
+                    }
+
+
+                    $methodName = "get" . $plural . "By" . $leftTableName . $handleName;
+
+                    $rel1 = "h.$rightFk=a.$referencedByLeft";
+                    $rel2 = "h.$leftFk=:$leftFk";
+
+
+                    $t = file_get_contents($template);
+                    $t = str_replace("getTagsByResourceId", $methodName, $t);
+                    $t = str_replace('string $resourceId', $argString, $t);
+                    $t = str_replace('luda_resource_has_tag', $hasTable, $t);
+                    $t = str_replace('h.tag_id=a.id', $rel1, $t);
+                    $t = str_replace('h.resource_id=:resource_id', $rel2, $t);
+                    $t = str_replace('":resource_id" => $resourceId,', $sMarkers, $t);
+
+                    $s .= $t . PHP_EOL . PHP_EOL;
+
+                }
+
+            }
+        }
+        return $s;
+    }
+
+    /**
+     * Parses the given variables and returns a string corresponding to the "getTagsByResourceId" methods for the interface.
+     *
+     * @param array $variables
+     * @return string
+     */
+    protected function getItemsByHasInterfaceMethod(array $variables): string
+    {
+        $template = __DIR__ . "/../assets/classModel/Ling/template/partials/getTagsByResourceId.interface.tpl.txt";
+
+
+        $allPrefixes = $variables['allPrefixes'];
+        $plural = StringTool::getPlural($variables['className']);
+
+
+        $s = '';
+        $hasItems = $variables['hasItems'];
+        foreach ($hasItems as $hasItem) {
+            if (false === $hasItem['is_owner']) {
+
+
+                $rightTable = $hasItem['right_table'];
+                $leftObject = $this->getEpuratedTableName($hasItem['left_table'], $allPrefixes);
+
+                foreach ($hasItem['left_handles'] as $handle) {
+
+                    $leftTable = $this->getEpuratedTableName($hasItem['left_table'], $allPrefixes);
+                    $leftTableName = ucfirst($leftTable);
+
+
+                    $handleName = "";
+                    $argString = '';
+                    $sMarkers = '';
+                    $commentArgs = '';
+                    $paramString = '';
+                    foreach ($handle as $col) {
+                        if ('' !== $handleName) {
+                            $handleName .= "And";
+                            $argString .= ', ';
+                            $sMarkers .= PHP_EOL . "\t";
+                            $commentArgs .= ' and ';
+                            $paramString .= PHP_EOL;
+                        }
+                        $handleName .= CaseTool::toPascal(strtolower($col));
+                        $var = '$' . $leftTable . CaseTool::toPascal($col);
+                        $marker = $leftTable . "_" . $col;
+                        $argString .= 'string ' . $var;
+                        $sMarkers .= '":' . $marker . '" => ' . $var . ',';
+                        $commentArgs .= $col;
+                        $paramString .= '* @param string ' . $var;
+                    }
+
+
+                    $methodName = "get" . $plural . "By" . $leftTableName . $handleName;
+
+
+                    $t = file_get_contents($template);
+                    $t = str_replace("luda_tag", $rightTable, $t);
+                    $t = str_replace("given resource id", 'given ' . $leftObject . " " . $commentArgs, $t);
+                    $t = str_replace('* @param string $resourceId', $paramString, $t);
+                    $t = str_replace("getTagsByResourceId", $methodName, $t);
+                    $t = str_replace('string $resourceId', $argString, $t);
+
+                    $s .= $t . PHP_EOL . PHP_EOL;
+
+                }
+
+            }
+        }
+        return $s;
+    }
+
+
+    /**
+     * Parses the given variables and returns a string corresponding to the "getTagNamesByResourceId" methods.
+     *
+     * @param array $variables
+     * @return string
+     */
+    protected function getItemsXXXByHasMethod(array $variables): string
+    {
+        $template = __DIR__ . "/../assets/classModel/Ling/template/partials/getTagNamesByResourceId.tpl.txt";
+
+
+//        az("here", $variables);
+
+        $allPrefixes = $variables['allPrefixes'];
+
+
+        $s = '';
+        $hasItems = $variables['hasItems'];
+        foreach ($hasItems as $hasItem) {
+            if (false === $hasItem['is_owner']) {
+
+
+                $hasTable = $hasItem['has_table'];
+                $leftFk = $hasItem['left_fk'];
+                $rightFk = $hasItem['right_fk'];
+                $referencedByLeft = $hasItem['referenced_by_left'];
+
+
+                foreach ($hasItem['right_handles'] as $rightHandle) {
+
+                    // we know by definition that those right handles only contain one column.
+                    // see MysqlInfoUtil for more details.
+                    $rightCol = $rightHandle[0];
+                    $rightColPluralName = CaseTool::toPascal(StringTool::getPlural($rightCol));
+
+
+                    foreach ($hasItem['left_handles'] as $leftHandle) {
+
+                        $leftTable = $this->getEpuratedTableName($hasItem['left_table'], $allPrefixes);
+                        $leftTableName = ucfirst($leftTable);
+
+
+                        $handleName = "";
+                        $argString = '';
+                        $sMarkers = '';
+                        foreach ($leftHandle as $col) {
+                            if ('' !== $handleName) {
+                                $handleName .= "And";
+                                $argString .= ', ';
+                                $sMarkers .= PHP_EOL . "\t";
+                            }
+                            $handleName .= CaseTool::toPascal(strtolower($col));
+                            $var = '$' . $leftTable . CaseTool::toPascal($col);
+                            $marker = $leftTable . "_" . $col;
+                            $argString .= 'string ' . $var;
+                            $sMarkers .= '":' . $marker . '" => ' . $var . ',';
+                        }
+
+
+                        $methodName = "get" . $variables['className'] . $rightColPluralName . "By" . $leftTableName . $handleName;
+
+                        $rel1 = "h.$rightFk=a.$referencedByLeft";
+                        $rel2 = "h.$leftFk=:$leftFk";
+
+
+                        $t = file_get_contents($template);
+                        $t = str_replace("getTagNamesByResourceId", $methodName, $t);
+                        $t = str_replace('string $resourceId', $argString, $t);
+                        $t = str_replace('a.name', 'a.' . $rightCol, $t);
+                        $t = str_replace('luda_resource_has_tag', $hasTable, $t);
+                        $t = str_replace('h.tag_id=a.id', $rel1, $t);
+                        $t = str_replace('h.resource_id=:resource_id', $rel2, $t);
+                        $t = str_replace('":resource_id" => $resourceId,', $sMarkers, $t);
+
+                        $s .= $t . PHP_EOL . PHP_EOL;
+
+                    }
+                }
+
+
+            }
+        }
+        return $s;
+    }
+
+
+    /**
+     * Parses the given variables and returns a string corresponding to the "getTagNamesByResourceId" interface methods.
+     *
+     * @param array $variables
+     * @return string
+     */
+    protected function getItemsXXXByHasInterfaceMethod(array $variables): string
+    {
+        $template = __DIR__ . "/../assets/classModel/Ling/template/partials/getTagNamesByResourceId.interface.tpl.txt";
+
+
+        $allPrefixes = $variables['allPrefixes'];
+
+
+        $s = '';
+        $hasItems = $variables['hasItems'];
+        foreach ($hasItems as $hasItem) {
+            if (false === $hasItem['is_owner']) {
+
+
+                $rightTable = $hasItem['right_table'];
+
+
+                foreach ($hasItem['right_handles'] as $rightHandle) {
+
+                    // we know by definition that those right handles only contain one column.
+                    // see MysqlInfoUtil for more details.
+                    $rightCol = $rightHandle[0];
+                    $rightColPluralName = CaseTool::toPascal(StringTool::getPlural($rightCol));
+
+
+                    foreach ($hasItem['left_handles'] as $leftHandle) {
+
+                        $leftTable = $this->getEpuratedTableName($hasItem['left_table'], $allPrefixes);
+                        $leftObject = $this->getEpuratedTableName($hasItem['left_table'], $allPrefixes);
+                        $leftTableName = ucfirst($leftTable);
+
+
+                        $handleName = "";
+                        $argString = '';
+                        $sMarkers = '';
+                        $commentArgs = '';
+                        $paramString = '';
+                        foreach ($leftHandle as $col) {
+                            if ('' !== $handleName) {
+                                $handleName .= "And";
+                                $argString .= ', ';
+                                $sMarkers .= PHP_EOL . "\t";
+                                $commentArgs .= ' and ';
+                                $paramString .= PHP_EOL;
+                            }
+                            $handleName .= CaseTool::toPascal(strtolower($col));
+                            $var = '$' . $leftTable . CaseTool::toPascal($col);
+                            $marker = $leftTable . "_" . $col;
+                            $argString .= 'string ' . $var;
+                            $sMarkers .= '":' . $marker . '" => ' . $var . ',';
+                            $commentArgs .= $col;
+                            $paramString .= '* @param string ' . $var;
+                        }
+
+
+                        $methodName = "get" . $variables['className'] . $rightColPluralName . "By" . $leftTableName . $handleName;
+
+
+                        $t = file_get_contents($template);
+                        $t = str_replace("luda_tag.name", $rightTable . "." . $rightCol, $t);
+                        $t = str_replace("given resource id", 'given ' . $leftObject . " " . $commentArgs, $t);
+                        $t = str_replace('* @param string $resourceId', $paramString, $t);
+                        $t = str_replace("getTagNamesByResourceId", $methodName, $t);
+                        $t = str_replace('string $resourceId', $argString, $t);
+
+                        $s .= $t . PHP_EOL . PHP_EOL;
+
+                    }
+                }
+
+
+            }
+        }
+        return $s;
+    }
+
+
+    /**
      * Parses the given variables, and returns an output.
      *
      * The output depends on the whether the table has an auto-incremented key and some unique indexes:
@@ -1432,5 +1771,26 @@ class LingBreezeGenerator implements BreezeGeneratorInterface, LightServiceConta
             $ret .= "\\" . $relativeNamespace;
         }
         return $ret;
+    }
+
+    /**
+     * Returns the lowercase table name without prefix, based on the given table and prefixes.
+     *
+     * @param string $table
+     * @param array $allPrefixes
+     * @return string
+     */
+    private function getEpuratedTableName(string $table, array $allPrefixes): string
+    {
+        $p = explode('_', $table);
+        if (count($p) > 1) {
+            foreach ($allPrefixes as $prefix) {
+                if ($p[0] === $prefix) {
+                    array_shift($p);
+                    break;
+                }
+            }
+        }
+        return strtolower(implode(".", $p));
     }
 }

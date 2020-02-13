@@ -1,6 +1,6 @@
 Light_BreezeGenerator
 ===========
-2019-09-11 -> 2020-02-06
+2019-09-11 -> 2020-02-13
 
 
 
@@ -64,6 +64,10 @@ breeze_generator:
 History Log
 =============
 
+- 1.19.0 -- 2020-02-13
+
+    - update LingBreezeGenerator, now generates getter methods based on has relationship 
+    
 - 1.18.0 -- 2020-02-06
 
     - update LingBreezeGenerator, now generates documentation with link to the whereConds argument 

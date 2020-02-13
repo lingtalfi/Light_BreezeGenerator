@@ -4,7 +4,7 @@
 
 The LingBreezeGenerator class
 ================
-2019-09-11 --> 2020-02-06
+2019-09-11 --> 2020-02-13
 
 
 
@@ -49,6 +49,8 @@ The variables array has at most the following structure:
 - hasCustomClass: bool, whether the created class has a custom class associated with it
 - foreignKeysInfo: array, foreign keys information (see the [LightDatabaseInfoService->getTableInfo](https://github.com/lingtalfi/Light_DatabaseInfo/blob/master/doc/api/Ling/Light_DatabaseInfo/Service/LightDatabaseInfoService/getTableInfo.md) method for more details)
 - types: array, an array of column name => mysql type (see the [LightDatabaseInfoService->getTableInfo](https://github.com/lingtalfi/Light_DatabaseInfo/blob/master/doc/api/Ling/Light_DatabaseInfo/Service/LightDatabaseInfoService/getTableInfo.md) method for more details)
+- hasItems: array, see the [LightDatabaseInfoService->getTableInfo](https://github.com/lingtalfi/Light_DatabaseInfo/blob/master/doc/api/Ling/Light_DatabaseInfo/Service/LightDatabaseInfoService/getTableInfo.md) method for more details
+- allPrefixes: array, containing all the table prefixes used by this generating session.
 
 
 
@@ -78,6 +80,10 @@ class <span class="pl-k">LingBreezeGenerator</span> implements [BreezeGeneratorI
     - protected [getItemMethod](https://github.com/lingtalfi/Light_BreezeGenerator/blob/master/doc/api/Ling/Light_BreezeGenerator/Generator/LingBreezeGenerator/getItemMethod.md)(array $variables) : string
     - protected [getItemsInterfaceMethod](https://github.com/lingtalfi/Light_BreezeGenerator/blob/master/doc/api/Ling/Light_BreezeGenerator/Generator/LingBreezeGenerator/getItemsInterfaceMethod.md)(array $variables) : string
     - protected [getItemInterfaceMethod](https://github.com/lingtalfi/Light_BreezeGenerator/blob/master/doc/api/Ling/Light_BreezeGenerator/Generator/LingBreezeGenerator/getItemInterfaceMethod.md)(array $variables) : string
+    - protected [getItemsByHasMethod](https://github.com/lingtalfi/Light_BreezeGenerator/blob/master/doc/api/Ling/Light_BreezeGenerator/Generator/LingBreezeGenerator/getItemsByHasMethod.md)(array $variables) : string
+    - protected [getItemsByHasInterfaceMethod](https://github.com/lingtalfi/Light_BreezeGenerator/blob/master/doc/api/Ling/Light_BreezeGenerator/Generator/LingBreezeGenerator/getItemsByHasInterfaceMethod.md)(array $variables) : string
+    - protected [getItemsXXXByHasMethod](https://github.com/lingtalfi/Light_BreezeGenerator/blob/master/doc/api/Ling/Light_BreezeGenerator/Generator/LingBreezeGenerator/getItemsXXXByHasMethod.md)(array $variables) : string
+    - protected [getItemsXXXByHasInterfaceMethod](https://github.com/lingtalfi/Light_BreezeGenerator/blob/master/doc/api/Ling/Light_BreezeGenerator/Generator/LingBreezeGenerator/getItemsXXXByHasInterfaceMethod.md)(array $variables) : string
     - protected [getIdByUniqueIndexInterfaceMethods](https://github.com/lingtalfi/Light_BreezeGenerator/blob/master/doc/api/Ling/Light_BreezeGenerator/Generator/LingBreezeGenerator/getIdByUniqueIndexInterfaceMethods.md)(array $variables) : string
     - protected [getInterfaceMethod](https://github.com/lingtalfi/Light_BreezeGenerator/blob/master/doc/api/Ling/Light_BreezeGenerator/Generator/LingBreezeGenerator/getInterfaceMethod.md)(string $methodName, array $variables) : string
     - protected [getFactoryMethod](https://github.com/lingtalfi/Light_BreezeGenerator/blob/master/doc/api/Ling/Light_BreezeGenerator/Generator/LingBreezeGenerator/getFactoryMethod.md)(array $variables) : string
@@ -86,6 +92,7 @@ class <span class="pl-k">LingBreezeGenerator</span> implements [BreezeGeneratorI
     - private [getGetAllXXXMethodName](https://github.com/lingtalfi/Light_BreezeGenerator/blob/master/doc/api/Ling/Light_BreezeGenerator/Generator/LingBreezeGenerator/getGetAllXXXMethodName.md)(array $ric) : string
     - private [getClassPath](https://github.com/lingtalfi/Light_BreezeGenerator/blob/master/doc/api/Ling/Light_BreezeGenerator/Generator/LingBreezeGenerator/getClassPath.md)(string $baseDir, string $className, ?string $relativeDir = null) : string
     - private [getClassNamespace](https://github.com/lingtalfi/Light_BreezeGenerator/blob/master/doc/api/Ling/Light_BreezeGenerator/Generator/LingBreezeGenerator/getClassNamespace.md)(string $baseNamespace, ?string $relativeNamespace = null) : string
+    - private [getEpuratedTableName](https://github.com/lingtalfi/Light_BreezeGenerator/blob/master/doc/api/Ling/Light_BreezeGenerator/Generator/LingBreezeGenerator/getEpuratedTableName.md)(string $table, array $allPrefixes) : string
 
 }
 
@@ -122,6 +129,10 @@ Methods
 - [LingBreezeGenerator::getItemMethod](https://github.com/lingtalfi/Light_BreezeGenerator/blob/master/doc/api/Ling/Light_BreezeGenerator/Generator/LingBreezeGenerator/getItemMethod.md) &ndash; Parses the given variables and return a string corresponding to the getItem method.
 - [LingBreezeGenerator::getItemsInterfaceMethod](https://github.com/lingtalfi/Light_BreezeGenerator/blob/master/doc/api/Ling/Light_BreezeGenerator/Generator/LingBreezeGenerator/getItemsInterfaceMethod.md) &ndash; Parses the given variables and return a string corresponding to the getItemsInterface method.
 - [LingBreezeGenerator::getItemInterfaceMethod](https://github.com/lingtalfi/Light_BreezeGenerator/blob/master/doc/api/Ling/Light_BreezeGenerator/Generator/LingBreezeGenerator/getItemInterfaceMethod.md) &ndash; Parses the given variables and return a string corresponding to the getItemInterface method.
+- [LingBreezeGenerator::getItemsByHasMethod](https://github.com/lingtalfi/Light_BreezeGenerator/blob/master/doc/api/Ling/Light_BreezeGenerator/Generator/LingBreezeGenerator/getItemsByHasMethod.md) &ndash; Parses the given variables and returns a string corresponding to the "getTagsByResourceId" methods.
+- [LingBreezeGenerator::getItemsByHasInterfaceMethod](https://github.com/lingtalfi/Light_BreezeGenerator/blob/master/doc/api/Ling/Light_BreezeGenerator/Generator/LingBreezeGenerator/getItemsByHasInterfaceMethod.md) &ndash; Parses the given variables and returns a string corresponding to the "getTagsByResourceId" methods for the interface.
+- [LingBreezeGenerator::getItemsXXXByHasMethod](https://github.com/lingtalfi/Light_BreezeGenerator/blob/master/doc/api/Ling/Light_BreezeGenerator/Generator/LingBreezeGenerator/getItemsXXXByHasMethod.md) &ndash; Parses the given variables and returns a string corresponding to the "getTagNamesByResourceId" methods.
+- [LingBreezeGenerator::getItemsXXXByHasInterfaceMethod](https://github.com/lingtalfi/Light_BreezeGenerator/blob/master/doc/api/Ling/Light_BreezeGenerator/Generator/LingBreezeGenerator/getItemsXXXByHasInterfaceMethod.md) &ndash; Parses the given variables and returns a string corresponding to the "getTagNamesByResourceId" interface methods.
 - [LingBreezeGenerator::getIdByUniqueIndexInterfaceMethods](https://github.com/lingtalfi/Light_BreezeGenerator/blob/master/doc/api/Ling/Light_BreezeGenerator/Generator/LingBreezeGenerator/getIdByUniqueIndexInterfaceMethods.md) &ndash; Parses the given variables, and returns an output.
 - [LingBreezeGenerator::getInterfaceMethod](https://github.com/lingtalfi/Light_BreezeGenerator/blob/master/doc/api/Ling/Light_BreezeGenerator/Generator/LingBreezeGenerator/getInterfaceMethod.md) &ndash; Returns the content of the interface method identified by the given methodName.
 - [LingBreezeGenerator::getFactoryMethod](https://github.com/lingtalfi/Light_BreezeGenerator/blob/master/doc/api/Ling/Light_BreezeGenerator/Generator/LingBreezeGenerator/getFactoryMethod.md) &ndash; inside the generated factory object).
@@ -130,6 +141,7 @@ Methods
 - [LingBreezeGenerator::getGetAllXXXMethodName](https://github.com/lingtalfi/Light_BreezeGenerator/blob/master/doc/api/Ling/Light_BreezeGenerator/Generator/LingBreezeGenerator/getGetAllXXXMethodName.md) &ndash; Returns the getAllXXX method name for the first column of the given ric.
 - [LingBreezeGenerator::getClassPath](https://github.com/lingtalfi/Light_BreezeGenerator/blob/master/doc/api/Ling/Light_BreezeGenerator/Generator/LingBreezeGenerator/getClassPath.md) &ndash; Returns the class path (absolute path to the php file containing the class).
 - [LingBreezeGenerator::getClassNamespace](https://github.com/lingtalfi/Light_BreezeGenerator/blob/master/doc/api/Ling/Light_BreezeGenerator/Generator/LingBreezeGenerator/getClassNamespace.md) &ndash; Returns the namespace of an object based on the given arguments.
+- [LingBreezeGenerator::getEpuratedTableName](https://github.com/lingtalfi/Light_BreezeGenerator/blob/master/doc/api/Ling/Light_BreezeGenerator/Generator/LingBreezeGenerator/getEpuratedTableName.md) &ndash; Returns the lowercase table name without prefix, based on the given table and prefixes.
 
 
 
