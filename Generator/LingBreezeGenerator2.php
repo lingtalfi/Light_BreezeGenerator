@@ -93,6 +93,8 @@ class LingBreezeGenerator2 implements BreezeGeneratorInterface, LightServiceCont
         //--------------------------------------------
         // CONFIGURATION
         //--------------------------------------------
+        $options = $conf['options'] ?? [];
+        $devMode = $options['dev'] ?? false;
         $source = $conf['source'];
         if (array_key_exists("file", $source)) {
             $sourceType = "file";
@@ -280,7 +282,7 @@ class LingBreezeGenerator2 implements BreezeGeneratorInterface, LightServiceCont
                 "interfaceSuffix" => $interfaceSuffix,
             ]);
             $bs0Path = $this->getClassPath($dir, 'Custom/Classes/Custom' . $objectClassName);
-            if (false === file_exists($bs0Path)) {
+            if (true === $devMode || false === file_exists($bs0Path)) {
                 FileSystemTool::mkfile($bs0Path, $content);
             }
 
@@ -294,7 +296,7 @@ class LingBreezeGenerator2 implements BreezeGeneratorInterface, LightServiceCont
                 "interfaceSuffix" => $interfaceSuffix,
             ]);
             $bs0Path = $this->getClassPath($dir, 'Custom/Interfaces/Custom' . $objectClassName . $interfaceSuffix);
-            if (false === file_exists($bs0Path)) {
+            if (true === $devMode || false === file_exists($bs0Path)) {
                 FileSystemTool::mkfile($bs0Path, $content);
             }
 
@@ -307,11 +309,7 @@ class LingBreezeGenerator2 implements BreezeGeneratorInterface, LightServiceCont
         $extraPropertiesDefinition = [];
         $extraPropertiesInstantiation = [];
         $extraPublicMethods = [];
-        if (false) { // deprecated, but the system could be re-used for other properties in the future?
-            $extraPropertiesDefinition[] = file_get_contents(__DIR__ . "/../assets/classModel/Ling/template/extra/properties-def/container.tpl.txt");
-            $extraPropertiesInstantiation[] = '$this->container = null;';
-            $extraPublicMethods[] = file_get_contents(__DIR__ . "/../assets/classModel/Ling/template/extra/public-methods/set-container.tpl.txt");
-        }
+
 
         $content = $this->generateObjectFactoryClass([
             "namespace" => $namespace,
@@ -351,7 +349,7 @@ class LingBreezeGenerator2 implements BreezeGeneratorInterface, LightServiceCont
             "baseClassName" => $baseClassName,
         ]);
         $bs0Path = $this->getClassPath($dir, 'Custom' . $baseClassName, 'Custom/Classes');
-        if (false === file_exists($bs0Path)) {
+        if (true === $devMode || false === file_exists($bs0Path)) {
             FileSystemTool::mkfile($bs0Path, $content);
         }
 
@@ -366,7 +364,7 @@ class LingBreezeGenerator2 implements BreezeGeneratorInterface, LightServiceCont
             "factoryClassName" => $factoryClassName,
         ]);
         $bs0Path = $this->getClassPath($dir, 'Custom' . $factoryClassName, 'Custom');
-        if (false === file_exists($bs0Path)) {
+        if (true === $devMode || false === file_exists($bs0Path)) {
             FileSystemTool::mkfile($bs0Path, $content);
         }
 
@@ -759,12 +757,21 @@ class LingBreezeGenerator2 implements BreezeGeneratorInterface, LightServiceCont
 
         $objectClassName = $variables['objectClassName'];
         $objectInterfaceName = 'Custom' . $objectClassName . $variables['interfaceSuffix'];
+        $generatedInterfaceName = $objectClassName . $variables['interfaceSuffix'];
+        $namespaceBaseApi = $this->getClassNamespace($namespace, 'Generated\\Interfaces');
 
         $namespaceClass = $this->getClassNamespace($namespace, 'Custom\\Interfaces');
 
 
         $content = str_replace('UserObjectInterface', $objectInterfaceName, $content);
         $content = str_replace('The\ObjectNamespace', $namespaceClass, $content);
+        $content = str_replace('GeneratedInterface', $generatedInterfaceName, $content);
+
+        // uses
+        $uses = [];
+        $uses[] = "use " . $namespaceBaseApi . "\\$generatedInterfaceName;";
+
+        $content = str_replace('// the uses', implode(PHP_EOL, $uses) . PHP_EOL, $content);
 
 
         return $content;

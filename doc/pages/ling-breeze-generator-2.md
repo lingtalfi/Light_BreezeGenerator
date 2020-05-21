@@ -11,7 +11,14 @@ Overview
 
 The **LingBreezeGenerator2** will generate classes for you, saving you a lot of typing.
 
-It's a simpler version of the former **LingBreezeGenerator**, as there is way less configuration to do.
+
+It's an upgrade compared to the former **LingBreezeGenerator**.
+ 
+The main improved points are:
+
+- the organization of classes has been redesigned (see the generated structure below), so that it's simpler, safer and more flexible.
+- the configuration has been simplified 
+
  
 
 
@@ -94,6 +101,10 @@ And in terms of interfaces:
 
 So basically the **CustomAppleApi** has the methods from both interfaces (**CustomAppleApiInterface** and **AppleApiInterface**)
 The same schema applies for all fruits.
+
+
+And lastly, we have **CustomAppleApiInterface** extends **AppleApiInterface** (same for all fruits), so that it eases code auto-completion
+of methods in the IDE.
 
 
 
@@ -254,6 +265,8 @@ conf:
         namespace: Ling\Light_UserData\Api2
         apiName: LightUserData
 
+    options:
+        dev: false
 
 
 ```
@@ -314,8 +327,12 @@ conf:
             The name of your api. If we take the fruit example from the **generated structure** section earlier in this document,
             then the name would be **Fruit**.
                 
-                    
-             
+    - **options**: array, optional.
+        Some options to control the behaviour of the generator.
+        
+        - **dev**: bool=false, optional.
+            If true, the custom classes will be overwritten. Never do that, unless you're extending the generator class itself.
+                     
             
             
             
