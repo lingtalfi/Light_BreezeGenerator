@@ -55,7 +55,7 @@ Exceptions thrown
 
 Source Code
 ===========
-See the source code for method [LingBreezeGenerator2::generateCustomFactory](https://github.com/lingtalfi/Light_BreezeGenerator/blob/master/Generator/LingBreezeGenerator2.php#L714-L740)
+See the source code for method [LingBreezeGenerator2::generateCustomFactory](https://github.com/lingtalfi/Light_BreezeGenerator/blob/master/Generator/LingBreezeGenerator2.php#L732-L758)
 
 
 See Also

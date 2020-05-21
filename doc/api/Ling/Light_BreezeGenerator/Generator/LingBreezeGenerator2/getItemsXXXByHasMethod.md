@@ -49,7 +49,7 @@ Returns string.
 
 Source Code
 ===========
-See the source code for method [LingBreezeGenerator2::getItemsXXXByHasMethod](https://github.com/lingtalfi/Light_BreezeGenerator/blob/master/Generator/LingBreezeGenerator2.php#L1440-L1521)
+See the source code for method [LingBreezeGenerator2::getItemsXXXByHasMethod](https://github.com/lingtalfi/Light_BreezeGenerator/blob/master/Generator/LingBreezeGenerator2.php#L1506-L1587)
 
 
 See Also

@@ -65,6 +65,10 @@ breeze_generator:
 History Log
 =============
 
+- 1.22.0 -- 2020-05-21
+
+    - add LingBreezeGenerator2 deleteXXXByIds methods 
+    
 - 1.21.0 -- 2020-05-21
 
     - LingBreezeGenerator2 custom interfaces now extends generated interfaces 

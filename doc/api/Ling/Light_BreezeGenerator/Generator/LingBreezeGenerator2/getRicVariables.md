@@ -53,6 +53,8 @@ It returns the following entries:
              - $id
              - $firstName, $lastName
 
+
+
 The types array is an array of columnName => mysql type.
 
 A mysql type looks like this: int(11), or varchar(128) for instance.
@@ -87,7 +89,7 @@ Returns array.
 
 Source Code
 ===========
-See the source code for method [LingBreezeGenerator2::getRicVariables](https://github.com/lingtalfi/Light_BreezeGenerator/blob/master/Generator/LingBreezeGenerator2.php#L867-L951)
+See the source code for method [LingBreezeGenerator2::getRicVariables](https://github.com/lingtalfi/Light_BreezeGenerator/blob/master/Generator/LingBreezeGenerator2.php#L887-L984)
 
 
 See Also

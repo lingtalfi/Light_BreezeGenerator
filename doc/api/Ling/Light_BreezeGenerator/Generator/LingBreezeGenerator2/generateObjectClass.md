@@ -55,7 +55,7 @@ Exceptions thrown
 
 Source Code
 ===========
-See the source code for method [LingBreezeGenerator2::generateObjectClass](https://github.com/lingtalfi/Light_BreezeGenerator/blob/master/Generator/LingBreezeGenerator2.php#L385-L494)
+See the source code for method [LingBreezeGenerator2::generateObjectClass](https://github.com/lingtalfi/Light_BreezeGenerator/blob/master/Generator/LingBreezeGenerator2.php#L385-L505)
 
 
 See Also

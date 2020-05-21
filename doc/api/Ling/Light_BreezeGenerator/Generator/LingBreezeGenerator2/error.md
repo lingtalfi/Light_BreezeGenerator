@@ -54,7 +54,7 @@ Exceptions thrown
 
 Source Code
 ===========
-See the source code for method [LingBreezeGenerator2::error](https://github.com/lingtalfi/Light_BreezeGenerator/blob/master/Generator/LingBreezeGenerator2.php#L1939-L1942)
+See the source code for method [LingBreezeGenerator2::error](https://github.com/lingtalfi/Light_BreezeGenerator/blob/master/Generator/LingBreezeGenerator2.php#L2013-L2016)
 
 
 See Also

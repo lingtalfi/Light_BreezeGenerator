@@ -49,7 +49,7 @@ Returns string.
 
 Source Code
 ===========
-See the source code for method [LingBreezeGenerator2::getClassNameFromTable](https://github.com/lingtalfi/Light_BreezeGenerator/blob/master/Generator/LingBreezeGenerator2.php#L815-L820)
+See the source code for method [LingBreezeGenerator2::getClassNameFromTable](https://github.com/lingtalfi/Light_BreezeGenerator/blob/master/Generator/LingBreezeGenerator2.php#L833-L838)
 
 
 See Also

@@ -53,7 +53,7 @@ Returns string.
 
 Source Code
 ===========
-See the source code for method [LingBreezeGenerator2::getInterfaceMethod](https://github.com/lingtalfi/Light_BreezeGenerator/blob/master/Generator/LingBreezeGenerator2.php#L1674-L1705)
+See the source code for method [LingBreezeGenerator2::getInterfaceMethod](https://github.com/lingtalfi/Light_BreezeGenerator/blob/master/Generator/LingBreezeGenerator2.php#L1740-L1779)
 
 
 See Also

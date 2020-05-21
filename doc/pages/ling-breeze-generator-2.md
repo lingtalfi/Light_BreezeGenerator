@@ -109,87 +109,47 @@ of methods in the IDE.
 
 
 
-Design
+Generated methods
 ----------
-2020-02-04 -> 2020-02-13
-
-In this section I want to give you an overview the content of what's generated.
+2020-05-21
 
 
-The generated classes are based on the (database) tables, and some special columns such as the [ric](https://github.com/lingtalfi/NotationFan/blob/master/ric.md) columns
-will be translated to methods.
+For a regular table name **tag**:
 
-To ease understanding, we will use the example of a table named "apple", from the following schema:
+- id: primary key (auto-increment)
+- name: unique index
 
-- **apple**:
-    - id: auto-incremented key
-    - name: varchar(64), unique index
-    - weight: decimal(10,2)
-    - type_id: foreign key referenced by the **apple_type.id** column
-- **apple_type**:
-    - id: auto-incremented key    
-    - name: varchar(64)
+
+
+the generated methods will look like this:
+
+
+- insertTag
+- getTagById
+- getTagByName
+- getTag
+- getTags
+- getTagIdByName
+- getTagsByResourceId
+- getTagsByResourceResourceIdentifier
+- getTagIdsByResourceId
+- getTagIdsByResourceResourceIdentifier
+- getTagNamesByResourceId
+- getTagNamesByResourceResourceIdentifier
+- getAllIds
+- updateTagById
+- updateTagByName
+- deleteTagById
+- deleteTagByName
+- deleteTagByIds
+- deleteTagByNames
+
     
-- **human**:
-    - id: auto-incremented key    
-    - name: varchar(64), unique index
     
-- **human_has_apple**:
-    - human_id: fk referencing human.id    
-    - apple_id: fk referencing apple.id
-    
-    
-    
-The generated classes for the **apple** table look like this:
+Although the **has** tables (table which have a many-to-many relationship) are handled a bit differently,
+the generated methods are approximately the same.    
 
 
-- Child class methods:
-    - insertApple ( array $apple, bool $ignoreDuplicate = true, bool $returnRic = false )
-    - getAppleById ( int $id, $default = null, bool $throwNotFoundEx = false )
-    - getAppleByName ( string $name, $default = null, bool $throwNotFoundEx = false )
-    - getApple ( $where, array $markers = [], $default = null, bool $throwNotFoundEx = false )
-    - getApples ( $where, array $markers = [] )
-    - getAppleIdByName ( string $name, $default = null, bool $throwNotFoundEx = false )
-    - getApplesByHumanId ( string $humanId )
-    - getApplesByHumanName ( string $humanName )
-    - getAppleIdsByHumanId ( string $humanId )
-    - getAppleNamesByHumanId ( string $humanId )
-    - getAppleIdsByHumanName ( string $humanName )
-    - getAppleNamesByHumanName ( string $humanName )
-    
-    - getAllIds ( ): array
-    - updateAppleById ( int $id, array $apple )
-    - updateAppleByName ( string $name, array $apple )
-    - deleteAppleById ( int $id )
-    - deleteAppleByName ( string $name )
-    
-
-- BaseApi class (public) methods:
-    - setPdoWrapper (SimplePdoWrapperInterface $pdoWrapper)
-    - setContainer(LightServiceContainerInterface $container)
-
-
-- Interface class methods (same as the child class methods)
-
-- Factory methods:
-    - setPdoWrapper(SimplePdoWrapperInterface $pdoWrapper)
-    - setContainer(LightServiceContainerInterface $container)
-    - getAppleApi(): AppleInterface         
-    - ...getXXXApi(): XXXInterface        
-
-
-
-
-
-### Extra methods
-2020-03-05
-
-If the table's [ric](https://github.com/lingtalfi/NotationFan/blob/master/ric.md) are all foreign keys (i.e. if the table is a **has table**),
-then extra methods are being generated for the child class and the interface:
-
-- Child class methods (for **has tables** only):
-    - deleteUserHasAppleByUserId( int $user_id )
-    - deleteUserHasAppleByAppleId( int $apple_id )
 
 
 

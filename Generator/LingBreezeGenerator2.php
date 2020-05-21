@@ -38,7 +38,6 @@ use Ling\SqlWizard\Util\MysqlStructureReader;
  * - className: string
  * - objectClassName: string
  * - ric: array
- * - ricPlural: string, the first column of the ric in plural form
  * - ricVariables: array (more details in the getRicVariables method comments)
  * - uniqueIndexesVariables: array (more details in the getUniqueIndexesVariables method comments)
  * - autoIncrementedKey: string|false
@@ -170,6 +169,7 @@ class LingBreezeGenerator2 implements BreezeGeneratorInterface, LightServiceCont
             } else {
                 $tableInfo = $dbInfo->getTableInfo($table);
             }
+
 
             // prefix filtering
             if (null !== $prefix && 0 !== strpos($table, $prefix . "_")) {
@@ -386,7 +386,7 @@ class LingBreezeGenerator2 implements BreezeGeneratorInterface, LightServiceCont
     {
 
 
-        $template = __DIR__ . "/../assets/classModel/Ling/template/UserObject.phtml";
+        $template = __DIR__ . "/../assets/classModel/Ling/template/UserObject2.phtml";
         $content = file_get_contents($template);
         $namespace = $variables['namespace'];
 
@@ -402,7 +402,6 @@ class LingBreezeGenerator2 implements BreezeGeneratorInterface, LightServiceCont
         $namespaceClass = $this->getClassNamespace($namespace, 'Generated\\Classes');
         $namespaceBaseApi = $this->getClassNamespace($namespace, 'Custom\\Classes');
         $namespaceInterface = $this->getClassNamespace($namespace, 'Generated\\Interfaces');
-
 
         //--------------------------------------------
         //
@@ -436,6 +435,13 @@ class LingBreezeGenerator2 implements BreezeGeneratorInterface, LightServiceCont
         $content = str_replace('// deleteXXX', $this->getRicMethod("deleteUserById", $variables), $content);
 
 
+        if (1 === count($ric)) {
+            $content = str_replace('// deletesXXX', $this->getRicMethod("deleteUserByIds", $variables, [
+                "useMultiple" => true,
+            ]), $content);
+        }
+
+
         $uniqueIndexesVariables = $variables['uniqueIndexesVariables'];
         if ($uniqueIndexesVariables) {
             $uniqueVariables = $variables;
@@ -444,6 +450,9 @@ class LingBreezeGenerator2 implements BreezeGeneratorInterface, LightServiceCont
                 $content = str_replace('// getXXX', $this->getRicMethod("getUserById", $uniqueVariables), $content);
                 $content = str_replace('// updateXXX', $this->getRicMethod("updateUserById", $uniqueVariables), $content);
                 $content = str_replace('// deleteXXX', $this->getRicMethod("deleteUserById", $uniqueVariables), $content);
+                $content = str_replace('// deletesXXX', $this->getRicMethod("deleteUserByIds", $uniqueVariables, [
+                    "useMultiple" => true,
+                ]), $content);
             }
         }
 
@@ -470,9 +479,10 @@ class LingBreezeGenerator2 implements BreezeGeneratorInterface, LightServiceCont
             foreach ($ric as $column) {
                 $fkRicVariables = $variables;
                 $fkRicVariables['ricVariables'] = $this->getRicVariables([$column], $types); // hacking myself (faster)
-
-
                 $content = str_replace('// deleteXXX', $this->getRicMethod("deleteUserById", $fkRicVariables), $content);
+                $content = str_replace('// deletesXXX', $this->getRicMethod("deleteUserByIds", $fkRicVariables, [
+                    "useMultiple" => true,
+                ]), $content);
             }
         }
 
@@ -481,6 +491,7 @@ class LingBreezeGenerator2 implements BreezeGeneratorInterface, LightServiceCont
         $content = str_replace('// getXXX', '', $content);
         $content = str_replace('// updateXXX', '', $content);
         $content = str_replace('// deleteXXX', '', $content);
+        $content = str_replace('// deletesXXX', '', $content);
 
 
         // uses
@@ -506,7 +517,7 @@ class LingBreezeGenerator2 implements BreezeGeneratorInterface, LightServiceCont
     {
 
 
-        $template = __DIR__ . "/../assets/classModel/Ling/template/UserObjectInterface.phtml";
+        $template = __DIR__ . "/../assets/classModel/Ling/template/UserObjectInterface2.phtml";
         $content = file_get_contents($template);
         $ric = $variables['ric'];
         $foreignKeysInfo = $variables['foreignKeysInfo'];
@@ -534,6 +545,10 @@ class LingBreezeGenerator2 implements BreezeGeneratorInterface, LightServiceCont
         $content = str_replace('// updateXXX', $this->getInterfaceMethod('updateXXXById', $variables), $content);
         $content = str_replace('// deleteXXX', $this->getInterfaceMethod('deleteXXXById', $variables), $content);
 
+        if (1 === count($ric)) {
+            $content = str_replace('// deletesXXX', $this->getInterfaceMethod('deleteXXXByIds', $variables), $content);
+        }
+
 
         $uniqueIndexesVariables = $variables['uniqueIndexesVariables'];
         if ($uniqueIndexesVariables) {
@@ -543,6 +558,7 @@ class LingBreezeGenerator2 implements BreezeGeneratorInterface, LightServiceCont
                 $content = str_replace('// getXXX', $this->getInterfaceMethod('getXXXById', $uniqueVariables), $content);
                 $content = str_replace('// updateXXX', $this->getInterfaceMethod('updateXXXById', $uniqueVariables), $content);
                 $content = str_replace('// deleteXXX', $this->getInterfaceMethod('deleteXXXById', $uniqueVariables), $content);
+                $content = str_replace('// deletesXXX', $this->getInterfaceMethod('deleteXXXByIds', $uniqueVariables), $content);
             }
         }
 
@@ -573,6 +589,7 @@ class LingBreezeGenerator2 implements BreezeGeneratorInterface, LightServiceCont
 
 
                 $content = str_replace('// deleteXXX', $this->getInterfaceMethod("deleteXXXById", $fkRicVariables), $content);
+                $content = str_replace('// deletesXXX', $this->getInterfaceMethod("deleteXXXByIds", $fkRicVariables), $content);
             }
         }
 
@@ -583,6 +600,7 @@ class LingBreezeGenerator2 implements BreezeGeneratorInterface, LightServiceCont
         $content = str_replace('// getXXX', '', $content);
         $content = str_replace('// updateXXX', '', $content);
         $content = str_replace('// deleteXXX', '', $content);
+        $content = str_replace('// deletesXXX', '', $content);
 
         return $content;
 
@@ -853,6 +871,8 @@ class LingBreezeGenerator2 implements BreezeGeneratorInterface, LightServiceCont
      *              - $id
      *              - $firstName, $lastName
      *
+     *
+     *
      * The types array is an array of columnName => mysql type.
      *
      * A mysql type looks like this: int(11), or varchar(128) for instance.
@@ -867,6 +887,7 @@ class LingBreezeGenerator2 implements BreezeGeneratorInterface, LightServiceCont
     protected function getRicVariables(array $ric, array $types): array
     {
         $byString = '';
+        $byStrings = '';
         $byTheGivenString = '';
         $argString = '';
         $variableString = '';
@@ -874,11 +895,17 @@ class LingBreezeGenerator2 implements BreezeGeneratorInterface, LightServiceCont
         $paramDeclarationString = '';
         $calledVariables = '';
         $markerLines = [];
+
         foreach ($ric as $column) {
             if ('' === $byString) {
                 $byString .= "By" . CaseTool::toPascal($column);
             } else {
                 $byString .= "And" . CaseTool::toPascal($column);
+            }
+            if ('' === $byStrings) {
+                $byStrings .= "By" . CaseTool::toPascal(StringTool::getPlural($column));
+            } else {
+                $byStrings .= "And" . CaseTool::toPascal(StringTool::getPlural($column));
             }
 
             if ('' !== $variableString) {
@@ -937,9 +964,13 @@ class LingBreezeGenerator2 implements BreezeGeneratorInterface, LightServiceCont
 
         }
 
+        $firstRicColumnPlural = StringTool::getPlural($ric[0]);
+        $firstRicColumn = $ric[0];
+
 
         return [
             "byString" => $byString,
+            "byStrings" => $byStrings,
             "byTheGivenString" => 'by the given ' . $byTheGivenString,
             "argString" => $argString,
             "variableString" => $variableString,
@@ -947,6 +978,8 @@ class LingBreezeGenerator2 implements BreezeGeneratorInterface, LightServiceCont
             "markerLines" => $markerLines,
             "paramDeclarationString" => rtrim($paramDeclarationString),
             "calledVariables" => $calledVariables,
+            "firstRicColumnPlural" => $firstRicColumnPlural,
+            "firstRicColumn" => $firstRicColumn,
         ];
     }
 
@@ -1006,6 +1039,7 @@ class LingBreezeGenerator2 implements BreezeGeneratorInterface, LightServiceCont
 
 
             $byString = '';
+            $byStrings = '';
             $byTheGivenString = '';
             $argString = '';
             $variableString = '';
@@ -1015,11 +1049,22 @@ class LingBreezeGenerator2 implements BreezeGeneratorInterface, LightServiceCont
             $markerLines = [];
 
 
+            $firstColumn = null;
             foreach ($columns as $column) {
+
+                if (null === $firstColumn) {
+                    $firstColumn = $column;
+                }
+
                 if ('' === $byString) {
                     $byString .= "By" . CaseTool::toPascal($column);
                 } else {
                     $byString .= "And" . CaseTool::toPascal($column);
+                }
+                if ('' === $byStrings) {
+                    $byStrings .= "By" . CaseTool::toPascal(StringTool::getPlural($column));
+                } else {
+                    $byStrings .= "And" . CaseTool::toPascal(StringTool::getPlural($column));
                 }
 
                 if ('' !== $variableString) {
@@ -1079,8 +1124,12 @@ class LingBreezeGenerator2 implements BreezeGeneratorInterface, LightServiceCont
             }
 
 
+            $firstRicColumnPlural = StringTool::getPlural($firstColumn);
+            $firstRicColumn = $firstColumn;
+
             $ret[] = [
                 "byString" => $byString,
+                "byStrings" => $byStrings,
                 "byTheGivenString" => 'by the given ' . $byTheGivenString,
                 "argString" => $argString,
                 "variableString" => $variableString,
@@ -1088,6 +1137,8 @@ class LingBreezeGenerator2 implements BreezeGeneratorInterface, LightServiceCont
                 "markerLines" => $markerLines,
                 "paramDeclarationString" => rtrim($paramDeclarationString),
                 "calledVariables" => $calledVariables,
+                "firstRicColumnPlural" => $firstRicColumnPlural,
+                "firstRicColumn" => $firstRicColumn,
             ];
         }
 
@@ -1102,14 +1153,22 @@ class LingBreezeGenerator2 implements BreezeGeneratorInterface, LightServiceCont
      *
      * The variables array is described in this class description.
      *
+     * The available options are:
+     *
+     * - useMultiple: bool=false,
+     *      I use this option to avoid potential variable replacement conflict.
+     *
+     *
      * @param string $method
      * @param array $variables
+     * @param array $options
      * @return string
      * @throws \Exception
      */
-    protected function getRicMethod(string $method, array $variables): string
+    protected function getRicMethod(string $method, array $variables, array $options = []): string
     {
 
+        $useMultiple = $options['useMultiple'] ?? false;
 
         //--------------------------------------------
         // MICRO-PERMISSION
@@ -1154,6 +1213,13 @@ class LingBreezeGenerator2 implements BreezeGeneratorInterface, LightServiceCont
         $content = str_replace('id=:id', $ricVariables['markerString'], $content);
         $content = str_replace('id=$id', $ricVariables['variableString'], $content);
         $content = str_replace('"id" => $id,', $sLines, $content);
+
+
+        if (true === $useMultiple) {
+            $content = str_replace('ByMultiples', $ricVariables['byStrings'], $content);
+            $content = str_replace('$ids', '$' . $ricVariables['firstRicColumnPlural'], $content);
+            $content = str_replace('"id"', '"' . $ricVariables['firstRicColumn'] . '"', $content);
+        }
         return $content;
 
     }
@@ -1691,15 +1757,23 @@ class LingBreezeGenerator2 implements BreezeGeneratorInterface, LightServiceCont
         $content = str_replace('deleteXXXById', 'delete' . $className . $ricVariables['byString'], $content);
         $content = str_replace('int $id', $ricVariables['argString'], $content);
 
-        // getAllXXX.tpl.txt
-        if (1 === count($ric)) {
+        if ('deleteXXXByIds' === $methodName) {
+            $content = str_replace('AllByIds', $className . $ricVariables['byStrings'], $content);
+            $content = str_replace('ids', $ricVariables['firstRicColumnPlural'], $content);
+        } elseif (1 === count($ric)) {
+
+
+            // getAllXXX.tpl.txt
             $originalColumn = current($ric);
             $plural = StringTool::getPlural($originalColumn);
             $methodName = $this->getGetAllXXXMethodName($ric);
 
             $content = str_replace('ids', $plural, $content);
             $content = str_replace('getAll', $methodName, $content);
+
+
         }
+
         return $content;
 
     }

@@ -36,7 +36,6 @@ The variables array has at most the following structure:
 - className: string
 - objectClassName: string
 - ric: array
-- ricPlural: string, the first column of the ric in plural form
 - ricVariables: array (more details in the getRicVariables method comments)
 - uniqueIndexesVariables: array (more details in the getUniqueIndexesVariables method comments)
 - autoIncrementedKey: string|false
@@ -75,7 +74,7 @@ class <span class="pl-k">LingBreezeGenerator2</span> implements [BreezeGenerator
     - protected [getClassNameFromTable](https://github.com/lingtalfi/Light_BreezeGenerator/blob/master/doc/api/Ling/Light_BreezeGenerator/Generator/LingBreezeGenerator2/getClassNameFromTable.md)(string $table) : string
     - protected [getRicVariables](https://github.com/lingtalfi/Light_BreezeGenerator/blob/master/doc/api/Ling/Light_BreezeGenerator/Generator/LingBreezeGenerator2/getRicVariables.md)(array $ric, array $types) : array
     - protected [getUniqueIndexesVariables](https://github.com/lingtalfi/Light_BreezeGenerator/blob/master/doc/api/Ling/Light_BreezeGenerator/Generator/LingBreezeGenerator2/getUniqueIndexesVariables.md)(array $uniqueIndexes, array $types) : array
-    - protected [getRicMethod](https://github.com/lingtalfi/Light_BreezeGenerator/blob/master/doc/api/Ling/Light_BreezeGenerator/Generator/LingBreezeGenerator2/getRicMethod.md)(string $method, array $variables) : string
+    - protected [getRicMethod](https://github.com/lingtalfi/Light_BreezeGenerator/blob/master/doc/api/Ling/Light_BreezeGenerator/Generator/LingBreezeGenerator2/getRicMethod.md)(string $method, array $variables, ?array $options = []) : string
     - protected [getIdByUniqueIndexMethods](https://github.com/lingtalfi/Light_BreezeGenerator/blob/master/doc/api/Ling/Light_BreezeGenerator/Generator/LingBreezeGenerator2/getIdByUniqueIndexMethods.md)(array $variables) : string
     - protected [getItemsMethod](https://github.com/lingtalfi/Light_BreezeGenerator/blob/master/doc/api/Ling/Light_BreezeGenerator/Generator/LingBreezeGenerator2/getItemsMethod.md)(array $variables) : string
     - protected [getItemMethod](https://github.com/lingtalfi/Light_BreezeGenerator/blob/master/doc/api/Ling/Light_BreezeGenerator/Generator/LingBreezeGenerator2/getItemMethod.md)(array $variables) : string

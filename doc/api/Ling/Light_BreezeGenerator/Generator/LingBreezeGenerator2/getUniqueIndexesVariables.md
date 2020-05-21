@@ -90,7 +90,7 @@ Returns array.
 
 Source Code
 ===========
-See the source code for method [LingBreezeGenerator2::getUniqueIndexesVariables](https://github.com/lingtalfi/Light_BreezeGenerator/blob/master/Generator/LingBreezeGenerator2.php#L1000-L1096)
+See the source code for method [LingBreezeGenerator2::getUniqueIndexesVariables](https://github.com/lingtalfi/Light_BreezeGenerator/blob/master/Generator/LingBreezeGenerator2.php#L1033-L1147)
 
 
 See Also
