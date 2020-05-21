@@ -1,6 +1,6 @@
 Light_BreezeGenerator
 ===========
-2019-09-11 -> 2020-02-13
+2019-09-11 -> 2020-05-21
 
 
 
@@ -31,6 +31,7 @@ Summary
 - [BreezeGenerator api](https://github.com/lingtalfi/Light_BreezeGenerator/blob/master/doc/api/Ling/Light_BreezeGenerator.md) (generated with [DocTools](https://github.com/lingtalfi/DocTools))
 - Pages
     - [Conception notes](https://github.com/lingtalfi/Light_BreezeGenerator/blob/master/doc/pages/conception-notes.md)
+    - [Ling breeze generator 2](https://github.com/lingtalfi/Light_BreezeGenerator/blob/master/doc/pages/ling-breeze-generator-2.md)
     - [Ling breeze generator](https://github.com/lingtalfi/Light_BreezeGenerator/blob/master/doc/pages/ling-breeze-generator.md)
     - [Ling standard object methods](https://github.com/lingtalfi/Light_BreezeGenerator/blob/master/doc/pages/ling-standard-object-methods.md)
 - [Services](#services)
@@ -64,6 +65,10 @@ breeze_generator:
 History Log
 =============
 
+- 1.20.0 -- 2020-05-21
+
+    - add LingBreezeGenerator2 
+    
 - 1.19.1 -- 2020-02-13
 
     - fix LingBreezeGenerator->getItemsXXXByHasMethod method wrong template 
