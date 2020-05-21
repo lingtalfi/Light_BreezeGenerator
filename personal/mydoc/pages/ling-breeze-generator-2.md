@@ -12,6 +12,8 @@ Overview
 The **LingBreezeGenerator2** will generate classes for you, saving you a lot of typing.
 
 It's a simpler version of the former **LingBreezeGenerator**, as there is way less configuration to do.
+
+And most importantly, the organization of classes has been redesigned, so that it's simpler, safer and more flexible.
  
 
 
