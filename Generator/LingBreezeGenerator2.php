@@ -433,6 +433,7 @@ class LingBreezeGenerator2 implements BreezeGeneratorInterface, LightServiceCont
         $content = str_replace('// getAllXXX', $this->getAllMethod($variables), $content);
         $content = str_replace('// updateXXX', $this->getRicMethod("updateUserById", $variables), $content);
         $content = str_replace('// deleteXXX', $this->getRicMethod("deleteUserById", $variables), $content);
+        $content = str_replace('// deleteYYY', $this->getDeleteMethod(), $content);
 
 
         if (1 === count($ric)) {
@@ -544,6 +545,7 @@ class LingBreezeGenerator2 implements BreezeGeneratorInterface, LightServiceCont
 
         $content = str_replace('// updateXXX', $this->getInterfaceMethod('updateXXXById', $variables), $content);
         $content = str_replace('// deleteXXX', $this->getInterfaceMethod('deleteXXXById', $variables), $content);
+        $content = str_replace('// deleteYYY', $this->getDeleteMethodInterface($variables), $content);
 
         if (1 === count($ric)) {
             $content = str_replace('// deletesXXX', $this->getInterfaceMethod('deleteXXXByIds', $variables), $content);
@@ -1928,6 +1930,31 @@ class LingBreezeGenerator2 implements BreezeGeneratorInterface, LightServiceCont
         }
         return $content;
     }
+
+
+    /**
+     * Returns the content of the delete template.
+     * @return string
+     */
+    protected function getDeleteMethod()
+    {
+        $tpl = __DIR__ . "/../assets/classModel/Ling/template/partials/delete.tpl.txt";
+        return file_get_contents($tpl);
+    }
+
+    /**
+     * Returns the content of the delete template for the interface.
+     * @param array $variables
+     * @return string
+     */
+    protected function getDeleteMethodInterface(array $variables)
+    {
+        $tpl = __DIR__ . "/../assets/classModel/Ling/template/partials/deleteXXX.tpl.txt";
+        $content = file_get_contents($tpl);
+        $content = str_replace('resource', lcfirst($variables['className']), $content);
+        return $content;
+    }
+
 
 
     //--------------------------------------------

@@ -1,6 +1,6 @@
 Light_BreezeGenerator
 ===========
-2019-09-11 -> 2020-05-21
+2019-09-11 -> 2020-05-28
 
 
 
@@ -65,6 +65,10 @@ breeze_generator:
 History Log
 =============
 
+- 1.23.0 -- 2020-05-28
+
+    - add LingBreezeGenerator2 delete methods 
+    
 - 1.22.0 -- 2020-05-21
 
     - add LingBreezeGenerator2 deleteXXXByIds methods 
