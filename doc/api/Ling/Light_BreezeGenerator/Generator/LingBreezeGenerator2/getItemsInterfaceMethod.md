@@ -16,7 +16,7 @@ Description
 ================
 
 
-protected [LingBreezeGenerator2::getItemsInterfaceMethod](https://github.com/lingtalfi/Light_BreezeGenerator/blob/master/doc/api/Ling/Light_BreezeGenerator/Generator/LingBreezeGenerator2/getItemsInterfaceMethod.md)(array $variables) : string
+protected [LingBreezeGenerator2::getItemsInterfaceMethod](https://github.com/lingtalfi/Light_BreezeGenerator/blob/master/doc/api/Ling/Light_BreezeGenerator/Generator/LingBreezeGenerator2/getItemsInterfaceMethod.md)(array $variables, ?string $template = null) : string
 
 
 
@@ -31,6 +31,10 @@ Parameters
 
 
 - variables
+
+    
+
+- template
 
     
 
@@ -49,7 +53,7 @@ Returns string.
 
 Source Code
 ===========
-See the source code for method [LingBreezeGenerator2::getItemsInterfaceMethod](https://github.com/lingtalfi/Light_BreezeGenerator/blob/master/Generator/LingBreezeGenerator2.php#L1326-L1335)
+See the source code for method [LingBreezeGenerator2::getItemsInterfaceMethod](https://github.com/lingtalfi/Light_BreezeGenerator/blob/master/Generator/LingBreezeGenerator2.php#L1341-L1353)
 
 
 See Also

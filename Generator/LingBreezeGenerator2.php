@@ -424,6 +424,9 @@ class LingBreezeGenerator2 implements BreezeGeneratorInterface, LightServiceCont
         //--------------------------------------------
         $content = str_replace('// getXXX', $this->getRicMethod("getUserById", $variables), $content);
         $content = str_replace('// getTheItems', $this->getItemsMethod($variables), $content);
+        $content = str_replace('// getThe_ItemsColumn', $this->getItemsMethod($variables, 'getUserItemsColumn'), $content);
+        $content = str_replace('// getThe_Items_Columns', $this->getItemsMethod($variables, 'getUserItemsColumns'), $content);
+        $content = str_replace('// getThe_Items_Key2Value', $this->getItemsMethod($variables, 'getUserItemsKey2Value'), $content);
         $content = str_replace('// getTheItem', $this->getItemMethod($variables), $content);
         $content = str_replace('// getIdByXXX', $this->getIdByUniqueIndexMethods($variables), $content);
 
@@ -531,7 +534,13 @@ class LingBreezeGenerator2 implements BreezeGeneratorInterface, LightServiceCont
 
         $content = str_replace('// insertXXX', $this->getInterfaceMethod('insertXXX', $variables), $content);
         $content = str_replace('// getXXX', $this->getInterfaceMethod('getXXXById', $variables), $content);
+
         $content = str_replace('// getTheItems', $this->getItemsInterfaceMethod($variables), $content);
+        $content = str_replace('// getThe_Items_Column', $this->getItemsInterfaceMethod($variables, 'getUserItemsColumnInterface'), $content);
+        $content = str_replace('// get_The_Items_Columns', $this->getItemsInterfaceMethod($variables, 'getUserItemsColumnsInterface'), $content);
+        $content = str_replace('// get_The_Items_Key2Value', $this->getItemsInterfaceMethod($variables, 'getUserItemsKey2ValueInterface'), $content);
+
+
         $content = str_replace('// getTheItem', $this->getItemInterfaceMethod($variables), $content);
         $content = str_replace('// getItemsByHas', $this->getItemsByHasInterfaceMethod($variables), $content);
         $content = str_replace('// getItemXXXByHas', $this->getItemsXXXByHasInterfaceMethod($variables), $content);
@@ -1289,12 +1298,16 @@ class LingBreezeGenerator2 implements BreezeGeneratorInterface, LightServiceCont
      * Parses the given variables and return a string corresponding to the getItems method.
      *
      * @param array $variables
+     * @param string|null $template
      * @return string
      */
-    protected function getItemsMethod(array $variables): string
+    protected function getItemsMethod(array $variables, string $template = null): string
     {
+        if (null === $template) {
+            $template = 'getUserItems';
+        }
         $className = $variables['className'];
-        $template = __DIR__ . "/../assets/classModel/Ling/template/partials/getUserItems.tpl.txt";
+        $template = __DIR__ . "/../assets/classModel/Ling/template/partials/$template.tpl.txt";
         $s = file_get_contents($template);
         $s = str_replace('getResources', "get" . StringTool::getPlural($className), $s);
         return $s;
@@ -1320,14 +1333,19 @@ class LingBreezeGenerator2 implements BreezeGeneratorInterface, LightServiceCont
     /**
      * Parses the given variables and return a string corresponding to the getItemsInterface method.
      *
+     * @param string|null $template
      * @param array $variables
      * @return string
+     *
      */
-    protected function getItemsInterfaceMethod(array $variables): string
+    protected function getItemsInterfaceMethod(array $variables, string $template = null): string
     {
+        if (null === $template) {
+            $template = 'getUserItemsInterface';
+        }
         $className = $variables['className'];
         $object = lcfirst($className);
-        $template = __DIR__ . "/../assets/classModel/Ling/template/partials/getUserItemsInterface.tpl.txt";
+        $template = __DIR__ . "/../assets/classModel/Ling/template/partials/$template.tpl.txt";
         $s = file_get_contents($template);
         $s = str_replace('resource', $object, $s);
         $s = str_replace('getResources', "get" . StringTool::getPlural($className), $s);
