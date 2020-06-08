@@ -1181,6 +1181,7 @@ class LingBreezeGenerator2 implements BreezeGeneratorInterface, LightServiceCont
     protected function getRicMethod(string $method, array $variables, array $options = []): string
     {
 
+
         $useMultiple = $options['useMultiple'] ?? false;
 
         //--------------------------------------------
@@ -1403,7 +1404,8 @@ class LingBreezeGenerator2 implements BreezeGeneratorInterface, LightServiceCont
                 foreach ($hasItem['left_handles'] as $handle) {
 
                     $leftTable = $this->getEpuratedTableName($hasItem['left_table'], $allPrefixes);
-                    $leftTableName = ucfirst($leftTable);
+
+                    $leftTableName = CaseTool::toPascal($leftTable);
 
 
                     $handleName = "";
@@ -1416,14 +1418,17 @@ class LingBreezeGenerator2 implements BreezeGeneratorInterface, LightServiceCont
                             $sMarkers .= PHP_EOL . "\t";
                         }
                         $handleName .= CaseTool::toPascal(strtolower($col));
-                        $var = '$' . $leftTable . CaseTool::toPascal($col);
+                        $var = '$' . lcfirst($leftTableName) . CaseTool::toPascal($col);
                         $marker = $leftTable . "_" . $col;
                         $argString .= 'string ' . $var;
                         $sMarkers .= '":' . $marker . '" => ' . $var . ',';
                     }
 
 
-                    $methodName = "get" . $plural . "By" . $leftTableName . $handleName;
+                    $methodName = "get" . $plural . "By" . $leftTableName . CaseTool::toPascal($handleName);
+
+
+
 
                     $rel1 = "h.$rightFk=a.$referencedByLeft";
                     $rel2 = "h.$leftFk=:$leftFk";
@@ -1473,7 +1478,7 @@ class LingBreezeGenerator2 implements BreezeGeneratorInterface, LightServiceCont
                 foreach ($hasItem['left_handles'] as $handle) {
 
                     $leftTable = $this->getEpuratedTableName($hasItem['left_table'], $allPrefixes);
-                    $leftTableName = ucfirst($leftTable);
+                    $leftTableName = CaseTool::toPascal($leftTable);
 
 
                     $handleName = "";
@@ -1490,7 +1495,7 @@ class LingBreezeGenerator2 implements BreezeGeneratorInterface, LightServiceCont
                             $paramString .= PHP_EOL;
                         }
                         $handleName .= CaseTool::toPascal(strtolower($col));
-                        $var = '$' . $leftTable . CaseTool::toPascal($col);
+                        $var = '$' . lcfirst($leftTableName) . CaseTool::toPascal($col);
                         $marker = $leftTable . "_" . $col;
                         $argString .= 'string ' . $var;
                         $sMarkers .= '":' . $marker . '" => ' . $var . ',';
@@ -1558,7 +1563,7 @@ class LingBreezeGenerator2 implements BreezeGeneratorInterface, LightServiceCont
                     foreach ($hasItem['left_handles'] as $leftHandle) {
 
                         $leftTable = $this->getEpuratedTableName($hasItem['left_table'], $allPrefixes);
-                        $leftTableName = ucfirst($leftTable);
+                        $leftTableName = CaseTool::toPascal($leftTable);
 
 
                         $handleName = "";
@@ -1573,7 +1578,7 @@ class LingBreezeGenerator2 implements BreezeGeneratorInterface, LightServiceCont
                                 $sWhere .= ' and ';
                             }
                             $handleName .= CaseTool::toPascal(strtolower($col));
-                            $var = '$' . $leftTable . CaseTool::toPascal($col);
+                            $var = '$' . lcfirst(CaseTool::toPascal($leftTable)) . CaseTool::toPascal($col);
                             $marker = $leftTable . "_" . $col;
                             $argString .= 'string ' . $var;
                             $sMarkers .= '":' . $marker . '" => ' . $var . ',';
@@ -1582,6 +1587,8 @@ class LingBreezeGenerator2 implements BreezeGeneratorInterface, LightServiceCont
 
 
                         $methodName = "get" . $variables['className'] . $rightColPluralName . "By" . $leftTableName . $handleName;
+
+
 
                         $rel1 = "h.$rightFk=a.$referencedByLeft";
                         $rel2 = "inner join " . $hasItem['left_table'] . " b on b.$referencedByLeft=h.$leftFk";
@@ -1644,7 +1651,7 @@ class LingBreezeGenerator2 implements BreezeGeneratorInterface, LightServiceCont
 
                         $leftTable = $this->getEpuratedTableName($hasItem['left_table'], $allPrefixes);
                         $leftObject = $this->getEpuratedTableName($hasItem['left_table'], $allPrefixes);
-                        $leftTableName = ucfirst($leftTable);
+                        $leftTableName = CaseTool::toPascal($leftTable);
 
 
                         $handleName = "";
@@ -1661,7 +1668,7 @@ class LingBreezeGenerator2 implements BreezeGeneratorInterface, LightServiceCont
                                 $paramString .= PHP_EOL;
                             }
                             $handleName .= CaseTool::toPascal(strtolower($col));
-                            $var = '$' . $leftTable . CaseTool::toPascal($col);
+                            $var = '$' . lcfirst($leftTableName) . CaseTool::toPascal($col);
                             $marker = $leftTable . "_" . $col;
                             $argString .= 'string ' . $var;
                             $sMarkers .= '":' . $marker . '" => ' . $var . ',';
@@ -1671,6 +1678,8 @@ class LingBreezeGenerator2 implements BreezeGeneratorInterface, LightServiceCont
 
 
                         $methodName = "get" . $variables['className'] . $rightColPluralName . "By" . $leftTableName . $handleName;
+
+
 
 
                         $t = file_get_contents($template);
@@ -2047,7 +2056,7 @@ class LingBreezeGenerator2 implements BreezeGeneratorInterface, LightServiceCont
                 }
             }
         }
-        return strtolower(implode(".", $p));
+        return strtolower(implode("_", $p));
     }
 
 

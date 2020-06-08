@@ -65,6 +65,10 @@ breeze_generator:
 History Log
 =============
 
+- 1.26.0 -- 2020-06-08
+
+    - fix LingBreezeGenerator2 generating wrong method names for some templates 
+
 - 1.25.0 -- 2020-06-08
 
     - update LingBreezeGenerator2, now the source file can use the ${app_dir} tag 
