@@ -1,6 +1,6 @@
 Light_BreezeGenerator
 ===========
-2019-09-11 -> 2020-06-02
+2019-09-11 -> 2020-06-08
 
 
 
@@ -65,6 +65,10 @@ breeze_generator:
 History Log
 =============
 
+- 1.24.1 -- 2020-06-08
+
+    - update ling-breeze-generator-2.md document, add suggestion for the getFactory method 
+    
 - 1.24.0 -- 2020-06-02
 
     - add LingBreezeGenerator2 methods: getTagsColumn, getTagsColumns, getTagsKey2Value 

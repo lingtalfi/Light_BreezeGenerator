@@ -1,6 +1,6 @@
 Ling Breeze Generator 2 
 =================
-2020-05-20 -> 2020-06-02
+2020-05-20 -> 2020-06-08
 
 
 
@@ -300,6 +300,15 @@ conf:
             
             
             
+Suggestion for plugin authors, the getFactory method
+============
+2020-06-08
+
+
+My suggestion for plugin authors is that their main service should provide a **getFactory** method, which returns the factory for their api.
+
+If every plugin author does that, then it becomes easy for the end developer to access pretty much any database related method of any plugin, it just
+requires a knowledge of the database design to start interacting with a plugin.            
         
                
    
