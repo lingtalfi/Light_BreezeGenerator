@@ -107,8 +107,7 @@ class LingBreezeGenerator2 implements BreezeGeneratorInterface, LightServiceCont
 
 
         $target = $conf['target'];
-        $dir = $target['dir'];
-        $dir = str_replace('${app_dir}', $this->container->getApplicationDir(), $dir);
+        $dir = $this->replaceCommonTags($target['dir']);
         $namespace = $target['namespace'];
         $apiName = $target['apiName'];
 
@@ -142,7 +141,10 @@ class LingBreezeGenerator2 implements BreezeGeneratorInterface, LightServiceCont
         $tables = [];
         if ('file' === $sourceType) {
             $r = new MysqlStructureReader();
-            $tables = $r->readFile($source['file']);
+            $sourceFile = $this->replaceCommonTags($source['file']);
+
+
+            $tables = $r->readFile($sourceFile);
         } elseif ('database' === $sourceType) {
             $tables = $dbInfo->getTables();
         } elseif ('tables' === $sourceType) {
@@ -2050,6 +2052,23 @@ class LingBreezeGenerator2 implements BreezeGeneratorInterface, LightServiceCont
 
 
     /**
+     * Injects the common tags in the given expression and returns the result.
+     *
+     * @param string $expression
+     * @return string
+     */
+    private function replaceCommonTags(string $expression): string
+    {
+
+        return str_replace([
+            '${app_dir}',
+        ], [
+            $this->container->getApplicationDir(),
+        ], $expression);
+    }
+
+
+    /**
      * Throws an error message.
      *
      * @param string $msg
@@ -2059,4 +2078,5 @@ class LingBreezeGenerator2 implements BreezeGeneratorInterface, LightServiceCont
     {
         throw new LightBreezeGeneratorException($msg);
     }
+
 }

@@ -65,6 +65,10 @@ breeze_generator:
 History Log
 =============
 
+- 1.25.0 -- 2020-06-08
+
+    - update LingBreezeGenerator2, now the source file can use the ${app_dir} tag 
+    
 - 1.24.1 -- 2020-06-08
 
     - update ling-breeze-generator-2.md document, add suggestion for the getFactory method 

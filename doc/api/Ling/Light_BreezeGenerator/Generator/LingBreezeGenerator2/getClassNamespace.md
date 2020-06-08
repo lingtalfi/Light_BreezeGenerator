@@ -53,7 +53,7 @@ Returns string.
 
 Source Code
 ===========
-See the source code for method [LingBreezeGenerator2::getClassNamespace](https://github.com/lingtalfi/Light_BreezeGenerator/blob/master/Generator/LingBreezeGenerator2.php#L2021-L2028)
+See the source code for method [LingBreezeGenerator2::getClassNamespace](https://github.com/lingtalfi/Light_BreezeGenerator/blob/master/Generator/LingBreezeGenerator2.php#L2023-L2030)
 
 
 See Also

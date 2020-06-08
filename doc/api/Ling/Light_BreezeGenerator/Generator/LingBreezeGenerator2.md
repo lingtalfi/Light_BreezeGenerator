@@ -95,6 +95,7 @@ class <span class="pl-k">LingBreezeGenerator2</span> implements [BreezeGenerator
     - private [getClassPath](https://github.com/lingtalfi/Light_BreezeGenerator/blob/master/doc/api/Ling/Light_BreezeGenerator/Generator/LingBreezeGenerator2/getClassPath.md)(string $baseDir, string $className, ?string $relativeDir = null) : string
     - private [getClassNamespace](https://github.com/lingtalfi/Light_BreezeGenerator/blob/master/doc/api/Ling/Light_BreezeGenerator/Generator/LingBreezeGenerator2/getClassNamespace.md)(string $baseNamespace, ?string $relativeNamespace = null) : string
     - private [getEpuratedTableName](https://github.com/lingtalfi/Light_BreezeGenerator/blob/master/doc/api/Ling/Light_BreezeGenerator/Generator/LingBreezeGenerator2/getEpuratedTableName.md)(string $table, array $allPrefixes) : string
+    - private [replaceCommonTags](https://github.com/lingtalfi/Light_BreezeGenerator/blob/master/doc/api/Ling/Light_BreezeGenerator/Generator/LingBreezeGenerator2/replaceCommonTags.md)(string $expression) : string
     - private [error](https://github.com/lingtalfi/Light_BreezeGenerator/blob/master/doc/api/Ling/Light_BreezeGenerator/Generator/LingBreezeGenerator2/error.md)(string $msg) : void
 
 }
@@ -151,6 +152,7 @@ Methods
 - [LingBreezeGenerator2::getClassPath](https://github.com/lingtalfi/Light_BreezeGenerator/blob/master/doc/api/Ling/Light_BreezeGenerator/Generator/LingBreezeGenerator2/getClassPath.md) &ndash; Returns the class path (absolute path to the php file containing the class).
 - [LingBreezeGenerator2::getClassNamespace](https://github.com/lingtalfi/Light_BreezeGenerator/blob/master/doc/api/Ling/Light_BreezeGenerator/Generator/LingBreezeGenerator2/getClassNamespace.md) &ndash; Returns the namespace of an object based on the given arguments.
 - [LingBreezeGenerator2::getEpuratedTableName](https://github.com/lingtalfi/Light_BreezeGenerator/blob/master/doc/api/Ling/Light_BreezeGenerator/Generator/LingBreezeGenerator2/getEpuratedTableName.md) &ndash; Returns the lowercase table name without prefix, based on the given table and prefixes.
+- [LingBreezeGenerator2::replaceCommonTags](https://github.com/lingtalfi/Light_BreezeGenerator/blob/master/doc/api/Ling/Light_BreezeGenerator/Generator/LingBreezeGenerator2/replaceCommonTags.md) &ndash; Injects the common tags in the given expression and returns the result.
 - [LingBreezeGenerator2::error](https://github.com/lingtalfi/Light_BreezeGenerator/blob/master/doc/api/Ling/Light_BreezeGenerator/Generator/LingBreezeGenerator2/error.md) &ndash; Throws an error message.
 
 
