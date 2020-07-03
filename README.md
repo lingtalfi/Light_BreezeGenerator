@@ -1,6 +1,6 @@
 Light_BreezeGenerator
 ===========
-2019-09-11 -> 2020-06-08
+2019-09-11 -> 2020-07-03
 
 
 
@@ -64,6 +64,10 @@ breeze_generator:
 
 History Log
 =============
+
+- 1.27.0 -- 2020-07-03
+
+    - update LingBreezeGenerator2 now generates multiple insert method 
 
 - 1.26.0 -- 2020-06-08
 

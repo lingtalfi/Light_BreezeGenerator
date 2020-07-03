@@ -36,6 +36,11 @@ use Ling\SqlWizard\Util\MysqlStructureReader;
  * - namespace: string
  * - table: string
  * - className: string
+ * - classNamePlural: string
+ * - humanName: string
+ * - humanNamePlural: string
+ * - variableName: string
+ * - variableNamePlural: string
  * - objectClassName: string
  * - ric: array
  * - ricVariables: array (more details in the getRicVariables method comments)
@@ -195,6 +200,13 @@ class LingBreezeGenerator2 implements BreezeGeneratorInterface, LightServiceCont
 
 
             $className = $this->getClassNameFromTable($tableClassName);
+            $classNamePlural = StringTool::getPlural($className);
+            $humanName = CaseTool::toHumanFlatCase($className);
+            $humanNamePlural = StringTool::getPlural($humanName);
+            $variableName = CaseTool::toVariableName($className);
+            $variableNamePlural = StringTool::getPlural($variableName);
+
+
             $objectClassName = $className . $classSuffix;
             $ricVariables = $this->getRicVariables($tableInfo['ric'], $types);
             $uniqueIndexesVariables = $this->getUniqueIndexesVariables($tableInfo['uniqueIndexes'], $types);
@@ -210,7 +222,12 @@ class LingBreezeGenerator2 implements BreezeGeneratorInterface, LightServiceCont
                 "apiName" => $apiName,
                 "namespace" => $namespace,
                 "table" => $table,
+                "humanName" => $humanName,
+                "humanNamePlural" => $humanNamePlural,
+                "variableName" => $variableName,
+                "variableNamePlural" => $variableNamePlural,
                 "className" => $className,
+                "classNamePlural" => $classNamePlural,
                 "objectClassName" => $objectClassName,
                 "interfaceSuffix" => $interfaceSuffix,
                 "baseClassName" => $baseClassName,
@@ -234,7 +251,12 @@ class LingBreezeGenerator2 implements BreezeGeneratorInterface, LightServiceCont
             $content = $this->generateObjectInterfaceClass([
                 "namespace" => $namespace,
                 "table" => $table,
+                "humanName" => $humanName,
+                "humanNamePlural" => $humanNamePlural,
+                "variableName" => $variableName,
+                "variableNamePlural" => $variableNamePlural,
                 "className" => $className,
+                "classNamePlural" => $classNamePlural,
                 "objectClassName" => $objectClassName,
                 "interfaceSuffix" => $interfaceSuffix,
                 "ricVariables" => $ricVariables,
@@ -413,6 +435,12 @@ class LingBreezeGenerator2 implements BreezeGeneratorInterface, LightServiceCont
         }
 
 
+        /**
+         * replacing multiple insert first
+         */
+        $content = str_replace('// multipleInsertXXX', $this->getInsertMultipleMethod($variables), $content);
+
+
         $content = str_replace('UserObjectInterface', $objectInterfaceName, $content);
         $content = str_replace('The\ObjectNamespace', $namespaceClass, $content);
         $content = str_replace('UserObject', $objectClassName, $content);
@@ -535,6 +563,7 @@ class LingBreezeGenerator2 implements BreezeGeneratorInterface, LightServiceCont
         $content = str_replace('UserObjectInterface', $objectClassName, $content);
 
         $content = str_replace('// insertXXX', $this->getInterfaceMethod('insertXXX', $variables), $content);
+        $content = str_replace('// multipleInsertXXX', $this->getInterfaceMethod('multipleInsertXXX', $variables), $content);
         $content = str_replace('// getXXX', $this->getInterfaceMethod('getXXXById', $variables), $content);
 
         $content = str_replace('// getTheItems', $this->getItemsInterfaceMethod($variables), $content);
@@ -1428,8 +1457,6 @@ class LingBreezeGenerator2 implements BreezeGeneratorInterface, LightServiceCont
                     $methodName = "get" . $plural . "By" . $leftTableName . CaseTool::toPascal($handleName);
 
 
-
-
                     $rel1 = "h.$rightFk=a.$referencedByLeft";
                     $rel2 = "h.$leftFk=:$leftFk";
 
@@ -1589,7 +1616,6 @@ class LingBreezeGenerator2 implements BreezeGeneratorInterface, LightServiceCont
                         $methodName = "get" . $variables['className'] . $rightColPluralName . "By" . $leftTableName . $handleName;
 
 
-
                         $rel1 = "h.$rightFk=a.$referencedByLeft";
                         $rel2 = "inner join " . $hasItem['left_table'] . " b on b.$referencedByLeft=h.$leftFk";
 
@@ -1678,8 +1704,6 @@ class LingBreezeGenerator2 implements BreezeGeneratorInterface, LightServiceCont
 
 
                         $methodName = "get" . $variables['className'] . $rightColPluralName . "By" . $leftTableName . $handleName;
-
-
 
 
                         $t = file_get_contents($template);
@@ -1773,12 +1797,26 @@ class LingBreezeGenerator2 implements BreezeGeneratorInterface, LightServiceCont
         $template = __DIR__ . "/../assets/classModel/Ling/template/partials/$methodName.tpl.txt";
         $content = file_get_contents($template);
 
-        $variableName = lcfirst($variables['className']);
+        $variableName = $variables['variableName'];
+        $variableNamePlural = $variables['variableNamePlural'];
+
+
         $className = $variables['className'];
+        $classNamePlural = $variables['classNamePlural'];
         $ricVariables = $variables['ricVariables'];
         $ric = $variables['ric'];
 
 
+        /**
+         * in multipleInsertXXX, we do it first to avoid potential string replacement conflicts (i.e. "user" is contained in "array $users")
+         */
+        $content = str_replace('array $users', 'array $' . $variableNamePlural, $content);
+        $content = str_replace('multipleInsertXXX', 'insert' . $classNamePlural, $content);
+
+
+        /**
+         *
+         */
         $content = str_replace('user', $variableName, $content);
         $content = str_replace('insertXXX', 'insert' . $className, $content);
         $content = str_replace('by the given id', $ricVariables['byTheGivenString'], $content);
@@ -1922,6 +1960,32 @@ class LingBreezeGenerator2 implements BreezeGeneratorInterface, LightServiceCont
         $content = str_replace('"id" => $res[\'id\'],', $sRicLines, $content);
         return $content;
 
+    }
+
+    /**
+     * Returns the content of a php method of type insert multiple (internal naming convention).
+     *
+     * The variables array is described in this class description.
+     *
+     * @param array $variables
+     * @return string
+     */
+    protected function getInsertMultipleMethod(array $variables): string
+    {
+        $tpl = __DIR__ . "/../assets/classModel/Ling/template/partials/multipleInsertUser.tpl.txt";
+        $content = file_get_contents($tpl);
+        $content=  str_replace([
+            'insertPermissions',
+            '$permissions',
+            '$xxx',
+            '$this->insertPermission',
+        ],[
+            'insert' . $variables['classNamePlural'],
+            '$' . $variables['variableNamePlural'],
+            '$' . $variables['variableName'],
+            '$this->insert' . $variables['className'],
+        ], $content);
+        return $content;
     }
 
 
