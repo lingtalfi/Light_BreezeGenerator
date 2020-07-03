@@ -65,6 +65,10 @@ breeze_generator:
 History Log
 =============
 
+- 1.27.1 -- 2020-07-03
+
+    - fix LingBreezeGenerator2 generated insert method not taking SimplePdoWrapperQueryException into account 
+    
 - 1.27.0 -- 2020-07-03
 
     - update LingBreezeGenerator2 now generates multiple insert method 
