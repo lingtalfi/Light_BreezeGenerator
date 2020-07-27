@@ -51,7 +51,7 @@ Returns string.
 
 Source Code
 ===========
-See the source code for method [LingBreezeGenerator2::generateObjectBase](https://github.com/lingtalfi/Light_BreezeGenerator/blob/master/Generator/LingBreezeGenerator2.php#L851-L864)
+See the source code for method [LingBreezeGenerator2::generateObjectBase](https://github.com/lingtalfi/Light_BreezeGenerator/blob/master/Generator/LingBreezeGenerator2.php#L855-L869)
 
 
 See Also

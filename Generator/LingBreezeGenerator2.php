@@ -452,6 +452,7 @@ class LingBreezeGenerator2 implements BreezeGeneratorInterface, LightServiceCont
         //--------------------------------------------
         // HEADER METHODS
         //--------------------------------------------
+        $content = str_replace('// fetchFetchAllXXX', $this->getRicMethod("fetchFetchAllYYY", $variables), $content);
         $content = str_replace('// getXXX', $this->getRicMethod("getUserById", $variables), $content);
         $content = str_replace('// getTheItems', $this->getItemsMethod($variables), $content);
         $content = str_replace('// getThe_ItemsColumn', $this->getItemsMethod($variables, 'getUserItemsColumn'), $content);
@@ -564,7 +565,10 @@ class LingBreezeGenerator2 implements BreezeGeneratorInterface, LightServiceCont
 
         $content = str_replace('// multipleInsertXXX', $this->getInterfaceMethod('multipleInsertXXX', $variables), $content);
 
+        $content = str_replace('// fetchFetchAllXXX', $this->getInterfaceMethod('fetchFetchAllXXX', $variables), $content);
+
         $content = str_replace('// insertXXX', $this->getInterfaceMethod('insertXXX', $variables), $content);
+
         $content = str_replace('// getXXX', $this->getInterfaceMethod('getXXXById', $variables), $content);
 
         $content = str_replace('// getTheItems', $this->getItemsInterfaceMethod($variables), $content);
@@ -858,6 +862,7 @@ class LingBreezeGenerator2 implements BreezeGeneratorInterface, LightServiceCont
         $baseClassName = $variables['baseClassName'];
         $content = str_replace('The\ObjectNamespace', $namespace, $content);
         $content = str_replace('BaseLightUserDatabaseApi', $baseClassName, $content);
+
 
 
         return $content;
