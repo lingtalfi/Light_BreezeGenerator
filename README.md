@@ -1,6 +1,6 @@
 Light_BreezeGenerator
 ===========
-2019-09-11 -> 2020-07-27
+2019-09-11 -> 2020-08-10
 
 
 
@@ -65,6 +65,10 @@ breeze_generator:
 History Log
 =============
 
+- 1.28.1 -- 2020-08-10
+
+    - fix LingBreezeGenerator2, generated factory didn't set the container on api objects 
+    
 - 1.28.0 -- 2020-07-27
 
     - update LingBreezeGenerator2, add fetch and fetchAll methods 
