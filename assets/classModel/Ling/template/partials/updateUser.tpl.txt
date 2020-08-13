@@ -1,0 +1,9 @@
+    /**
+     * @implementation
+     */
+    public function updateUser(array $user, $where = null, array $markers = [])
+    {
+        $this->pdoWrapper->update("user", $user, $where, $markers);
+    }
+
+// updateRawXXX

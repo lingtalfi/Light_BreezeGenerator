@@ -4,9 +4,11 @@
      *
      * @param int $id
      * @param array $user
+     * @param array $extraWhere
+     * @param array $markers
      * @return void
      * @throws \Exception
      */
-    public function updateXXXById(int $id, array $user);
+    public function updateXXXById(int $id, array $user, array $extraWhere = [], array $markers = []);
 
 // updateXXX

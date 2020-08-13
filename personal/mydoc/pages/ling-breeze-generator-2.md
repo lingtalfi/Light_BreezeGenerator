@@ -1,6 +1,6 @@
 Ling Breeze Generator 2 
 =================
-2020-05-20 -> 2020-07-27
+2020-05-20 -> 2020-08-13
 
 
 
@@ -111,7 +111,7 @@ of methods in the IDE.
 
 Generated methods
 ----------
-2020-05-21 -> 2020-07-27
+2020-05-21 -> 2020-08-13
 
 
 For a regular table name **tag**:
@@ -143,6 +143,7 @@ the generated methods will look like this:
 - getTagNamesByResourceId
 - getTagNamesByResourceResourceIdentifier
 - getAllIds
+- updateTag
 - updateTagById
 - updateTagByName
 - delete
