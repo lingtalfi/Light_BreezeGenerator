@@ -485,7 +485,7 @@ class LingBreezeGenerator2 implements BreezeGeneratorInterface, LightServiceCont
                 $uniqueVariables['ricVariables'] = $set;
                 $content = str_replace('// getXXX', $this->getRicMethod("getUserById", $uniqueVariables), $content);
                 $content = str_replace('// updateXXX', $this->getRicMethod("updateUserById", $uniqueVariables), $content);
-                $content = str_replace('// updateRawXXX', $this->getRicMethod("updateUser", $uniqueVariables), $content);
+//                $content = str_replace('// updateRawXXX', $this->getRicMethod("updateUser", $uniqueVariables), $content);
                 $content = str_replace('// deleteXXX', $this->getRicMethod("deleteUserById", $uniqueVariables), $content);
                 $content = str_replace('// deletesXXX', $this->getRicMethod("deleteUserByIds", $uniqueVariables, [
                     "useMultiple" => true,
@@ -608,7 +608,7 @@ class LingBreezeGenerator2 implements BreezeGeneratorInterface, LightServiceCont
                 $uniqueVariables['ricVariables'] = $set;
                 $content = str_replace('// getXXX', $this->getInterfaceMethod('getXXXById', $uniqueVariables), $content);
                 $content = str_replace('// updateXXX', $this->getInterfaceMethod('updateXXXById', $uniqueVariables), $content);
-                $content = str_replace('// updateRawXXX', $this->getInterfaceMethod('updateXXX', $uniqueVariables), $content);
+//                $content = str_replace('// updateRawXXX', $this->getInterfaceMethod('updateXXX', $uniqueVariables), $content);
                 $content = str_replace('// deleteXXX', $this->getInterfaceMethod('deleteXXXById', $uniqueVariables), $content);
                 $content = str_replace('// deletesXXX', $this->getInterfaceMethod('deleteXXXByIds', $uniqueVariables), $content);
             }
