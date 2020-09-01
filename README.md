@@ -1,6 +1,6 @@
 Light_BreezeGenerator
 ===========
-2019-09-11 -> 2020-08-31
+2019-09-11 -> 2020-09-01
 
 
 
@@ -65,6 +65,10 @@ breeze_generator:
 History Log
 =============
 
+- 1.29.2 -- 2020-09-01
+
+    - fix LingBreezeGenerator2 typo when generating fetchAll method
+    
 - 1.29.1 -- 2020-08-31
 
     - fix LingBreezeGenerator2 generating update method twice

@@ -7,7 +7,7 @@
         $q = '';
         $options = $this->fetchRoutine($q, $markers, $components);
         $fetchStyle = null;
-        if (true === $options['singleColumns']) {
+        if (true === $options['singleColumn']) {
             $fetchStyle = \PDO::FETCH_COLUMN;
         }
         return $this->pdoWrapper->fetchAll($q, $markers, $fetchStyle);

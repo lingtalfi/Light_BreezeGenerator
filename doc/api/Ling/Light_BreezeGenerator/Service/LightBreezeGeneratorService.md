@@ -4,7 +4,7 @@
 
 The LightBreezeGeneratorService class
 ================
-2019-09-11 --> 2020-08-31
+2019-09-11 --> 2020-09-01
 
 
 
