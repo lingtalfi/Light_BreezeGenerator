@@ -1,6 +1,6 @@
 Light_BreezeGenerator
 ===========
-2019-09-11 -> 2020-09-01
+2019-09-11 -> 2020-10-16
 
 
 
@@ -65,6 +65,10 @@ breeze_generator:
 History Log
 =============
 
+- 1.29.3 -- 2020-10-16
+
+    - update LingBreezeGenerator2, add singleColumn handling for generated fetch methods
+    
 - 1.29.2 -- 2020-09-01
 
     - fix LingBreezeGenerator2 typo when generating fetchAll method
