@@ -1,6 +1,6 @@
 Ling Breeze Generator 2 
 =================
-2020-05-20 -> 2020-08-13
+2020-05-20 -> 2020-11-03
 
 
 
@@ -111,12 +111,13 @@ of methods in the IDE.
 
 Generated methods
 ----------
-2020-05-21 -> 2020-08-13
+2020-05-21 -> 2020-11-03
 
 
 For a regular table name **tag**:
 
 - id: primary key (auto-increment)
+- category: fk
 - name: unique index
 
 
@@ -151,6 +152,7 @@ the generated methods will look like this:
 - deleteTagByName
 - deleteTagByIds
 - deleteTagByNames
+- deleteTagByCategory
 
     
     

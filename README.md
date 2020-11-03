@@ -1,6 +1,6 @@
 Light_BreezeGenerator
 ===========
-2019-09-11 -> 2020-10-30
+2019-09-11 -> 2020-11-03
 
 
 
@@ -65,6 +65,10 @@ breeze_generator:
 History Log
 =============
 
+- 1.29.5 -- 2020-11-03
+
+    - update LingBreezeGenerator2, now generates deleteByFk methods 
+    
 - 1.29.4 -- 2020-10-30
 
     - update LingBreezeGenerator2, add precision in comment for generated insert methods 

@@ -4,7 +4,7 @@
 
 The LingBreezeGenerator2 class
 ================
-2019-09-11 --> 2020-10-30
+2019-09-11 --> 2020-11-03
 
 
 
@@ -96,7 +96,9 @@ class <span class="pl-k">LingBreezeGenerator2</span> implements [BreezeGenerator
     - protected [getInsertMultipleMethod](https://github.com/lingtalfi/Light_BreezeGenerator/blob/master/doc/api/Ling/Light_BreezeGenerator/Generator/LingBreezeGenerator2/getInsertMultipleMethod.md)(array $variables) : string
     - protected [getAllMethod](https://github.com/lingtalfi/Light_BreezeGenerator/blob/master/doc/api/Ling/Light_BreezeGenerator/Generator/LingBreezeGenerator2/getAllMethod.md)(array $variables) : string
     - protected [getDeleteMethod](https://github.com/lingtalfi/Light_BreezeGenerator/blob/master/doc/api/Ling/Light_BreezeGenerator/Generator/LingBreezeGenerator2/getDeleteMethod.md)() : string
+    - protected [getDeleteByFkMethod](https://github.com/lingtalfi/Light_BreezeGenerator/blob/master/doc/api/Ling/Light_BreezeGenerator/Generator/LingBreezeGenerator2/getDeleteByFkMethod.md)(array $variables) : string
     - protected [getDeleteMethodInterface](https://github.com/lingtalfi/Light_BreezeGenerator/blob/master/doc/api/Ling/Light_BreezeGenerator/Generator/LingBreezeGenerator2/getDeleteMethodInterface.md)(array $variables) : string
+    - protected [getDeleteByFkMethodInterface](https://github.com/lingtalfi/Light_BreezeGenerator/blob/master/doc/api/Ling/Light_BreezeGenerator/Generator/LingBreezeGenerator2/getDeleteByFkMethodInterface.md)(array $variables) : string
     - private [getGetAllXXXMethodName](https://github.com/lingtalfi/Light_BreezeGenerator/blob/master/doc/api/Ling/Light_BreezeGenerator/Generator/LingBreezeGenerator2/getGetAllXXXMethodName.md)(array $ric) : string
     - private [getClassPath](https://github.com/lingtalfi/Light_BreezeGenerator/blob/master/doc/api/Ling/Light_BreezeGenerator/Generator/LingBreezeGenerator2/getClassPath.md)(string $baseDir, string $className, ?string $relativeDir = null) : string
     - private [getClassNamespace](https://github.com/lingtalfi/Light_BreezeGenerator/blob/master/doc/api/Ling/Light_BreezeGenerator/Generator/LingBreezeGenerator2/getClassNamespace.md)(string $baseNamespace, ?string $relativeNamespace = null) : string
@@ -154,7 +156,9 @@ Methods
 - [LingBreezeGenerator2::getInsertMultipleMethod](https://github.com/lingtalfi/Light_BreezeGenerator/blob/master/doc/api/Ling/Light_BreezeGenerator/Generator/LingBreezeGenerator2/getInsertMultipleMethod.md) &ndash; Returns the content of a php method of type insert multiple (internal naming convention).
 - [LingBreezeGenerator2::getAllMethod](https://github.com/lingtalfi/Light_BreezeGenerator/blob/master/doc/api/Ling/Light_BreezeGenerator/Generator/LingBreezeGenerator2/getAllMethod.md) &ndash; or an empty string otherwise.
 - [LingBreezeGenerator2::getDeleteMethod](https://github.com/lingtalfi/Light_BreezeGenerator/blob/master/doc/api/Ling/Light_BreezeGenerator/Generator/LingBreezeGenerator2/getDeleteMethod.md) &ndash; Returns the content of the delete template.
+- [LingBreezeGenerator2::getDeleteByFkMethod](https://github.com/lingtalfi/Light_BreezeGenerator/blob/master/doc/api/Ling/Light_BreezeGenerator/Generator/LingBreezeGenerator2/getDeleteByFkMethod.md) &ndash; Returns the content of the "delete by fk" method template.
 - [LingBreezeGenerator2::getDeleteMethodInterface](https://github.com/lingtalfi/Light_BreezeGenerator/blob/master/doc/api/Ling/Light_BreezeGenerator/Generator/LingBreezeGenerator2/getDeleteMethodInterface.md) &ndash; Returns the content of the delete template for the interface.
+- [LingBreezeGenerator2::getDeleteByFkMethodInterface](https://github.com/lingtalfi/Light_BreezeGenerator/blob/master/doc/api/Ling/Light_BreezeGenerator/Generator/LingBreezeGenerator2/getDeleteByFkMethodInterface.md) &ndash; Returns the content of the delete by fk template for the interface if there is a foreign key.
 - [LingBreezeGenerator2::getGetAllXXXMethodName](https://github.com/lingtalfi/Light_BreezeGenerator/blob/master/doc/api/Ling/Light_BreezeGenerator/Generator/LingBreezeGenerator2/getGetAllXXXMethodName.md) &ndash; Returns the getAllXXX method name for the first column of the given ric.
 - [LingBreezeGenerator2::getClassPath](https://github.com/lingtalfi/Light_BreezeGenerator/blob/master/doc/api/Ling/Light_BreezeGenerator/Generator/LingBreezeGenerator2/getClassPath.md) &ndash; Returns the class path (absolute path to the php file containing the class).
 - [LingBreezeGenerator2::getClassNamespace](https://github.com/lingtalfi/Light_BreezeGenerator/blob/master/doc/api/Ling/Light_BreezeGenerator/Generator/LingBreezeGenerator2/getClassNamespace.md) &ndash; Returns the namespace of an object based on the given arguments.

@@ -471,6 +471,9 @@ class LingBreezeGenerator2 implements BreezeGeneratorInterface, LightServiceCont
         $content = str_replace('// deleteYYY', $this->getDeleteMethod(), $content);
 
 
+        $content = str_replace('// deleteByFkXXX', $this->getDeleteByFkMethod($variables), $content);
+
+
         if (1 === count($ric)) {
             $content = str_replace('// deletesXXX', $this->getRicMethod("deleteUserByIds", $variables, [
                 "useMultiple" => true,
@@ -595,6 +598,10 @@ class LingBreezeGenerator2 implements BreezeGeneratorInterface, LightServiceCont
         $content = str_replace('// updateRawXXX', $this->getInterfaceMethod('updateXXX', $variables), $content);
         $content = str_replace('// deleteXXX', $this->getInterfaceMethod('deleteXXXById', $variables), $content);
         $content = str_replace('// deleteYYY', $this->getDeleteMethodInterface($variables), $content);
+
+
+        $content = str_replace('// deleteByFkXXX', $this->getDeleteByFkMethodInterface($variables), $content);
+
 
         if (1 === count($ric)) {
             $content = str_replace('// deletesXXX', $this->getInterfaceMethod('deleteXXXByIds', $variables), $content);
@@ -2060,6 +2067,48 @@ class LingBreezeGenerator2 implements BreezeGeneratorInterface, LightServiceCont
         return file_get_contents($tpl);
     }
 
+
+    /**
+     * Returns the content of the "delete by fk" method template.
+     * We generate one method per foreign key column.
+     *
+     *
+     * @param array $variables
+     * @return string
+     */
+    protected function getDeleteByFkMethod(array $variables)
+    {
+        $content = '';
+        $fk = $variables['foreignKeysInfo'];
+        if ($fk) {
+            $tpl = __DIR__ . "/../assets/classModel/Ling/template/partials/deleteByFk.tpl.txt";
+
+
+            foreach ($fk as $col => $fkInfo) {
+                $colNoPrefix = $this->getEpuratedTableName($col, $variables['allPrefixes']);
+                $variableCol = CaseTool::toVariableName($colNoPrefix);
+
+                $s = file_get_contents($tpl);
+                $s = str_replace([
+                    'ResourceFile',
+                    'ResourceId',
+                    '$resourceId',
+                    'luda_resource_id',
+                ], [
+                    $variables['className'],
+                    ucfirst($variableCol),
+                    '$' . $variableCol,
+                    $col,
+                ], $s);
+
+
+                $content .= PHP_EOL;
+                $content .= $s;
+            }
+        }
+        return $content;
+    }
+
     /**
      * Returns the content of the delete template for the interface.
      * @param array $variables
@@ -2070,6 +2119,56 @@ class LingBreezeGenerator2 implements BreezeGeneratorInterface, LightServiceCont
         $tpl = __DIR__ . "/../assets/classModel/Ling/template/partials/deleteXXX.tpl.txt";
         $content = file_get_contents($tpl);
         $content = str_replace('resource', lcfirst($variables['className']), $content);
+        return $content;
+    }
+
+
+    /**
+     * Returns the content of the delete by fk template for the interface if there is a foreign key.
+     * We generate one method per foreign key column.
+     *
+     * If the table doesn't have foreign key, it returns an empty string.
+     *
+     * @param array $variables
+     * @return string
+     */
+    protected function getDeleteByFkMethodInterface(array $variables)
+    {
+
+
+        $content = '';
+        $fk = $variables['foreignKeysInfo'];
+        if ($fk) {
+
+
+            $tpl = __DIR__ . "/../assets/classModel/Ling/template/partials/deleteByFkXXX.tpl.txt";
+
+
+            foreach ($fk as $col => $fkInfo) {
+                $col = $this->getEpuratedTableName($col, $variables['allPrefixes']);
+                $humanCol = CaseTool::toHumanFlatCase($col);
+                $variableCol = CaseTool::toVariableName($col);
+
+                $s = file_get_contents($tpl);
+                $s = str_replace([
+                    'ResourceFile',
+                    'ResourceId',
+                    'resourceFile',
+                    'resource id',
+                    'resourceId',
+                ], [
+                    $variables['className'],
+                    ucfirst($variableCol),
+                    lcfirst($variables['humanName']),
+                    $humanCol,
+                    $variableCol,
+                ], $s);
+
+
+                $content .= PHP_EOL;
+                $content .= $s;
+            }
+        }
         return $content;
     }
 
