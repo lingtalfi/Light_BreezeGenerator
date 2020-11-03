@@ -69,11 +69,29 @@ class LingBreezeGenerator2 implements BreezeGeneratorInterface, LightServiceCont
 
 
     /**
+     * This property holds the alreadyUsedMethodNames for this instance.
+     * Not all already used method names are stored here, just those that might create conflicts.
+     *
+     * @var array
+     */
+    private $alreadyUsedMethodNames;
+
+    /**
+     * This property holds the alreadyUsedMethodNamesInterface for this instance.
+     * Same as $alreadyUsedMethodNames, but for interfaces.
+     * @var array
+     */
+    private $alreadyUsedMethodNamesInterface;
+
+
+    /**
      * Builds the LingBreezeGenerator instance.
      */
     public function __construct()
     {
         $this->container = null;
+        $this->alreadyUsedMethodNames = [];
+        $this->alreadyUsedMethodNamesInterface = [];
     }
 
     /**
@@ -1227,8 +1245,38 @@ class LingBreezeGenerator2 implements BreezeGeneratorInterface, LightServiceCont
      */
     protected function getRicMethod(string $method, array $variables, array $options = []): string
     {
+        $ricVariables = $variables['ricVariables'];
+        $className = $variables['className'];
 
 
+        //--------------------------------------------
+        // DUPLICATE METHOD NAME CHECKING
+        //--------------------------------------------
+        if (in_array($method, [
+            'deleteUserById',
+            'deleteUserByIds',
+        ])) {
+
+            $realMethodName = null;
+            switch ($method) {
+                case "deleteUserById":
+                    $realMethodName = 'delete' . $className . $ricVariables['byString'];
+                    break;
+                case "deleteUserByIds": // deleteUserByMultiples
+                    $realMethodName = 'delete' . $className . $ricVariables['byStrings'];
+                    break;
+            }
+
+            // if the method already exists, we don't add it
+            if (in_array($realMethodName, $this->alreadyUsedMethodNames, true)) {
+                return '';
+            }
+        }
+
+
+        //--------------------------------------------
+        // WRITE METHOD...
+        //--------------------------------------------
         $useMultiple = $options['useMultiple'] ?? false;
 
         //--------------------------------------------
@@ -1246,8 +1294,6 @@ class LingBreezeGenerator2 implements BreezeGeneratorInterface, LightServiceCont
         //
         //--------------------------------------------
         $isGet = ('get' === substr($method, 0, 3));
-        $ricVariables = $variables['ricVariables'];
-        $className = $variables['className'];
         $variableName = lcfirst($variables['className']);
 
 
@@ -1812,8 +1858,6 @@ class LingBreezeGenerator2 implements BreezeGeneratorInterface, LightServiceCont
      */
     protected function getInterfaceMethod(string $methodName, array $variables): string
     {
-        $template = __DIR__ . "/../assets/classModel/Ling/template/partials/$methodName.tpl.txt";
-        $content = file_get_contents($template);
 
         $variableName = $variables['variableName'];
         $variableNamePlural = $variables['variableNamePlural'];
@@ -1823,6 +1867,42 @@ class LingBreezeGenerator2 implements BreezeGeneratorInterface, LightServiceCont
         $classNamePlural = $variables['classNamePlural'];
         $ricVariables = $variables['ricVariables'];
         $ric = $variables['ric'];
+
+
+        $template = __DIR__ . "/../assets/classModel/Ling/template/partials/$methodName.tpl.txt";
+
+
+        //--------------------------------------------
+        // DUPLICATE METHOD NAME CHECKING
+        //--------------------------------------------
+        if (in_array($methodName, [
+            'deleteXXXById',
+            'deleteXXXByIds',
+        ])) {
+
+            $realMethodName = null;
+            switch ($methodName) {
+                case "deleteXXXById":
+                    // deleteXXXById
+                    $realMethodName = 'delete' . $className . $ricVariables['byString'];
+                    break;
+                case "deleteXXXByIds":
+                    // deleteAllByIds
+                    $realMethodName = 'delete' . $className . $ricVariables['byStrings'];
+                    break;
+            }
+
+            // if the method has already been written, we don't write it again
+            if (in_array($realMethodName, $this->alreadyUsedMethodNamesInterface, true)) {
+                return '';
+            }
+        }
+
+
+        //--------------------------------------------
+        // WRITING THE METHOD
+        //--------------------------------------------
+        $content = file_get_contents($template);
 
 
         /**
@@ -2088,6 +2168,7 @@ class LingBreezeGenerator2 implements BreezeGeneratorInterface, LightServiceCont
                 $colNoPrefix = $this->getEpuratedTableName($col, $variables['allPrefixes']);
                 $variableCol = CaseTool::toVariableName($colNoPrefix);
 
+
                 $s = file_get_contents($tpl);
                 $s = str_replace([
                     'ResourceFile',
@@ -2100,6 +2181,11 @@ class LingBreezeGenerator2 implements BreezeGeneratorInterface, LightServiceCont
                     '$' . $variableCol,
                     $col,
                 ], $s);
+
+
+                // avoid potential duplicate method name conflicts...
+                $methodName = 'delete' . $variables['className'] . "By" . ucfirst($variableCol);
+                $this->alreadyUsedMethodNames[] = $methodName;
 
 
                 $content .= PHP_EOL;
@@ -2148,6 +2234,12 @@ class LingBreezeGenerator2 implements BreezeGeneratorInterface, LightServiceCont
                 $col = $this->getEpuratedTableName($col, $variables['allPrefixes']);
                 $humanCol = CaseTool::toHumanFlatCase($col);
                 $variableCol = CaseTool::toVariableName($col);
+
+
+                // deleteResourceFileByResourceId
+                $methodName = 'delete' . $variables['className'] . 'By' . ucfirst($variableCol);
+                $this->alreadyUsedMethodNamesInterface[] = $methodName;
+
 
                 $s = file_get_contents($tpl);
                 $s = str_replace([

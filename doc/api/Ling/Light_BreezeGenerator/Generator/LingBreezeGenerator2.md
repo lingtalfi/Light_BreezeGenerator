@@ -63,6 +63,8 @@ class <span class="pl-k">LingBreezeGenerator2</span> implements [BreezeGenerator
 
 - Properties
     - protected [Ling\Light\ServiceContainer\LightServiceContainerInterface](https://github.com/lingtalfi/Light/blob/master/doc/api/Ling/Light/ServiceContainer/LightServiceContainerInterface.md) [$container](#property-container) ;
+    - private array [$alreadyUsedMethodNames](#property-alreadyUsedMethodNames) ;
+    - private array [$alreadyUsedMethodNamesInterface](#property-alreadyUsedMethodNamesInterface) ;
 
 - Methods
     - public [__construct](https://github.com/lingtalfi/Light_BreezeGenerator/blob/master/doc/api/Ling/Light_BreezeGenerator/Generator/LingBreezeGenerator2/__construct.md)() : void
@@ -117,6 +119,20 @@ Properties
 - <span id="property-container"><b>container</b></span>
 
     This property holds the container for this instance.
+    
+    
+
+- <span id="property-alreadyUsedMethodNames"><b>alreadyUsedMethodNames</b></span>
+
+    This property holds the alreadyUsedMethodNames for this instance.
+    Not all already used method names are stored here, just those that might create conflicts.
+    
+    
+
+- <span id="property-alreadyUsedMethodNamesInterface"><b>alreadyUsedMethodNamesInterface</b></span>
+
+    This property holds the alreadyUsedMethodNamesInterface for this instance.
+    Same as $alreadyUsedMethodNames, but for interfaces.
     
     
 

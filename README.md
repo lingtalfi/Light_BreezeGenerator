@@ -65,6 +65,10 @@ breeze_generator:
 History Log
 =============
 
+- 1.29.6 -- 2020-11-03
+
+    - fix LingBreezeGenerator2, method name conflicts with deleteByFk and "has table" deleteBy methods 
+    
 - 1.29.5 -- 2020-11-03
 
     - update LingBreezeGenerator2, now generates deleteByFk methods 
