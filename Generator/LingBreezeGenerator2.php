@@ -7,6 +7,7 @@ namespace Ling\Light_BreezeGenerator\Generator;
 use Ling\Bat\CaseTool;
 use Ling\Bat\FileSystemTool;
 use Ling\Bat\StringTool;
+use Ling\CheapLogger\CheapLogger;
 use Ling\Light\ServiceContainer\LightServiceContainerAwareInterface;
 use Ling\Light\ServiceContainer\LightServiceContainerInterface;
 use Ling\Light_BreezeGenerator\Exception\LightBreezeGeneratorException;
@@ -85,6 +86,19 @@ class LingBreezeGenerator2 implements BreezeGeneratorInterface, LightServiceCont
 
 
     /**
+     * This property holds the _usePrefixInMethodNames for this instance.
+     * @var bool
+     */
+    private $_usePrefixInMethodNames;
+
+    /**
+     * This property holds the _allPrefixes for this instance.
+     * @var array
+     */
+    private $_allPrefixes;
+
+
+    /**
      * Builds the LingBreezeGenerator instance.
      */
     public function __construct()
@@ -92,6 +106,8 @@ class LingBreezeGenerator2 implements BreezeGeneratorInterface, LightServiceCont
         $this->container = null;
         $this->alreadyUsedMethodNames = [];
         $this->alreadyUsedMethodNamesInterface = [];
+        $this->_usePrefixInMethodNames = true;
+        $this->_allPrefixes = [];
     }
 
     /**
@@ -117,6 +133,9 @@ class LingBreezeGenerator2 implements BreezeGeneratorInterface, LightServiceCont
         //--------------------------------------------
         $options = $conf['options'] ?? [];
         $devMode = $options['dev'] ?? false;
+        $this->_usePrefixInMethodNames = (bool)($options['usePrefixInMethodNames'] ?? true);
+
+
         $source = $conf['source'];
         if (array_key_exists("file", $source)) {
             $sourceType = "file";
@@ -127,6 +146,7 @@ class LingBreezeGenerator2 implements BreezeGeneratorInterface, LightServiceCont
         }
         $prefix = $source['prefix'] ?? null;
         $allPrefixes = $source['prefixes'] ?? [];
+        $this->_allPrefixes = $allPrefixes;
 
 
         $target = $conf['target'];
@@ -184,6 +204,11 @@ class LingBreezeGenerator2 implements BreezeGeneratorInterface, LightServiceCont
 
 
         foreach ($tables as $table) {
+
+            // reset cache per table
+            $this->alreadyUsedMethodNamesInterface = [];
+            $this->alreadyUsedMethodNames = [];
+
 
             // get table info
             if ('file' === $sourceType) {
@@ -470,8 +495,8 @@ class LingBreezeGenerator2 implements BreezeGeneratorInterface, LightServiceCont
         //--------------------------------------------
         // HEADER METHODS
         //--------------------------------------------
-        $content = str_replace('// fetchFetchAllXXX', $this->getRicMethod("fetchFetchAllYYY", $variables), $content);
-        $content = str_replace('// getXXX', $this->getRicMethod("getUserById", $variables), $content);
+        $content = str_replace('// fetchFetchAllXXX', $this->getFetchFetchAllYYYMethod($variables), $content);
+        $content = str_replace('// getXXX', $this->getGetUserByIdMethod($variables), $content);
         $content = str_replace('// getTheItems', $this->getItemsMethod($variables), $content);
         $content = str_replace('// getThe_ItemsColumn', $this->getItemsMethod($variables, 'getUserItemsColumn'), $content);
         $content = str_replace('// getThe_Items_Columns', $this->getItemsMethod($variables, 'getUserItemsColumns'), $content);
@@ -483,9 +508,9 @@ class LingBreezeGenerator2 implements BreezeGeneratorInterface, LightServiceCont
         $content = str_replace('// getItemXXXByHas', $this->getItemsXXXByHasMethod($variables), $content);
 
         $content = str_replace('// getAllXXX', $this->getAllMethod($variables), $content);
-        $content = str_replace('// updateXXX', $this->getRicMethod("updateUserById", $variables), $content);
-        $content = str_replace('// updateRawXXX', $this->getRicMethod("updateUser", $variables), $content);
-        $content = str_replace('// deleteXXX', $this->getRicMethod("deleteUserById", $variables), $content);
+        $content = str_replace('// updateXXX', $this->getUpdateUserByIdMethod($variables), $content);
+        $content = str_replace('// updateRawXXX', $this->getUpdateUserMethod($variables), $content);
+        $content = str_replace('// deleteXXX', $this->getDeleteUserByIdMethod($variables), $content);
         $content = str_replace('// deleteYYY', $this->getDeleteMethod(), $content);
 
 
@@ -493,9 +518,7 @@ class LingBreezeGenerator2 implements BreezeGeneratorInterface, LightServiceCont
 
 
         if (1 === count($ric)) {
-            $content = str_replace('// deletesXXX', $this->getRicMethod("deleteUserByIds", $variables, [
-                "useMultiple" => true,
-            ]), $content);
+            $content = str_replace('// deletesXXX', $this->getDeleteUserByIdsMethod($variables), $content);
         }
 
 
@@ -504,13 +527,11 @@ class LingBreezeGenerator2 implements BreezeGeneratorInterface, LightServiceCont
             $uniqueVariables = $variables;
             foreach ($uniqueIndexesVariables as $set) {
                 $uniqueVariables['ricVariables'] = $set;
-                $content = str_replace('// getXXX', $this->getRicMethod("getUserById", $uniqueVariables), $content);
-                $content = str_replace('// updateXXX', $this->getRicMethod("updateUserById", $uniqueVariables), $content);
+                $content = str_replace('// getXXX', $this->getGetUserByIdMethod($uniqueVariables), $content);
+                $content = str_replace('// updateXXX', $this->getUpdateUserByIdMethod($uniqueVariables), $content);
 //                $content = str_replace('// updateRawXXX', $this->getRicMethod("updateUser", $uniqueVariables), $content);
-                $content = str_replace('// deleteXXX', $this->getRicMethod("deleteUserById", $uniqueVariables), $content);
-                $content = str_replace('// deletesXXX', $this->getRicMethod("deleteUserByIds", $uniqueVariables, [
-                    "useMultiple" => true,
-                ]), $content);
+                $content = str_replace('// deleteXXX', $this->getDeleteUserByIdMethod($uniqueVariables), $content);
+                $content = str_replace('// deletesXXX', $this->getDeleteUserByIdsMethod($uniqueVariables), $content);
             }
         }
 
@@ -537,10 +558,8 @@ class LingBreezeGenerator2 implements BreezeGeneratorInterface, LightServiceCont
             foreach ($ric as $column) {
                 $fkRicVariables = $variables;
                 $fkRicVariables['ricVariables'] = $this->getRicVariables([$column], $types); // hacking myself (faster)
-                $content = str_replace('// deleteXXX', $this->getRicMethod("deleteUserById", $fkRicVariables), $content);
-                $content = str_replace('// deletesXXX', $this->getRicMethod("deleteUserByIds", $fkRicVariables, [
-                    "useMultiple" => true,
-                ]), $content);
+                $content = str_replace('// deleteXXX', $this->getDeleteUserByIdMethod($fkRicVariables), $content);
+                $content = str_replace('// deletesXXX', $this->getDeleteUserByIdsMethod($fkRicVariables), $content);
             }
         }
 
@@ -587,13 +606,13 @@ class LingBreezeGenerator2 implements BreezeGeneratorInterface, LightServiceCont
         $content = str_replace('The\ObjectNamespace', $namespace, $content);
         $content = str_replace('UserObjectInterface', $objectClassName, $content);
 
-        $content = str_replace('// multipleInsertXXX', $this->getInterfaceMethod('multipleInsertXXX', $variables), $content);
+        $content = str_replace('// multipleInsertXXX', $this->getMultipleInsertXXXInterfaceMethod($variables), $content);
 
-        $content = str_replace('// fetchFetchAllXXX', $this->getInterfaceMethod('fetchFetchAllXXX', $variables), $content);
+        $content = str_replace('// fetchFetchAllXXX', $this->getFetchFetchAllXXXInterfaceMethod($variables), $content);
 
-        $content = str_replace('// insertXXX', $this->getInterfaceMethod('insertXXX', $variables), $content);
+        $content = str_replace('// insertXXX', $this->getInsertXXXInterfaceMethod($variables), $content);
 
-        $content = str_replace('// getXXX', $this->getInterfaceMethod('getXXXById', $variables), $content);
+        $content = str_replace('// getXXX', $this->getGetXXXByIdInterfaceMethod($variables), $content);
 
         $content = str_replace('// getTheItems', $this->getItemsInterfaceMethod($variables), $content);
         $content = str_replace('// getThe_Items_Column', $this->getItemsInterfaceMethod($variables, 'getUserItemsColumnInterface'), $content);
@@ -607,14 +626,14 @@ class LingBreezeGenerator2 implements BreezeGeneratorInterface, LightServiceCont
         $content = str_replace('// getIdByXXX', $this->getIdByUniqueIndexInterfaceMethods($variables), $content);
 
         if (1 === count($ric)) {
-            $content = str_replace('// getAllXXX', $this->getInterfaceMethod('getAllXXX', $variables), $content);
+            $content = str_replace('// getAllXXX', $this->getGetAllXXXInterfaceMethod($variables), $content);
         } else {
             $content = str_replace('// getAllXXX', '', $content);
         }
 
-        $content = str_replace('// updateXXX', $this->getInterfaceMethod('updateXXXById', $variables), $content);
-        $content = str_replace('// updateRawXXX', $this->getInterfaceMethod('updateXXX', $variables), $content);
-        $content = str_replace('// deleteXXX', $this->getInterfaceMethod('deleteXXXById', $variables), $content);
+        $content = str_replace('// updateXXX', $this->getUpdateXXXByIdInterfaceMethod($variables), $content);
+        $content = str_replace('// updateRawXXX', $this->getUpdateXXXInterfaceMethod($variables), $content);
+        $content = str_replace('// deleteXXX', $this->getDeleteXXXByIdInterfaceMethod($variables), $content);
         $content = str_replace('// deleteYYY', $this->getDeleteMethodInterface($variables), $content);
 
 
@@ -622,7 +641,7 @@ class LingBreezeGenerator2 implements BreezeGeneratorInterface, LightServiceCont
 
 
         if (1 === count($ric)) {
-            $content = str_replace('// deletesXXX', $this->getInterfaceMethod('deleteXXXByIds', $variables), $content);
+            $content = str_replace('// deletesXXX', $this->getDeleteXXXByIdsInterfaceMethod($variables), $content);
         }
 
 
@@ -631,11 +650,11 @@ class LingBreezeGenerator2 implements BreezeGeneratorInterface, LightServiceCont
             $uniqueVariables = $variables;
             foreach ($uniqueIndexesVariables as $set) {
                 $uniqueVariables['ricVariables'] = $set;
-                $content = str_replace('// getXXX', $this->getInterfaceMethod('getXXXById', $uniqueVariables), $content);
-                $content = str_replace('// updateXXX', $this->getInterfaceMethod('updateXXXById', $uniqueVariables), $content);
+                $content = str_replace('// getXXX', $this->getGetXXXByIdInterfaceMethod($uniqueVariables), $content);
+                $content = str_replace('// updateXXX', $this->getUpdateXXXByIdInterfaceMethod($uniqueVariables), $content);
 //                $content = str_replace('// updateRawXXX', $this->getInterfaceMethod('updateXXX', $uniqueVariables), $content);
-                $content = str_replace('// deleteXXX', $this->getInterfaceMethod('deleteXXXById', $uniqueVariables), $content);
-                $content = str_replace('// deletesXXX', $this->getInterfaceMethod('deleteXXXByIds', $uniqueVariables), $content);
+                $content = str_replace('// deleteXXX', $this->getDeleteXXXByIdInterfaceMethod($uniqueVariables), $content);
+                $content = str_replace('// deletesXXX', $this->getDeleteXXXByIdsInterfaceMethod($uniqueVariables), $content);
             }
         }
 
@@ -665,8 +684,8 @@ class LingBreezeGenerator2 implements BreezeGeneratorInterface, LightServiceCont
                 $fkRicVariables['ricVariables'] = $this->getRicVariables([$column], $types); // hacking myself (faster)
 
 
-                $content = str_replace('// deleteXXX', $this->getInterfaceMethod("deleteXXXById", $fkRicVariables), $content);
-                $content = str_replace('// deletesXXX', $this->getInterfaceMethod("deleteXXXByIds", $fkRicVariables), $content);
+                $content = str_replace('// deleteXXX', $this->getDeleteXXXByIdInterfaceMethod($fkRicVariables), $content);
+                $content = str_replace('// deletesXXX', $this->getDeleteXXXByIdsInterfaceMethod($fkRicVariables), $content);
             }
         }
 
@@ -917,8 +936,11 @@ class LingBreezeGenerator2 implements BreezeGeneratorInterface, LightServiceCont
 
 
     /**
+     *
+     *
      * Returns some useful variables based on the ric array.
-     * It returns the following entries:
+     *
+     * It returns at least the following entries (see the source code for all details):
      *
      * - byString: the string to append to a method name based on ric.
      *         Ex:
@@ -966,6 +988,9 @@ class LingBreezeGenerator2 implements BreezeGeneratorInterface, LightServiceCont
     {
         $byString = '';
         $byStrings = '';
+        $byStringNoPrefix = '';
+        $byStringsNoPrefix = '';
+
         $byTheGivenString = '';
         $argString = '';
         $variableString = '';
@@ -975,6 +1000,10 @@ class LingBreezeGenerator2 implements BreezeGeneratorInterface, LightServiceCont
         $markerLines = [];
 
         foreach ($ric as $column) {
+
+
+            $columnNoPrefix = $this->getEpuratedTableName($column, $this->_allPrefixes);
+
             if ('' === $byString) {
                 $byString .= "By" . CaseTool::toPascal($column);
             } else {
@@ -984,6 +1013,18 @@ class LingBreezeGenerator2 implements BreezeGeneratorInterface, LightServiceCont
                 $byStrings .= "By" . CaseTool::toPascal(StringTool::getPlural($column));
             } else {
                 $byStrings .= "And" . CaseTool::toPascal(StringTool::getPlural($column));
+            }
+
+
+            if ('' === $byStringNoPrefix) {
+                $byStringNoPrefix .= "By" . CaseTool::toPascal($columnNoPrefix);
+            } else {
+                $byStringNoPrefix .= "And" . CaseTool::toPascal($columnNoPrefix);
+            }
+            if ('' === $byStringsNoPrefix) {
+                $byStringsNoPrefix .= "By" . CaseTool::toPascal(StringTool::getPlural($columnNoPrefix));
+            } else {
+                $byStringsNoPrefix .= "And" . CaseTool::toPascal(StringTool::getPlural($columnNoPrefix));
             }
 
             if ('' !== $variableString) {
@@ -1049,6 +1090,8 @@ class LingBreezeGenerator2 implements BreezeGeneratorInterface, LightServiceCont
         return [
             "byString" => $byString,
             "byStrings" => $byStrings,
+            "byStringNoPrefix" => $byStringNoPrefix,
+            "byStringsNoPrefix" => $byStringsNoPrefix,
             "byTheGivenString" => 'by the given ' . $byTheGivenString,
             "argString" => $argString,
             "variableString" => $variableString,
@@ -1064,8 +1107,7 @@ class LingBreezeGenerator2 implements BreezeGeneratorInterface, LightServiceCont
     /**
      * Returns an array of useful variables sets based on the unique indexes array (one set per unique indexes entry is returned).
      *
-     *
-     * Each set contains the following entries:
+     * Each set contains at least the following entries (see the source code for all details):
      *
      * - byString: the string to append to a method name based on unique indexes.
      *         Ex:
@@ -1118,6 +1160,8 @@ class LingBreezeGenerator2 implements BreezeGeneratorInterface, LightServiceCont
 
             $byString = '';
             $byStrings = '';
+            $byStringNoPrefix = '';
+            $byStringsNoPrefix = '';
             $byTheGivenString = '';
             $argString = '';
             $variableString = '';
@@ -1129,6 +1173,9 @@ class LingBreezeGenerator2 implements BreezeGeneratorInterface, LightServiceCont
 
             $firstColumn = null;
             foreach ($columns as $column) {
+
+                $columnNoPrefix = $this->getEpuratedTableName($column, $this->_allPrefixes);
+
 
                 if (null === $firstColumn) {
                     $firstColumn = $column;
@@ -1144,6 +1191,19 @@ class LingBreezeGenerator2 implements BreezeGeneratorInterface, LightServiceCont
                 } else {
                     $byStrings .= "And" . CaseTool::toPascal(StringTool::getPlural($column));
                 }
+
+
+                if ('' === $byStringNoPrefix) {
+                    $byStringNoPrefix .= "By" . CaseTool::toPascal($columnNoPrefix);
+                } else {
+                    $byStringNoPrefix .= "And" . CaseTool::toPascal($columnNoPrefix);
+                }
+                if ('' === $byStringsNoPrefix) {
+                    $byStringsNoPrefix .= "By" . CaseTool::toPascal(StringTool::getPlural($columnNoPrefix));
+                } else {
+                    $byStringsNoPrefix .= "And" . CaseTool::toPascal(StringTool::getPlural($columnNoPrefix));
+                }
+
 
                 if ('' !== $variableString) {
                     $variableString .= ', ';
@@ -1208,6 +1268,8 @@ class LingBreezeGenerator2 implements BreezeGeneratorInterface, LightServiceCont
             $ret[] = [
                 "byString" => $byString,
                 "byStrings" => $byStrings,
+                "byStringNoPrefix" => $byStringNoPrefix,
+                "byStringsNoPrefix" => $byStringsNoPrefix,
                 "byTheGivenString" => 'by the given ' . $byTheGivenString,
                 "argString" => $argString,
                 "variableString" => $variableString,
@@ -1226,109 +1288,182 @@ class LingBreezeGenerator2 implements BreezeGeneratorInterface, LightServiceCont
 
 
     /**
-     * Returns the content of a php method of type ric (internal naming convention, it basically means
-     * that the method requires the ric array in order to produce the concrete php method).
-     *
-     * The variables array is described in this class description.
-     *
-     * The available options are:
-     *
-     * - useMultiple: bool=false,
-     *      I use this option to avoid potential variable replacement conflict.
-     *
-     *
-     * @param string $method
+     * Returns the content of the fetchFetchAllYYY method.
      * @param array $variables
-     * @param array $options
      * @return string
-     * @throws \Exception
      */
-    protected function getRicMethod(string $method, array $variables, array $options = []): string
+    protected function getFetchFetchAllYYYMethod(array $variables): string
     {
+        $tpl = __DIR__ . "/../assets/classModel/Ling/template/partials/fetchFetchAllYYY.tpl.txt";
+        return file_get_contents($tpl);
+    }
+
+
+    /**
+     * Returns the content of the getUserById method.
+     * @param array $variables
+     * @return string
+     */
+    protected function getGetUserByIdMethod(array $variables): string
+    {
+        $tpl = __DIR__ . "/../assets/classModel/Ling/template/partials/getUserById.tpl.txt";
+        $content = file_get_contents($tpl);
+
         $ricVariables = $variables['ricVariables'];
         $className = $variables['className'];
 
 
-        //--------------------------------------------
-        // DUPLICATE METHOD NAME CHECKING
-        //--------------------------------------------
-        if (in_array($method, [
-            'deleteUserById',
-            'deleteUserByIds',
-        ])) {
-
-            $realMethodName = null;
-            switch ($method) {
-                case "deleteUserById":
-                    $realMethodName = 'delete' . $className . $ricVariables['byString'];
-                    break;
-                case "deleteUserByIds": // deleteUserByMultiples
-                    $realMethodName = 'delete' . $className . $ricVariables['byStrings'];
-                    break;
-            }
-
-            // if the method already exists, we don't add it
-            if (in_array($realMethodName, $this->alreadyUsedMethodNames, true)) {
-                return '';
-            }
+        if (true === $this->_usePrefixInMethodNames) {
+            $methodName = 'get' . $className . $ricVariables['byString'];
+        } else {
+            $methodName = 'get' . $className . $ricVariables['byStringNoPrefix'];
         }
 
-
-        //--------------------------------------------
-        // WRITE METHOD...
-        //--------------------------------------------
-        $useMultiple = $options['useMultiple'] ?? false;
-
-        //--------------------------------------------
-        // MICRO-PERMISSION
-        //--------------------------------------------
-        $tpl = __DIR__ . "/../assets/classModel/Ling/template/partials/$method.tpl.txt";
-        $content = file_get_contents($tpl);
-
-
-        $microPermReplacement = '';
-        $content = str_replace('//microperm', $microPermReplacement, $content);
+        if (true === in_array($methodName, $this->alreadyUsedMethodNames)) {
+            return '';
+        }
+        $this->alreadyUsedMethodNames[] = $methodName;
 
 
         //--------------------------------------------
         //
         //--------------------------------------------
-        $isGet = ('get' === substr($method, 0, 3));
-        $variableName = lcfirst($variables['className']);
-
-
-        $sLines = '';
-        foreach ($ricVariables['markerLines'] as $line) {
-            if ('' !== $sLines) {
-                $sLines .= "\t\t\t";
-                if (true === $isGet) {
-                    $sLines .= "\t";
-                }
-            }
-            $sLines .= $line . PHP_EOL;
-        }
-
-
-        $content = str_replace('* @param int $id', $ricVariables['paramDeclarationString'], $content);
-        $content = str_replace('User', $className, $content);
-        $content = str_replace('array $user', 'array $' . $variableName, $content);
-        $content = str_replace('$user,', '$' . $variableName . ',', $content);
-        $content = str_replace('`user`', '`$this->table`', $content);
-        $content = str_replace('"user"', '$this->table', $content);
-        $content = str_replace('ById', $ricVariables['byString'], $content);
+        $content = str_replace('getUserById', $methodName, $content);
         $content = str_replace('int $id', $ricVariables['argString'], $content);
         $content = str_replace('id=:id', $ricVariables['markerString'], $content);
+        $content = str_replace('"id" => $id,', $this->getLineStack($ricVariables, 4), $content);
         $content = str_replace('id=$id', $ricVariables['variableString'], $content);
-        $content = str_replace('"id" => $id,', $sLines, $content);
 
-
-        if (true === $useMultiple) {
-            $content = str_replace('ByMultiples', $ricVariables['byStrings'], $content);
-            $content = str_replace('$ids', '$' . $ricVariables['firstRicColumnPlural'], $content);
-            $content = str_replace('"id"', '"' . $ricVariables['firstRicColumn'] . '"', $content);
-        }
         return $content;
+    }
 
+
+    /**
+     * Returns the content of the updateUserById method.
+     * @param array $variables
+     * @return string
+     */
+    protected function getUpdateUserByIdMethod(array $variables): string
+    {
+        $tpl = __DIR__ . "/../assets/classModel/Ling/template/partials/updateUserById.tpl.txt";
+        $content = file_get_contents($tpl);
+
+        $ricVariables = $variables['ricVariables'];
+        $className = $variables['className'];
+
+
+        if (true === $this->_usePrefixInMethodNames) {
+            $methodName = 'update' . $className . $ricVariables['byString'];
+        } else {
+            $methodName = 'update' . $className . $ricVariables['byStringNoPrefix'];
+        }
+
+        if (true === in_array($methodName, $this->alreadyUsedMethodNames)) {
+            return '';
+        }
+        $this->alreadyUsedMethodNames[] = $methodName;
+
+
+        //--------------------------------------------
+        //
+        //--------------------------------------------
+        $content = str_replace('updateUserById', $methodName, $content);
+        $content = str_replace('int $id', $ricVariables['argString'], $content);
+        $content = str_replace('array $user', 'array $' . $variables['variableName'], $content);
+        $content = str_replace('$user,', '$' . $variables['variableName'] . ',', $content);
+        $content = str_replace('"id" => $id,', $this->getLineStack($ricVariables, 3), $content);
+        return $content;
+    }
+
+
+    /**
+     * Returns the content of the updateUser method.
+     * @param array $variables
+     * @return string
+     */
+    protected function getUpdateUserMethod(array $variables): string
+    {
+        $tpl = __DIR__ . "/../assets/classModel/Ling/template/partials/updateUser.tpl.txt";
+        $content = file_get_contents($tpl);
+
+        $className = $variables['className'];
+        $methodName = 'update' . $className;
+
+
+        $content = str_replace('updateUser', $methodName, $content);
+        $content = str_replace('array $user', 'array $' . $variables['variableName'], $content);
+        $content = str_replace('$user,', '$' . $variables['variableName'] . ',', $content);
+        return $content;
+    }
+
+    /**
+     * Returns the content of the deleteUserById method.
+     * @param array $variables
+     * @return string
+     */
+    protected function getDeleteUserByIdMethod(array $variables): string
+    {
+        $tpl = __DIR__ . "/../assets/classModel/Ling/template/partials/deleteUserById.tpl.txt";
+        $content = file_get_contents($tpl);
+
+
+        $ricVariables = $variables['ricVariables'];
+        $className = $variables['className'];
+
+
+        if (true === $this->_usePrefixInMethodNames) {
+            $methodName = 'delete' . $className . $ricVariables['byString'];
+        } else {
+            $methodName = 'delete' . $className . $ricVariables['byStringNoPrefix'];
+        }
+
+        if (true === in_array($methodName, $this->alreadyUsedMethodNames)) {
+            return '';
+        }
+        $this->alreadyUsedMethodNames[] = $methodName;
+
+
+        //--------------------------------------------
+        //
+        //--------------------------------------------
+        $content = str_replace('deleteUserById', $methodName, $content);
+        $content = str_replace('int $id', $ricVariables['argString'], $content);
+        $content = str_replace('"id" => $id,', $this->getLineStack($ricVariables, 3), $content);
+        return $content;
+    }
+
+
+    /**
+     * Returns the content of the deleteUserByIds method.
+     * @param array $variables
+     * @return string
+     */
+    protected function getDeleteUserByIdsMethod(array $variables): string
+    {
+        $tpl = __DIR__ . "/../assets/classModel/Ling/template/partials/deleteUserByIds.tpl.txt";
+        $content = file_get_contents($tpl);
+
+
+        $ricVariables = $variables['ricVariables'];
+        $className = $variables['className'];
+
+
+        if (true === $this->_usePrefixInMethodNames) {
+            $methodName = 'delete' . $className . $ricVariables['byStrings'];
+        } else {
+            $methodName = 'delete' . $className . $ricVariables['byStringsNoPrefix'];
+        }
+
+        if (true === in_array($methodName, $this->alreadyUsedMethodNames)) {
+            return '';
+        }
+        $this->alreadyUsedMethodNames[] = $methodName;
+
+
+        $content = str_replace('deleteUserByMultiples', $methodName, $content);
+        $content = str_replace('$ids', '$' . $ricVariables['firstRicColumnPlural'], $content);
+        $content = str_replace('"id"', '"' . $ricVariables['firstRicColumn'] . '"', $content);
+        return $content;
     }
 
 
@@ -1363,17 +1498,22 @@ class LingBreezeGenerator2 implements BreezeGeneratorInterface, LightServiceCont
                 $content = $originalContent;
 
                 $className = $variables['className'];
-                $methodName = "get" . $className . CaseTool::toPascal($ai) . $uq['byString'];
 
-                $sLines = '';
-                foreach ($uq['markerLines'] as $line) {
-                    if ('' !== $sLines) {
-                        $sLines .= "\t\t\t";
-                    }
-                    $sLines .= $line . PHP_EOL;
+
+                if (true === $this->_usePrefixInMethodNames) {
+                    $methodName = "get" . $className . CaseTool::toPascal($ai) . $uq['byString'];
+                } else {
+                    $methodName = "get" . $className . CaseTool::toPascal($ai) . $uq['byStringNoPrefix'];
                 }
 
+                if (true === in_array($methodName, $this->alreadyUsedMethodNames, true)) {
+                    continue;
+                }
+                $this->alreadyUsedMethodNames[] = $methodName;
 
+
+
+                $sLines = $this->getLineStack($uq, 3);
                 $content = str_replace('getUserGroupIdByName', $methodName, $content);
                 $content = str_replace('string $name', $uq['argString'], $content);
                 $content = str_replace('select id from', 'select ' . $ai . ' from', $content);
@@ -1462,7 +1602,11 @@ class LingBreezeGenerator2 implements BreezeGeneratorInterface, LightServiceCont
         $template = __DIR__ . "/../assets/classModel/Ling/template/partials/getUserItemInterface.tpl.txt";
         $s = file_get_contents($template);
         $s = str_replace('resource', $object, $s);
-        $s = str_replace('getResource', "get" . $className, $s);
+
+        $methodName = "get" . $className;
+
+
+        $s = str_replace('getResource', $methodName, $s);
         return $s;
     }
 
@@ -1482,7 +1626,6 @@ class LingBreezeGenerator2 implements BreezeGeneratorInterface, LightServiceCont
         $plural = StringTool::getPlural($variables['className']);
 
 
-//        az("here", $variables);
         $s = '';
         $hasItems = $variables['hasItems'];
         foreach ($hasItems as $hasItem) {
@@ -1625,8 +1768,6 @@ class LingBreezeGenerator2 implements BreezeGeneratorInterface, LightServiceCont
     {
         $template = __DIR__ . "/../assets/classModel/Ling/template/partials/getTagNamesByResourceId.tpl.txt";
 
-
-//        az("here", $variables);
 
         $allPrefixes = $variables['allPrefixes'];
 
@@ -1810,6 +1951,7 @@ class LingBreezeGenerator2 implements BreezeGeneratorInterface, LightServiceCont
 
         $s = "";
         $ai = $variables['autoIncrementedKey'];
+        $aiPascal = CaseTool::toPascal($ai);
         $uqs = $variables['uniqueIndexesVariables'];
         $table = $variables['table'];
 
@@ -1818,10 +1960,18 @@ class LingBreezeGenerator2 implements BreezeGeneratorInterface, LightServiceCont
             $originalContent = file_get_contents($template);
 
             foreach ($uqs as $uq) {
+
                 $content = $originalContent;
 
+
                 $className = $variables['className'];
-                $methodName = "get" . $className . CaseTool::toPascal($ai) . $uq['byString'];
+
+                if (true === $this->_usePrefixInMethodNames) {
+                    $methodName = "get" . $className . $aiPascal . $uq['byString'];
+                } else {
+                    $methodName = "get" . $className . $aiPascal . $uq['byStringNoPrefix'];
+                }
+
                 $definition = $ai . " of the $table table";
 
                 $sLines = '';
@@ -1843,120 +1993,254 @@ class LingBreezeGenerator2 implements BreezeGeneratorInterface, LightServiceCont
                 $s .= PHP_EOL;
                 $s .= PHP_EOL;
             }
-
         }
+
         return $s;
     }
 
 
     /**
-     * Returns the content of the interface method identified by the given methodName.
-     *
-     * @param string $methodName
+     * Returns the content of the multipleInsertXXX method for the interfaces.
      * @param array $variables
      * @return string
      */
-    protected function getInterfaceMethod(string $methodName, array $variables): string
+    protected function getMultipleInsertXXXInterfaceMethod(array $variables): string
     {
 
-        $variableName = $variables['variableName'];
-        $variableNamePlural = $variables['variableNamePlural'];
+        $template = __DIR__ . "/../assets/classModel/Ling/template/partials/multipleInsertXXX.tpl.txt";
+        $content = file_get_contents($template);
+        $content = str_replace('!user', $variables['humanName'], $content);
+        $content = str_replace('array $users', 'array $' . $variables['variableNamePlural'], $content);
+        $content = str_replace('multipleInsertXXX', 'insert' . $variables['classNamePlural'], $content);
+        return $content;
+    }
 
 
-        $className = $variables['className'];
-        $classNamePlural = $variables['classNamePlural'];
+    /**
+     * Returns the content of the fetchFetchAllXXX method for the interfaces.
+     * @param array $variables
+     * @return string
+     */
+    protected function getFetchFetchAllXXXInterfaceMethod(array $variables): string
+    {
+
+        $template = __DIR__ . "/../assets/classModel/Ling/template/partials/fetchFetchAllXXX.tpl.txt";
+        return file_get_contents($template);
+
+    }
+
+
+    /**
+     * Returns the content of the insertXXX method for the interfaces.
+     * @param array $variables
+     * @return string
+     */
+    protected function getInsertXXXInterfaceMethod(array $variables): string
+    {
+
+        $template = __DIR__ . "/../assets/classModel/Ling/template/partials/insertXXX.tpl.txt";
+        $content = file_get_contents($template);
+        $content = str_replace('!user', $variables['humanName'], $content);
+        $content = str_replace('$user', '$' . $variables['variableName'], $content);
+        $content = str_replace('insertXXX', 'insert' . $variables['className'], $content);
+        return $content;
+    }
+
+
+    /**
+     * Returns the content of the getXXXById method for the interfaces.
+     * @param array $variables
+     * @return string
+     */
+    protected function getGetXXXByIdInterfaceMethod(array $variables): string
+    {
+
+        $template = __DIR__ . "/../assets/classModel/Ling/template/partials/getXXXById.tpl.txt";
+        $content = file_get_contents($template);
+
         $ricVariables = $variables['ricVariables'];
+
+        if (true === $this->_usePrefixInMethodNames) {
+            $methodName = 'get' . $variables['className'] . $ricVariables['byString'];
+        } else {
+            $methodName = 'get' . $variables['className'] . $ricVariables['byStringNoPrefix'];
+        }
+
+        if (true === in_array($methodName, $this->alreadyUsedMethodNamesInterface, true)) {
+            return '';
+        }
+        $this->alreadyUsedMethodNamesInterface[] = $methodName;
+
+
+        $content = str_replace('!user', $variables['humanName'], $content);
+        $content = str_replace('by the given id', $ricVariables['byTheGivenString'], $content);
+        $content = str_replace('* @param int $id', $ricVariables['paramDeclarationString'], $content);
+        $content = str_replace('getXXXById', $methodName, $content);
+        $content = str_replace('int $id', $ricVariables['argString'], $content);
+
+
+        return $content;
+    }
+
+
+    /**
+     * Returns the content of the getAllXXX method for the interfaces.
+     * @param array $variables
+     * @return string
+     */
+    protected function getGetAllXXXInterfaceMethod(array $variables): string
+    {
+
+        $template = __DIR__ . "/../assets/classModel/Ling/template/partials/getAllXXX.tpl.txt";
+        $content = file_get_contents($template);
         $ric = $variables['ric'];
+        $originalColumn = current($ric);
+        $plural = StringTool::getPlural($originalColumn);
+        $methodName = $this->getGetAllXXXMethodName($ric);
+
+        $content = str_replace('user ids', $variables['variableName'] . " " . $plural, $content);
+        $content = str_replace('getAll', $methodName, $content);
+
+        return $content;
+    }
 
 
-        $template = __DIR__ . "/../assets/classModel/Ling/template/partials/$methodName.tpl.txt";
+    /**
+     * Returns the content of the updateXXXById method for the interfaces.
+     * @param array $variables
+     * @return string
+     */
+    protected function getUpdateXXXByIdInterfaceMethod(array $variables): string
+    {
+
+        $template = __DIR__ . "/../assets/classModel/Ling/template/partials/updateXXXById.tpl.txt";
+        $content = file_get_contents($template);
+
+
+        $ricVariables = $variables['ricVariables'];
+
+
+        $content = str_replace('!user', $variables['humanName'], $content);
+        $content = str_replace('by the given id', $ricVariables['byTheGivenString'], $content);
+        $content = str_replace('$user', '$' . $variables['variableName'], $content);
+        $content = str_replace('int $id', $ricVariables['argString'], $content);
+
+
+        if (true === $this->_usePrefixInMethodNames) {
+            $methodName = 'update' . $variables['className'] . $ricVariables['byString'];
+        } else {
+            $methodName = 'update' . $variables['className'] . $ricVariables['byStringNoPrefix'];
+        }
+
+
+        if (true === in_array($methodName, $this->alreadyUsedMethodNamesInterface, true)) {
+            return '';
+        }
+        $this->alreadyUsedMethodNamesInterface[] = $methodName;
+
+
+        $content = str_replace('updateXXXById', $methodName, $content);
+
+        return $content;
+    }
+
+
+    /**
+     * Returns the content of the updateXXX method for the interfaces.
+     * @param array $variables
+     * @return string
+     */
+    protected function getUpdateXXXInterfaceMethod(array $variables): string
+    {
+
+        $template = __DIR__ . "/../assets/classModel/Ling/template/partials/updateXXX.tpl.txt";
+        $content = file_get_contents($template);
+
+        $content = str_replace('!user', $variables['humanName'], $content);
+        $content = str_replace('$user', '$' . $variables['variableName'], $content);
+        $content = str_replace('updateXXX', 'update' . $variables['className'], $content);
+
+        return $content;
+    }
+
+
+    /**
+     * Returns the content of the deleteXXXById method for the interfaces.
+     * @param array $variables
+     * @return string
+     */
+    protected function getDeleteXXXByIdInterfaceMethod(array $variables): string
+    {
+
+        $template = __DIR__ . "/../assets/classModel/Ling/template/partials/deleteXXXById.tpl.txt";
+        $content = file_get_contents($template);
+
+        $ricVariables = $variables['ricVariables'];
+
+
+        if (true === $this->_usePrefixInMethodNames) {
+            $methodName = 'delete' . $variables['className'] . $ricVariables['byString'];
+        } else {
+            $methodName = 'delete' . $variables['className'] . $ricVariables['byStringNoPrefix'];
+        }
 
 
         //--------------------------------------------
         // DUPLICATE METHOD NAME CHECKING
         //--------------------------------------------
-        if (in_array($methodName, [
-            'deleteXXXById',
-            'deleteXXXByIds',
-        ])) {
-
-            $realMethodName = null;
-            switch ($methodName) {
-                case "deleteXXXById":
-                    // deleteXXXById
-                    $realMethodName = 'delete' . $className . $ricVariables['byString'];
-                    break;
-                case "deleteXXXByIds":
-                    // deleteAllByIds
-                    $realMethodName = 'delete' . $className . $ricVariables['byStrings'];
-                    break;
-            }
-
-            // if the method has already been written, we don't write it again
-            if (in_array($realMethodName, $this->alreadyUsedMethodNamesInterface, true)) {
-                return '';
-            }
-        }
-
-
-        //--------------------------------------------
-        // WRITING THE METHOD
-        //--------------------------------------------
-        $content = file_get_contents($template);
-
-
-        /**
-         * in multipleInsertXXX, we do it first to avoid potential string replacement conflicts (i.e. "user" is contained in "array $users")
-         */
-        $content = str_replace('array $users', 'array $' . $variableNamePlural, $content);
-        $content = str_replace('multipleInsertXXX', 'insert' . $classNamePlural, $content);
-
-
-        /**
-         *
-         */
-        if ('multipleInsertXXX' === $methodName) {
-            $content = str_replace('zertopy', $variableName, $content);
+        if (in_array($methodName, $this->alreadyUsedMethodNamesInterface, true)) {
+            return '';
         } else {
-            $content = str_replace('user', $variableName, $content);
+            $this->alreadyUsedMethodNamesInterface[] = $methodName;
         }
 
 
-        $content = str_replace('insertXXX', 'insert' . $className, $content);
+        $content = str_replace('!user', $variables['humanName'], $content);
         $content = str_replace('by the given id', $ricVariables['byTheGivenString'], $content);
-        $content = str_replace('* @param int $id', $ricVariables['paramDeclarationString'], $content);
-        $content = str_replace('getXXXById', 'get' . $className . $ricVariables['byString'], $content);
-
-
-        if ('updateXXX' === $methodName) {
-            $content = str_replace('updateXXX', 'update' . $className, $content);
-        } else {
-            $content = str_replace('updateXXXById', 'update' . $className . $ricVariables['byString'], $content);
-        }
-
-
-        $content = str_replace('deleteXXXById', 'delete' . $className . $ricVariables['byString'], $content);
         $content = str_replace('int $id', $ricVariables['argString'], $content);
-
-        if ('deleteXXXByIds' === $methodName) {
-            $content = str_replace('AllByIds', $className . $ricVariables['byStrings'], $content);
-            $content = str_replace('ids', $ricVariables['firstRicColumnPlural'], $content);
-        } elseif (1 === count($ric)) {
-
-
-            // getAllXXX.tpl.txt
-            $originalColumn = current($ric);
-            $plural = StringTool::getPlural($originalColumn);
-            $methodName = $this->getGetAllXXXMethodName($ric);
-
-            $content = str_replace('ids', $plural, $content);
-            $content = str_replace('getAll', $methodName, $content);
-
-
-        }
+        $content = str_replace('deleteXXXById', $methodName, $content);
 
         return $content;
+    }
 
+    /**
+     * Returns the content of the deleteXXXByIds method for the interfaces.
+     * @param array $variables
+     * @return string
+     */
+    protected function getDeleteXXXByIdsInterfaceMethod(array $variables): string
+    {
+
+        $template = __DIR__ . "/../assets/classModel/Ling/template/partials/deleteXXXByIds.tpl.txt";
+        $content = file_get_contents($template);
+
+        $ricVariables = $variables['ricVariables'];
+
+
+        if (true === $this->_usePrefixInMethodNames) {
+            $methodName = 'delete' . $variables['className'] . $ricVariables['byStrings'];
+        } else {
+            $methodName = 'delete' . $variables['className'] . $ricVariables['byStringsNoPrefix'];
+        }
+
+
+        //--------------------------------------------
+        // DUPLICATE METHOD NAME CHECKING
+        //--------------------------------------------
+        if (in_array($methodName, $this->alreadyUsedMethodNamesInterface, true)) {
+            return '';
+        } else {
+            $this->alreadyUsedMethodNamesInterface[] = $methodName;
+        }
+
+
+        $content = str_replace('!user', $variables['humanName'], $content);
+        $content = str_replace('!ids', $ricVariables['firstRicColumnPlural'], $content);
+        $content = str_replace('$ids', '$' . $ricVariables['firstRicColumnPlural'], $content);
+
+        $content = str_replace('deleteAllByIds', $methodName, $content);
+
+        return $content;
     }
 
 
@@ -2169,6 +2453,13 @@ class LingBreezeGenerator2 implements BreezeGeneratorInterface, LightServiceCont
                 $variableCol = CaseTool::toVariableName($colNoPrefix);
 
 
+                if (true === $this->_usePrefixInMethodNames) {
+                    $byMethodName = ucfirst(CaseTool::toVariableName($col));
+                } else {
+                    $byMethodName = ucfirst($variableCol);
+                }
+
+
                 $s = file_get_contents($tpl);
                 $s = str_replace([
                     'ResourceFile',
@@ -2177,14 +2468,14 @@ class LingBreezeGenerator2 implements BreezeGeneratorInterface, LightServiceCont
                     'luda_resource_id',
                 ], [
                     $variables['className'],
-                    ucfirst($variableCol),
+                    $byMethodName,
                     '$' . $variableCol,
                     $col,
                 ], $s);
 
 
                 // avoid potential duplicate method name conflicts...
-                $methodName = 'delete' . $variables['className'] . "By" . ucfirst($variableCol);
+                $methodName = 'delete' . $variables['className'] . "By" . $byMethodName;
                 $this->alreadyUsedMethodNames[] = $methodName;
 
 
@@ -2231,13 +2522,24 @@ class LingBreezeGenerator2 implements BreezeGeneratorInterface, LightServiceCont
 
 
             foreach ($fk as $col => $fkInfo) {
-                $col = $this->getEpuratedTableName($col, $variables['allPrefixes']);
-                $humanCol = CaseTool::toHumanFlatCase($col);
-                $variableCol = CaseTool::toVariableName($col);
+
+
+                $colNoPrefix = $this->getEpuratedTableName($col, $variables['allPrefixes']);
+                $humanCol = CaseTool::toHumanFlatCase($colNoPrefix);
+                $variableCol = CaseTool::toVariableName($colNoPrefix);
+
+
+                if (true === $this->_usePrefixInMethodNames) {
+                    $byMethodName = ucfirst(CaseTool::toVariableName($col));
+                } else {
+                    $byMethodName = ucfirst($variableCol);
+                }
 
 
                 // deleteResourceFileByResourceId
-                $methodName = 'delete' . $variables['className'] . 'By' . ucfirst($variableCol);
+                $methodName = 'delete' . $variables['className'] . 'By' . $byMethodName;
+
+
                 $this->alreadyUsedMethodNamesInterface[] = $methodName;
 
 
@@ -2250,7 +2552,7 @@ class LingBreezeGenerator2 implements BreezeGeneratorInterface, LightServiceCont
                     'resourceId',
                 ], [
                     $variables['className'],
-                    ucfirst($variableCol),
+                    $byMethodName,
                     lcfirst($variables['humanName']),
                     $humanCol,
                     $variableCol,
@@ -2262,6 +2564,18 @@ class LingBreezeGenerator2 implements BreezeGeneratorInterface, LightServiceCont
             }
         }
         return $content;
+    }
+
+
+    /**
+     * Sends a message to the log.
+     * This is a debug utility.
+     *
+     * @param $msg
+     */
+    protected function log($msg)
+    {
+        CheapLogger::log($msg);
     }
 
 
@@ -2354,6 +2668,28 @@ class LingBreezeGenerator2 implements BreezeGeneratorInterface, LightServiceCont
         ], [
             $this->container->getApplicationDir(),
         ], $expression);
+    }
+
+
+    /**
+     * Returns $indent lines of marker lines as a string.
+     * See the source code for more details.
+     *
+     *
+     * @param array $ricVariables
+     * @param int $indent
+     * @return string
+     */
+    private function getLineStack(array $ricVariables, int $indent = 3): string
+    {
+        $sLines = '';
+        foreach ($ricVariables['markerLines'] as $line) {
+            if ('' !== $sLines) {
+                $sLines .= str_repeat("\t", $indent);
+            }
+            $sLines .= $line . PHP_EOL;
+        }
+        return $sLines;
     }
 
 

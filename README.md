@@ -1,6 +1,6 @@
 Light_BreezeGenerator
 ===========
-2019-09-11 -> 2020-11-03
+2019-09-11 -> 2020-11-05
 
 
 
@@ -65,6 +65,10 @@ breeze_generator:
 History Log
 =============
 
+- 1.29.7 -- 2020-11-05
+
+    - update LingBreezeGenerator2, add the usePrefixInMethodNames option
+    
 - 1.29.6 -- 2020-11-03
 
     - fix LingBreezeGenerator2, method name conflicts with deleteByFk and "has table" deleteBy methods 

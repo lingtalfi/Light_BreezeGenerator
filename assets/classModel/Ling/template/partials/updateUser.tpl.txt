@@ -3,7 +3,7 @@
      */
     public function updateUser(array $user, $where = null, array $markers = [])
     {
-        $this->pdoWrapper->update("user", $user, $where, $markers);
+        $this->pdoWrapper->update($this->table, $user, $where, $markers);
     }
 
 // updateRawXXX

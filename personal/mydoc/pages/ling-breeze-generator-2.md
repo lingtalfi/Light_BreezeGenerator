@@ -200,7 +200,7 @@ $container->get("breeze_generator")
 
 Configuration
 -------------
-2020-05-21
+2020-05-21 -> 2020-11-03
 
 The configuration is an array with some properties described below.
 
@@ -237,6 +237,7 @@ conf:
 
     options:
         dev: false
+        usePrefixInMethodNames: true
 
 
 ```
@@ -302,6 +303,37 @@ conf:
         
         - **dev**: bool=false, optional.
             If true, the custom classes will be overwritten. Never do that, unless you're extending the generator class itself.
+            
+        - **usePrefixInMethodNames**: bool=true, optional.
+            If true, the name of the generated methods will contain the table prefixes when appropriate.
+            For instance, let's say we have the following tables:
+            - luda_resource
+                - id
+            - luda_resource_file
+                - id
+                - luda_resource_id: fk
+                
+            Then if **usePrefixInMethodNames** is set to true, we will generate methods like this for the **luda_resource_file** table:
+            
+            - deleteResourceFileByLudaResourceId                
+            
+            If it's set to false, we will generate methods like this instead:
+                
+            - deleteResourceFileByResourceId
+            
+            Although the second option (**usePrefixInMethodNames**=false) seems more appealing from a usability/readability's perspective,
+            it's more risky, because different plugins might create table which name might conflict, for instance:
+            
+            - lud_resource_file                 
+            - xyz_resource_file
+            
+            In this case, if **usePrefixInMethodNames**=false, you would theoretically end up with two methods with the same name: **deleteResourceFileByResourceId**,
+            but their action should be different (so it's impossible).
+            
+            For this reason, using the prefixes is the default, as it solves this problem.
+            Also, it's more precise to specify the full name with the prefix, even from a readability's perspective, it's just a matter of 
+            taste I suppose.
+             
                      
             
             

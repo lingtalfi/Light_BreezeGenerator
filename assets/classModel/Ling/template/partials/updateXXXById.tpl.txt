@@ -1,6 +1,6 @@
 
     /**
-     * Updates the user row identified by the given id.
+     * Updates the !user row identified by the given id.
      *
      * @param int $id
      * @param array $user

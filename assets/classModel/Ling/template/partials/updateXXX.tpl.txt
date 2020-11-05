@@ -1,6 +1,6 @@
 
     /**
-     * Updates the user row.
+     * Updates the !user row.
      *
      * @param array $user
      * @param mixed $where
