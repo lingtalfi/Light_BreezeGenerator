@@ -1,6 +1,6 @@
 Light_BreezeGenerator
 ===========
-2019-09-11 -> 2020-11-05
+2019-09-11 -> 2020-11-09
 
 
 
@@ -65,6 +65,10 @@ breeze_generator:
 History Log
 =============
 
+- 1.29.8 -- 2020-11-09
+
+    - fix LingBreezeGenerator2 generating erroneous deleteBy, updateBy docBlock parameters  
+    
 - 1.29.7 -- 2020-11-05
 
     - update LingBreezeGenerator2, add the usePrefixInMethodNames option

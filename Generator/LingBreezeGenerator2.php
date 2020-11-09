@@ -2123,6 +2123,7 @@ class LingBreezeGenerator2 implements BreezeGeneratorInterface, LightServiceCont
         $content = str_replace('!user', $variables['humanName'], $content);
         $content = str_replace('by the given id', $ricVariables['byTheGivenString'], $content);
         $content = str_replace('$user', '$' . $variables['variableName'], $content);
+        $content = str_replace('* @param int $id', $ricVariables['paramDeclarationString'], $content);
         $content = str_replace('int $id', $ricVariables['argString'], $content);
 
 
@@ -2197,6 +2198,7 @@ class LingBreezeGenerator2 implements BreezeGeneratorInterface, LightServiceCont
 
         $content = str_replace('!user', $variables['humanName'], $content);
         $content = str_replace('by the given id', $ricVariables['byTheGivenString'], $content);
+        $content = str_replace('* @param int $id', $ricVariables['paramDeclarationString'], $content);
         $content = str_replace('int $id', $ricVariables['argString'], $content);
         $content = str_replace('deleteXXXById', $methodName, $content);
 
