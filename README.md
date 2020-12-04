@@ -65,6 +65,10 @@ breeze_generator:
 History Log
 =============
 
+- 1.29.9 -- 2020-12-04
+
+    - Add lpi-deps.byml file
+
 - 1.29.8 -- 2020-11-09
 
     - fix LingBreezeGenerator2 generating erroneous deleteBy, updateBy docBlock parameters  
