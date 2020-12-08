@@ -65,6 +65,10 @@ breeze_generator:
 History Log
 =============
 
+- 1.29.10 -- 2020-12-08
+
+    - Fix lpi-deps not using natsort.
+
 - 1.29.9 -- 2020-12-04
 
     - Add lpi-deps.byml file
