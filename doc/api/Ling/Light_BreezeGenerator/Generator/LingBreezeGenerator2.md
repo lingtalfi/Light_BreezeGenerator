@@ -4,7 +4,7 @@
 
 The LingBreezeGenerator2 class
 ================
-2019-09-11 --> 2021-05-31
+2019-09-11 --> 2021-06-28
 
 
 
@@ -31,6 +31,7 @@ The variables array:
 In this generator, we pass a variables array containing a lot of useful information.
 The variables array has at most the following structure:
 
+- db: string
 - namespace: string
 - table: string
 - className: string

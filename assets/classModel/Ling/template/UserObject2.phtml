@@ -3,8 +3,8 @@
 
 namespace The\ObjectNamespace;
 
-use Ling\SimplePdoWrapper\SimplePdoWrapper;
 use Ling\SimplePdoWrapper\Exception\SimplePdoWrapperQueryException;
+use Ling\SimplePdoWrapper\SimplePdoWrapper;
 use Ling\SimplePdoWrapper\Util\Columns;
 use Ling\SimplePdoWrapper\Util\Limit;
 use Ling\SimplePdoWrapper\Util\OrderBy;
@@ -72,6 +72,22 @@ class UserObject extends BaseParent implements UserObjectInterface
 
 // deleteByFkXXX
 
+
+    //--------------------------------------------
+    //
+    //--------------------------------------------
+    /**
+     * Returns the array of default values for this instance.
+     *
+     * @overrideMe
+     * @return array
+     */
+    protected function getDefaultValues(): array
+    {
+        return [
+// getDefaultValues.array.here
+        ];
+    }
 
     //--------------------------------------------
     //

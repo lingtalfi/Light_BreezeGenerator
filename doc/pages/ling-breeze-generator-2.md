@@ -1,6 +1,6 @@
 Ling Breeze Generator 2 
 =================
-2020-05-20 -> 2020-11-03
+2020-05-20 -> 2021-06-28
 
 
 
@@ -111,7 +111,7 @@ of methods in the IDE.
 
 Generated methods
 ----------
-2020-05-21 -> 2020-11-03
+2020-05-21 -> 2021-06-28
 
 
 For a regular table name **tag**:
@@ -160,6 +160,9 @@ Although the **has** tables (table which have a many-to-many relationship) are h
 the generated methods are approximately the same.    
 
 
+
+In addition to that, each generated **class** will have a protected **getDefaultValues** method, which
+returns default values to be inserted in the database. The **getDefaultValues** method is used by the methods of type insert and update.
 
 
 

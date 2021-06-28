@@ -6,7 +6,7 @@
 
         $errorInfo = null;
 
-
+        $user = array_replace($this->getDefaultValues(), $user);
 
         try {
 

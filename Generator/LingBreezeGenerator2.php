@@ -4,6 +4,7 @@
 namespace Ling\Light_BreezeGenerator\Generator;
 
 
+use Ling\ArrayToString\ArrayToStringTool;
 use Ling\Bat\CaseTool;
 use Ling\Bat\FileSystemTool;
 use Ling\Bat\StringTool;
@@ -34,6 +35,7 @@ use Ling\SqlWizard\Util\MysqlStructureReader;
  * In this generator, we pass a variables array containing a lot of useful information.
  * The variables array has at most the following structure:
  *
+ * - db: string
  * - namespace: string
  * - table: string
  * - className: string
@@ -163,10 +165,14 @@ class LingBreezeGenerator2 implements BreezeGeneratorInterface, LightServiceCont
          */
         $dbInfo = $this->container->get('database_info');
 
+
         /**
          * @var $pdoWrapper LightDatabaseService
          */
         $pdoWrapper = $this->container->get('database');
+
+        $database = $pdoWrapper->getDatabaseName();
+
 
 
         $factoryClassName = $apiName . "ApiFactory";
@@ -176,6 +182,7 @@ class LingBreezeGenerator2 implements BreezeGeneratorInterface, LightServiceCont
         $customPrefix = 'Custom';
         $classSuffix = 'Api';
         $interfaceSuffix = 'Interface';
+
 
 
         //--------------------------------------------
@@ -203,6 +210,9 @@ class LingBreezeGenerator2 implements BreezeGeneratorInterface, LightServiceCont
         $containerIncluded = false;
 
 
+
+
+
         foreach ($tables as $table) {
 
             // reset cache per table
@@ -214,7 +224,7 @@ class LingBreezeGenerator2 implements BreezeGeneratorInterface, LightServiceCont
             if ('file' === $sourceType) {
                 $readerArr = $table;
                 $theTable = $readerArr['table'];
-                $tableInfo = MysqlStructureReader::readerArrayToTableInfo($readerArr, $pdoWrapper);
+                $tableInfo = MysqlStructureReader::readerArrayToTableInfo($readerArr, $pdoWrapper, $database);
                 $table = $theTable;
             } else {
                 $tableInfo = $dbInfo->getTableInfo($table);
@@ -225,6 +235,7 @@ class LingBreezeGenerator2 implements BreezeGeneratorInterface, LightServiceCont
             if (null !== $prefix && 0 !== strpos($table, $prefix . "_")) {
                 continue;
             }
+
 
 
             $types = $tableInfo['types'];
@@ -263,6 +274,7 @@ class LingBreezeGenerator2 implements BreezeGeneratorInterface, LightServiceCont
             //--------------------------------------------
             $content = $this->generateObjectClass([
                 "apiName" => $apiName,
+                "db" => $database,
                 "namespace" => $namespace,
                 "table" => $table,
                 "humanName" => $humanName,
@@ -457,9 +469,11 @@ class LingBreezeGenerator2 implements BreezeGeneratorInterface, LightServiceCont
         $content = file_get_contents($template);
         $namespace = $variables['namespace'];
 
+
         $objectClassName = $variables['objectClassName'];
         $baseClassName = 'Custom' . $variables['baseClassName'];
         $table = $variables['table'];
+        $database = $variables['db'];
         $hasCustomClass = $variables['hasCustomClass'];
         $foreignKeysInfo = $variables['foreignKeysInfo'];
         $types = $variables['types'];
@@ -469,6 +483,17 @@ class LingBreezeGenerator2 implements BreezeGeneratorInterface, LightServiceCont
         $namespaceClass = $this->getClassNamespace($namespace, 'Generated\\Classes');
         $namespaceBaseApi = $this->getClassNamespace($namespace, 'Custom\\Classes');
         $namespaceInterface = $this->getClassNamespace($namespace, 'Generated\\Interfaces');
+
+
+
+
+        $fullTable = "`$database`.`$table`";
+        $defaultValues = $this->container->get("sql_wizard")->getMysqlWizard()->getColumnDefaultApiValues($fullTable);
+        $sDefaultValues = trim(ArrayToStringTool::toPhpArray($defaultValues, true), '[]');
+        $sDefaultValues = StringTool::indent($sDefaultValues, 8);
+
+
+        $content = str_replace('// getDefaultValues.array.here', $sDefaultValues, $content);
 
         //--------------------------------------------
         //
@@ -1510,7 +1535,6 @@ class LingBreezeGenerator2 implements BreezeGeneratorInterface, LightServiceCont
                     continue;
                 }
                 $this->alreadyUsedMethodNames[] = $methodName;
-
 
 
                 $sLines = $this->getLineStack($uq, 3);
