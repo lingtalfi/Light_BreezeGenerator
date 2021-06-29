@@ -1,6 +1,6 @@
 Light_BreezeGenerator
 ===========
-2019-09-11 -> 2021-06-28
+2019-09-11 -> 2021-06-29
 
 
 
@@ -70,6 +70,10 @@ breeze_generator:
 History Log
 =============
 
+- 1.29.16 -- 2021-06-29
+
+    - fix generator, incorrectly using default values with update methods
+  
 - 1.29.15 -- 2021-06-28
 
     - update generator, now also generates a getDefaultValues method
