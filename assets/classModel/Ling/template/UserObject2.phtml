@@ -89,9 +89,6 @@ class UserObject extends BaseParent implements UserObjectInterface
         ];
     }
 
-    //--------------------------------------------
-    //
-    //--------------------------------------------
     /**
      * Appends the given components to the given query, and returns an array of options.
      *
@@ -106,7 +103,7 @@ class UserObject extends BaseParent implements UserObjectInterface
      * @return array
      * @throws \Exception
      */
-    private function fetchRoutine(string &$q, array &$markers, array $components): array
+    protected function fetchRoutine(string &$q, array &$markers, array $components): array
     {
         $sWhere = '';
         $sCols = '';
