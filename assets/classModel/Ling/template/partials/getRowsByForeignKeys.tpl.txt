@@ -1,0 +1,13 @@
+    /**
+     * @implementation
+     * @inheritDoc
+     */
+    public function getUserRatesItemsByUserId(string $userId): array
+    {
+        return $this->pdoWrapper->fetchAll("
+        select * from `$this->table`
+        where `user_id`=:user_id
+        ", [
+            ":user_id" => $userId,
+        ]);
+    }

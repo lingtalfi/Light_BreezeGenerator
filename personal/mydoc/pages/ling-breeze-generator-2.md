@@ -1,6 +1,6 @@
 Ling Breeze Generator 2 
 =================
-2020-05-20 -> 2021-06-28
+2020-05-20 -> 2021-07-22
 
 
 
@@ -111,7 +111,7 @@ of methods in the IDE.
 
 Generated methods
 ----------
-2020-05-21 -> 2021-06-28
+2020-05-21 -> 2021-07-22
 
 
 For a regular table name **tag**:
@@ -159,6 +159,7 @@ the generated methods will look like this:
 Although the **has** tables (table which have a many-to-many relationship) are handled a bit differently,
 the generated methods are approximately the same.    
 
+Also, if the table has foreign keys, methods are generated to access the rows of the table using those foreign keys.
 
 
 In addition to that, each generated **class** will have a protected **getDefaultValues** method, which

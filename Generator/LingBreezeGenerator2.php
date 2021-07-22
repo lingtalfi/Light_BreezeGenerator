@@ -129,7 +129,6 @@ class LingBreezeGenerator2 implements BreezeGeneratorInterface, LightServiceCont
 
         $sourceType = null;
 
-
         //--------------------------------------------
         // CONFIGURATION
         //--------------------------------------------
@@ -174,7 +173,6 @@ class LingBreezeGenerator2 implements BreezeGeneratorInterface, LightServiceCont
         $database = $pdoWrapper->getDatabaseName();
 
 
-
         $factoryClassName = $apiName . "ApiFactory";
         $baseClassName = $apiName . "BaseApi";
 
@@ -182,7 +180,6 @@ class LingBreezeGenerator2 implements BreezeGeneratorInterface, LightServiceCont
         $customPrefix = 'Custom';
         $classSuffix = 'Api';
         $interfaceSuffix = 'Interface';
-
 
 
         //--------------------------------------------
@@ -210,15 +207,11 @@ class LingBreezeGenerator2 implements BreezeGeneratorInterface, LightServiceCont
         $containerIncluded = false;
 
 
-
-
-
         foreach ($tables as $table) {
 
             // reset cache per table
             $this->alreadyUsedMethodNamesInterface = [];
             $this->alreadyUsedMethodNames = [];
-
 
             // get table info
             if ('file' === $sourceType) {
@@ -235,7 +228,6 @@ class LingBreezeGenerator2 implements BreezeGeneratorInterface, LightServiceCont
             if (null !== $prefix && 0 !== strpos($table, $prefix . "_")) {
                 continue;
             }
-
 
 
             $types = $tableInfo['types'];
@@ -485,8 +477,6 @@ class LingBreezeGenerator2 implements BreezeGeneratorInterface, LightServiceCont
         $namespaceInterface = $this->getClassNamespace($namespace, 'Generated\\Interfaces');
 
 
-
-
         $fullTable = "`$database`.`$table`";
         $defaultValues = $this->container->get("sql_wizard")->getMysqlWizard()->getColumnDefaultApiValues($fullTable);
         $sDefaultValues = trim(ArrayToStringTool::toPhpArray($defaultValues, true), '[]');
@@ -529,6 +519,7 @@ class LingBreezeGenerator2 implements BreezeGeneratorInterface, LightServiceCont
         $content = str_replace('// getTheItem', $this->getItemMethod($variables), $content);
         $content = str_replace('// getIdByXXX', $this->getIdByUniqueIndexMethods($variables), $content);
 
+        $content = str_replace('// getItemsByForeignKeys', $this->getItemsByForeignKeysMethod($variables), $content);
         $content = str_replace('// getItemsByHas', $this->getItemsByHasMethod($variables), $content);
         $content = str_replace('// getItemXXXByHas', $this->getItemsXXXByHasMethod($variables), $content);
 
@@ -646,6 +637,9 @@ class LingBreezeGenerator2 implements BreezeGeneratorInterface, LightServiceCont
 
 
         $content = str_replace('// getTheItem', $this->getItemInterfaceMethod($variables), $content);
+
+
+        $content = str_replace('// getItemsByForeignKeys', $this->getItemsByForeignKeysInterfaceMethod($variables), $content);
         $content = str_replace('// getItemsByHas', $this->getItemsByHasInterfaceMethod($variables), $content);
         $content = str_replace('// getItemXXXByHas', $this->getItemsXXXByHasInterfaceMethod($variables), $content);
         $content = str_replace('// getIdByXXX', $this->getIdByUniqueIndexInterfaceMethods($variables), $content);
@@ -1709,6 +1703,47 @@ class LingBreezeGenerator2 implements BreezeGeneratorInterface, LightServiceCont
         return $s;
     }
 
+
+    /**
+     * Parses the given variables and returns a generated method for each given foreign key.
+     *
+     * @param array $variables
+     * @return string
+     */
+    protected function getItemsByForeignKeysMethod(array $variables): string
+    {
+        $template = __DIR__ . "/../assets/classModel/Ling/template/partials/getRowsByForeignKeys.tpl.txt";
+
+
+        $s = '';
+        $fkInfo = $variables['foreignKeysInfo'];
+        $plural = StringTool::getPlural($variables['className']);
+
+        foreach ($fkInfo as $fkCol => $item) {
+
+
+            $colPart = CaseTool::toPascal($fkCol);
+            $varName = lcfirst($colPart);
+            $flatFkCol = CaseTool::toSnake($fkCol);
+
+
+            $methodName = "get" . $plural . "By" . $colPart;
+
+            if (true === in_array($methodName, $this->alreadyUsedMethodNames, true)) {
+                continue;
+            }
+            $this->alreadyUsedMethodNames[] = $methodName;
+
+            $t = file_get_contents($template);
+            $t = str_replace("getUserRatesItemsByUserId", $methodName, $t);
+            $t = str_replace('$userId', '$' . $varName, $t);
+            $t = str_replace('`user_id`', '`' . $fkCol . '`', $t);
+            $t = str_replace(':user_id', ':' . $flatFkCol, $t);
+            $s .= $t . PHP_EOL . PHP_EOL;
+        }
+        return $s;
+    }
+
     /**
      * Parses the given variables and returns a string corresponding to the "getTagsByResourceId" methods for the interface.
      *
@@ -1777,6 +1812,49 @@ class LingBreezeGenerator2 implements BreezeGeneratorInterface, LightServiceCont
                 }
 
             }
+        }
+        return $s;
+    }
+
+
+    /**
+     * Parses the given variables and returns a string corresponding to the interface method to generate.
+     *
+     * @param array $variables
+     * @return string
+     */
+    protected function getItemsByForeignKeysInterfaceMethod(array $variables): string
+    {
+        $template = __DIR__ . "/../assets/classModel/Ling/template/partials/getXXXRowsByForeignKeys.tpl.txt";
+
+
+        $s = '';
+        $fkInfo = $variables['foreignKeysInfo'];
+        $plural = StringTool::getPlural($variables['className']);
+
+
+
+
+        foreach ($fkInfo as $fkCol => $item) {
+
+
+            $colPart = CaseTool::toPascal($fkCol);
+            $varName = lcfirst($colPart);
+
+
+            $methodName = "get" . $plural . "By" . $colPart;
+
+
+            if (true === in_array($methodName, $this->alreadyUsedMethodNamesInterface, true)) {
+                continue;
+            }
+            $this->alreadyUsedMethodNamesInterface[] = $methodName;
+
+            $t = file_get_contents($template);
+            $t = str_replace("getUserRatesItemsByUserId", $methodName, $t);
+            $t = str_replace('userId', $varName, $t);
+            $t = str_replace('xx_table', $variables['table'], $t);
+            $s .= $t . PHP_EOL . PHP_EOL;
         }
         return $s;
     }

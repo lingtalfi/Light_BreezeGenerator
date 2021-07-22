@@ -1,5 +1,6 @@
     /**
      * @implementation
+     * @inheritDoc
      */
     public function insertUser(array $user, bool $ignoreDuplicate = true, bool $returnRic = false)
     { //microperm

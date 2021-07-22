@@ -1,0 +1,7 @@
+    /**
+     * Returns the rows of the xx_table matching the given userId
+     *
+     * @param string $userId
+     * @return array
+     */
+    public function getUserRatesItemsByUserId(string $userId): array;

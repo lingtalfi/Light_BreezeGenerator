@@ -1,6 +1,6 @@
 Light_BreezeGenerator
 ===========
-2019-09-11 -> 2021-07-05
+2019-09-11 -> 2021-07-22
 
 
 
@@ -70,6 +70,10 @@ breeze_generator:
 History Log
 =============
 
+- 1.29.18 -- 2021-07-22
+
+    - update generator, now generates method from fk as well
+  
 - 1.29.17 -- 2021-07-05
 
     - update generator, now fetchRoutine is protected instead of private
