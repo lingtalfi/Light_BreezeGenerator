@@ -70,6 +70,10 @@ breeze_generator:
 History Log
 =============
 
+- 1.29.19 -- 2021-07-22
+
+    - update generator, now fk generated methods receive the components argument
+  
 - 1.29.18 -- 2021-07-22
 
     - update generator, now generates method from fk as well

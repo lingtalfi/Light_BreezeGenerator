@@ -98,15 +98,23 @@ class UserObject extends BaseParent implements UserObjectInterface
      *
      * - singleColumn: bool, whether the singleColumn mode was triggered with the Columns component
      *
+     * Available options are:
+     * - whereKeyword: string=where, the where keyword to use in the query.
+     *
      *
      * @param string $q
      * @param array $markers
      * @param array $components
+     * @param array $options
      * @return array
      * @throws \Exception
      */
-    protected function fetchRoutine(string &$q, array &$markers, array $components): array
+    protected function fetchRoutine(string &$q, array &$markers, array $components, array $options = []): array
     {
+
+        $whereKeyword = $options['whereKeyword'] ?? 'where';
+
+
         $sWhere = '';
         $sCols = '';
         $sOrderBy = '';
@@ -121,7 +129,9 @@ class UserObject extends BaseParent implements UserObjectInterface
                     $singleColumn = true;
                 }
             } elseif ($component instanceof Where) {
-                SimplePdoWrapper::addWhereSubStmt($sWhere, $markers, $component);
+                SimplePdoWrapper::addWhereSubStmt($sWhere, $markers, $component, [
+                    'whereKeyword' => $whereKeyword,
+                ]);
             } elseif ($component instanceof OrderBy) {
                 $sOrderBy .= PHP_EOL . ' ORDER BY ';
                 $component->apply($sOrderBy);
@@ -137,7 +147,9 @@ class UserObject extends BaseParent implements UserObjectInterface
         }
 
 
-        $q = "select $sCols from `$this->table`";
+        if ('' === $q) {
+            $q = "select $sCols from `$this->table`";
+        }
         if ($sWhere) {
             $q .= $sWhere;
         }
