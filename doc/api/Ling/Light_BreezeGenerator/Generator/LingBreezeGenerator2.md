@@ -4,7 +4,7 @@
 
 The LingBreezeGenerator2 class
 ================
-2019-09-11 --> 2021-07-22
+2019-09-11 --> 2022-01-20
 
 
 
@@ -68,6 +68,7 @@ class <span class="pl-k">LingBreezeGenerator2</span> implements [BreezeGenerator
     - private array [$alreadyUsedMethodNamesInterface](#property-alreadyUsedMethodNamesInterface) ;
     - private bool [$_usePrefixInMethodNames](#property-_usePrefixInMethodNames) ;
     - private array [$_allPrefixes](#property-_allPrefixes) ;
+    - private array [$customTemplates](#property-customTemplates) ;
 
 - Methods
     - public [__construct](https://github.com/lingtalfi/Light_BreezeGenerator/blob/master/doc/api/Ling/Light_BreezeGenerator/Generator/LingBreezeGenerator2/__construct.md)() : void
@@ -165,6 +166,15 @@ Properties
 - <span id="property-_allPrefixes"><b>_allPrefixes</b></span>
 
     This property holds the _allPrefixes for this instance.
+    
+    
+
+- <span id="property-customTemplates"><b>customTemplates</b></span>
+
+    Custom templates to use instead of the default ones.
+    Available values are:
+    - base: to override the generated base api class
+    - factory: to override the generated factory class
     
     
 

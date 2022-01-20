@@ -101,6 +101,18 @@ class LingBreezeGenerator2 implements BreezeGeneratorInterface, LightServiceCont
 
 
     /**
+     * Custom templates to use instead of the default ones.
+     * Available values are:
+     * - base: to override the generated base api class
+     * - factory: to override the generated factory class
+     *
+     *
+     * @var array
+     */
+    private array $customTemplates;
+
+
+    /**
      * Builds the LingBreezeGenerator instance.
      */
     public function __construct()
@@ -110,6 +122,7 @@ class LingBreezeGenerator2 implements BreezeGeneratorInterface, LightServiceCont
         $this->alreadyUsedMethodNamesInterface = [];
         $this->_usePrefixInMethodNames = true;
         $this->_allPrefixes = [];
+        $this->customTemplates = [];
     }
 
     /**
@@ -135,6 +148,8 @@ class LingBreezeGenerator2 implements BreezeGeneratorInterface, LightServiceCont
         $options = $conf['options'] ?? [];
         $devMode = $options['dev'] ?? false;
         $this->_usePrefixInMethodNames = (bool)($options['usePrefixInMethodNames'] ?? true);
+        $dbInfoService = $options['dbInfoService'] ?? null;
+        $this->customTemplates = $options['templates'] ?? [];
 
 
         $source = $conf['source'];
@@ -162,7 +177,14 @@ class LingBreezeGenerator2 implements BreezeGeneratorInterface, LightServiceCont
         /**
          * @var $dbInfo LightDatabaseInfoService
          */
-        $dbInfo = $this->container->get('database_info');
+        if (null !== $dbInfoService) {
+            $dbInfo = $dbInfoService;
+            if (false === ($dbInfo instanceof LightDatabaseInfoService)) {
+                $this->error("Conf error: dbInfoService must be an instance of LightDatabaseInfoService");
+            }
+        } else {
+            $dbInfo = $this->container->get('database_info');
+        }
 
 
         /**
@@ -208,6 +230,7 @@ class LingBreezeGenerator2 implements BreezeGeneratorInterface, LightServiceCont
 
 
         foreach ($tables as $table) {
+
 
             // reset cache per table
             $this->alreadyUsedMethodNamesInterface = [];
@@ -733,7 +756,12 @@ class LingBreezeGenerator2 implements BreezeGeneratorInterface, LightServiceCont
     public function generateObjectFactoryClass(array $variables): string
     {
 
-        $template = __DIR__ . "/../assets/classModel/Ling/template/MyFactory.phtml";
+        if (true === array_key_exists("factory", $this->customTemplates)) {
+            $template = $this->customTemplates['factory'];
+        } else {
+            $template = __DIR__ . "/../assets/classModel/Ling/template/MyFactory.phtml";
+        }
+
         $content = file_get_contents($template);
         $namespace = $this->getClassNamespace($variables['namespace'], $variables['relativeDirFactory']);
         $factoryClassName = $variables['factoryClassName'];
@@ -924,7 +952,11 @@ class LingBreezeGenerator2 implements BreezeGeneratorInterface, LightServiceCont
     public function generateObjectBase(array $variables): string
     {
 
-        $template = __DIR__ . "/../assets/classModel/Ling/template/MyObjectBase2.phtml";
+        if (true === array_key_exists("base", $this->customTemplates)) {
+            $template = $this->customTemplates['base'];
+        } else {
+            $template = __DIR__ . "/../assets/classModel/Ling/template/MyObjectBase2.phtml";
+        }
         $content = file_get_contents($template);
 
         $namespace = $this->getClassNamespace($variables['namespace'], 'Generated\Classes');
@@ -1831,8 +1863,6 @@ class LingBreezeGenerator2 implements BreezeGeneratorInterface, LightServiceCont
         $s = '';
         $fkInfo = $variables['foreignKeysInfo'];
         $plural = StringTool::getPlural($variables['className']);
-
-
 
 
         foreach ($fkInfo as $fkCol => $item) {
