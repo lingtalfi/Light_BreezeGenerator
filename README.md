@@ -1,6 +1,6 @@
 Light_BreezeGenerator
 ===========
-2019-09-11 -> 2022-01-20
+2019-09-11 -> 2022-01-21
 
 
 
@@ -70,6 +70,10 @@ breeze_generator:
 History Log
 =============
 
+- 1.29.21 -- 2022-01-21
+
+    - update generator, now accepts useCustomInterfaces option 
+  
 - 1.29.20 -- 2022-01-20
 
     - update generator, typo in generated methods with fk 
